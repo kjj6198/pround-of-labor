@@ -1,0 +1,20 @@
+@mixin block($block_name) {
+  @at-root .#{$block_name} { @content; }
+}
+
+@mixin element($element_name, $is_prefix:true) {
+  @if($is_prefix) {
+    &__#{$element_name} {
+      @content;
+    }  
+  }
+  @else {
+    @at-root & .#{$element_name} {
+      @content;
+    }  
+  }
+}
+
+@mixin modifier($modifier_name) {
+  &-#{$modifier_name} { @content; }
+}

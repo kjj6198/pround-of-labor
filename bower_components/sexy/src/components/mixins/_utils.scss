@@ -1,0 +1,40 @@
+@mixin namespace($namespace) {
+  @at-root #{$namespace}-#{&} { @content; }
+}
+
+@mixin locales($lang) {
+  @if (&) {
+    &:lang($lang) {@content;}
+  }
+}
+
+@mixin en { @include locales("en") { @content; } }
+@mixin zh { @include locales("zh-TW") { @content; } }
+
+
+/*
+  create size using rem unit, and also calculate px if browser doesn't support.
+*/
+@mixin create-size($prop, $value, $default_rem: 16px) {
+  @if (unit($value) == 'px') {
+    #{$prop}: $value;
+    #{$prop}: $value / $default_rem + 'rem';
+  } @else if(unit($value) == 'rem') {
+    #{$prop}: $value;
+    #{$prop}: $value * $default_rem + 'px';
+  }
+}
+
+/*
+  @include util(uppercase, text-transform, "uppercase");
+*/
+@mixin util($class_name, $props, $value) {
+  @at-root .u-#{$class_name} { #{$props}: #{$value}; }
+}
+
+/*
+ * @param
+*/
+@mixin js_hook($class_name) {
+  @at-root .js-#{$class_name} { @content; }
+}

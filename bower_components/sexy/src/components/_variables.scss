@@ -1,0 +1,31 @@
+$breakpoints: (
+  mobile: px2rem(500px),
+  tablet: (px2rem(501px) px2rem(900px)),
+  laptop: (px2rem(901px) px2rem(1200px)),
+  desktop: (px2rem(1200px)),
+  'large-desktop': (px2rem(1300px))
+)!default;
+
+$fonts: (
+  normal: ('Noto Sans TC', 'Noto Sans CJK TC', 'PingFang TC', sans-serif),
+  serif: ('Georgia', 'PT Serif', Times, 'Times New Roman', 'Songti TC', 'Hiragino Mincho ProN', serif)
+)!default;
+
+$font-sizes: (
+  desktop: (
+    'x-large': 2rem,
+    large: 1.67rem,
+    medium: 1.35rem,
+    normal: 1rem,
+    small: .87rem,
+    'x-small': .8rem,
+  ),
+  mobile: (
+    'x-large': 1.56rem,
+    large: 1.4rem,
+    medium: 1.05rem,
+    normal: 1rem,
+    small: 0.97rem,
+    'x-small': 0.85rem,
+  )
+)!default;

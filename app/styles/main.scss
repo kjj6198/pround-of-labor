@@ -1,0 +1,10 @@
+@import "variables";
+@import "normalize.scss";
+@import "base.scss";
+
+svg {
+  width: 100%;
+  height: 800px;
+}
+
+.line { height: 100%; }

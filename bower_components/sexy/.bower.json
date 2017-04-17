@@ -1,0 +1,21 @@
+{
+  "name": "sexy",
+  "description": "> tiny framework to help you create clean, sexy css structrue.",
+  "main": "gulpfile.js",
+  "authors": [
+    "Kalan <kjj6198@gmail.com>"
+  ],
+  "license": "ISC",
+  "homepage": "https://github.com/kjj6198/sexy",
+  "version": "2.1.0",
+  "_release": "2.1.0",
+  "_resolution": {
+    "type": "version",
+    "tag": "v2.1.0",
+    "commit": "9e10029e76378e6643d7029a62dbfad744c1e6b4"
+  },
+  "_source": "https://github.com/kjj6198/sexy.git",
+  "_target": "^2.1.0",
+  "_originalSource": "sexy",
+  "_direct": true
+}

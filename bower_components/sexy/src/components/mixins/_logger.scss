@@ -1,0 +1,11 @@
+@mixin log($message) {
+  @debug "#{$message}";
+}
+
+@mixin warn($message) {
+  @warn "#{$message}";
+}
+
+@mixin error($message) {
+  @error "#{$message}";
+}

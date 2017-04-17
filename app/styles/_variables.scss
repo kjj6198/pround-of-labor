@@ -1,0 +1,69 @@
+$fonts: (
+  normal: ('Noto Sans TC', 'Noto Sans CJK TC', 'PingFang TC', sans-serif),
+  serif: ('Georgia', 'PT Serif', Times, 'Times New Roman', 'Songti TC', 'Hiragino Mincho ProN', serif)
+);
+
+$font-sizes: (
+  desktop: (
+    'x-large': 2rem,
+    large: 1.67rem,
+    medium: 1.35rem,
+    normal: 1rem,
+    small: .87rem,
+    'x-small': .8rem,
+  ),
+  mobile: (
+    'x-large': 1.56rem,
+    large: 1.4rem,
+    medium: 1.05rem,
+    normal: 1rem,
+    small: 0.97rem,
+    'x-small': 0.85rem,
+  )
+);
+
+/**
+ * util function to get font-size
+ * @param $key, $device
+ * @return $font-size
+ */
+
+@function f($key, $device: 'desktop') {
+  $font-size-map: map-get($font-sizes, $device);
+
+  @if map-has-key($font-size-map, $key) {
+    @return map-get($font-size-map, $key);
+  } @else {
+    @error "unknown key #{$key} in $font-size. please checkout `_scale.scss` for more information";
+  }
+}
+
+/**
+ * Usage
+ *
+ * .a {
+ *   @include responsive-font-size('x-small');
+ * }
+ *
+ * .a {
+ *   font-size: 11px;
+ *
+ *   @media desktop {
+ *     font-size: 12px;
+ *   }
+ * }
+ * 如果找不到 key，則會丟出 error
+ */
+
+@mixin responsive-font-size($key) {
+  @if variable-exist(desktop) {
+    font-size: f($key, 'desktop');
+
+    // this variable came from `_grid.scss`
+    @include for-mobile(tablet-up) {
+      font-size: f($key, 'mobile');
+    }
+  } @else {
+    @error "請提供 $desktop 變數以供 susy-breakpoint 使用";
+  }
+}

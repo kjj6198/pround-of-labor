@@ -1,0 +1,29 @@
+@mixin container() {
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: map-get($grid, "gutter-width") / 2;
+  padding-right: map-get($grid, "gutter-width") / 2;
+}
+
+@mixin make-row() {
+  margin-right: -(map-get($grid, "gutter-width") / 2);
+  margin-left: -(map-get($grid, "gutter-width") / 2);
+}
+
+@mixin make-column($grid-columns) {
+  width: percentage($grid-columns / map-get($grid, columns));
+  min-height: 1px;
+
+  padding-left: map-get($grid, "gutter-width") / 2;
+  padding-right: map-get($grid, "gutter-width") / 2;  
+}
+
+@mixin clearfix() {
+  &:before,
+  &:after {
+    display: table;
+    content: "";
+
+    clear: both;
+  }
+}

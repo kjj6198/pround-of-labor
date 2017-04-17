@@ -1,0 +1,31 @@
+@mixin first($num:1) {
+  @if $num == 1 {
+    &:first-child {
+      @content;
+    }
+  }
+  @else {
+    &:nth-child(-n + #{$num}) {
+      @content;
+    }
+  }
+}
+
+@mixin last($num:1) {
+  @if $num == 1 {
+    &:last-child { @content; }
+  } @else {
+    &:nth-last-child($num) { @content; }
+  }
+}
+
+@mixin from-first-last($num) {
+  &:nth-child(#{$num}),
+  &:nth-last-child(#{$num}) {
+    @content;
+  }
+}
+
+@mixin child($num) {
+  &:nth-child { @content; }
+}

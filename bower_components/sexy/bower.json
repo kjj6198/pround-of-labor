@@ -1,0 +1,10 @@
+{
+  "name": "sexy",
+  "description": "> tiny framework to help you create clean, sexy css structrue.",
+  "main": "gulpfile.js",
+  "authors": [
+    "Kalan <kjj6198@gmail.com>"
+  ],
+  "license": "ISC",
+  "homepage": "https://github.com/kjj6198/sexy"
+}

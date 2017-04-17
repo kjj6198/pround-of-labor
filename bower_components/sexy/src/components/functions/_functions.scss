@@ -1,0 +1,60 @@
+@function c($key) {
+  @if(variable-exist($colors) && map-has-key($colors)) {
+    @return map-get($colors, $key);
+  } @else {
+    @error "$colors variable doesn't exist or key is not defined";
+  }
+}
+@function f($key, $device: 'mobile') {
+  $font-size-map: map-get($font-sizes, $device);
+
+  @if map-has-key($font-size-map, $key) {
+    @return map-get($font-size-map, $key);
+  } @else {
+    @error "unknown key #{$key} in $font-size. please checkout `_scale.scss` for more information";
+  }
+}
+
+@mixin make-responsive-font-size($base-font-size: 16px) {
+  font-size: calc(14px + ((100vw - 320px) / 1600) * 6);
+}
+
+
+$font-size-base: 16px !default;
+
+/// Remove the unit of a length
+/// @param {Number} $number - Number to remove unit from
+/// @return {Number} - Unitless number
+@function strip-unit($number) {
+  @if type-of($number) == 'number' and not unitless($number) {
+    @return $number / ($number * 0 + 1);
+  }
+
+  @return $number;
+}
+
+
+@function px2rem($px, $base-font-size: $font-size-base) {
+   @return (strip-unit($px) / strip-unit($base-font-size)) * 1rem;
+}
+
+@function px2em($px, $base-font-size: $font-size-base) {
+    @return (strip-unit($px) / strip-unit($base-font-size)) * 1em;
+}
+
+@mixin block($block_name) {
+  @at-root .#{$block_name} { @content; }
+}
+
+@mixin element($element_name, $prefix: true) {
+  @if($prefix) {
+    @at-root &__#{$element_name} { @content; }
+  } @else {
+    @at-root &_#{$element_name} { @content; }
+  }
+}
+
+
+@function spacing($n: 1) {
+  @return $spacing-basic * $n;
+}
