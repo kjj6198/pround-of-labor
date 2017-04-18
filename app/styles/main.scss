@@ -8,3 +8,16 @@ svg {
 }
 
 .line { height: 100%; }
+
+.detail {
+  display: none;
+  position: absolute;
+  padding: 5px;
+  background-color: rgba(125,125,125, .6);
+  color: #fff;
+  line-height: 1.4;
+}
+
+.circle {
+  stroke: #fff;
+}
