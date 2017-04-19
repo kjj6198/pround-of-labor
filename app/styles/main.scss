@@ -87,6 +87,12 @@ h1,h2,h3,h4,h5,h6 { margin: 0; }
   margin-left: 1.5em;
   margin-right: 5%;
   background-color: #fff;
+
+  .story-title {
+    font-size: 1.65em;
+    letter-spacing: 1px;
+  }
+
   .story-time {
     position: relative;
     font-family: Oswald;
@@ -109,6 +115,29 @@ h1,h2,h3,h4,h5,h6 { margin: 0; }
   }
 }
 
+.board-container {
+  display: flex;
+  justify-content: space-between;
+
+}
 .board {
+  width: 30%;
+  padding: 10px;
+  background-color: #fff;
+  box-shadow: 0 0 2px 1px rgba(100, 100, 100, 0.5);
   
+  .board-title {
+    padding-bottom: .3em;
+    border-bottom: 1px solid #343434;
+    text-align: center;
+    font-size: 1.25em;
+  }
+
+  .number {
+    display: block;
+    color: #213670;
+    font-family: Oswald;
+    font-size: 4em;
+    text-align: center;
+  }
 }

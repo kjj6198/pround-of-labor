@@ -54,14 +54,23 @@ function responsivefy(svg) {
 
 }
 
+const update = (data) => {
+  $('#jobless .number').text(data[0]["失業率"] === '' ? '尚無資料' : data[0]["失業率"]);
+  $('#price .number').text(data[0]["平均薪資"]);
+  $('#hours .number').text(data[0]["平均工時"]);
+
+}
+
 function drawLineChart(err, data) {
-  // console.table(data);
+  console.table(data);
   const margin = {
     top: 30,
     right: 20,
     bottom: 30,
     left: 80
   };
+
+  update(data);
 
   const width = window.innerWidth - margin.left - margin.right;
   const height = window.innerHeight - margin.top - margin.bottom;
