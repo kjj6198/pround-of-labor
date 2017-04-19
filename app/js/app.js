@@ -1,7 +1,8 @@
 import 'main.scss';
+import "affix.jquery";
+import "./storys";
 
 function drawTimeline() {}
-
 
 
 const getTranslate = (translate) => {
@@ -54,18 +55,18 @@ function responsivefy(svg) {
 }
 
 function drawLineChart(err, data) {
-  console.table(data);
+  // console.table(data);
   const margin = {
-    top: 10,
+    top: 30,
     right: 20,
-    bottom: 50,
-    left: 50
+    bottom: 30,
+    left: 80
   };
 
-  const width = window.innerWidth - margin.left - margin.right - 30;
-  const height = 700 - margin.top - margin.bottom;
-  console.log(height)
-  const svg = d3.select('.chart')
+  const width = window.innerWidth - margin.left - margin.right;
+  const height = window.innerHeight - margin.top - margin.bottom;
+
+  const svg = d3.select('#chartArea')
     .append('svg')
       .attr('width', width + margin.left + margin.right)
       .attr('height', height + margin.top + margin.bottom)
@@ -75,10 +76,11 @@ function drawLineChart(err, data) {
   const xScale = d3
     .scaleLinear()
     .domain([
-      62,
+      60,
       105
     ])
     .range([0, width]);
+  
   
   const yJoblessScale = d3
     .scaleLinear()
@@ -101,11 +103,11 @@ function drawLineChart(err, data) {
   svg
     .append('g')
       .attr('transform', `translate(0, ${height})`)
-    .call(d3.axisBottom(xScale).ticks(15))
+    .call(d3.axisBottom(xScale).ticks(10).tickSize(-height))
   
   svg
     .append('g')
-    .call(d3.axisLeft(yScale).ticks(15))
+    .call(d3.axisLeft(yScale).ticks(15).tickSize(-width))
 
   const line = d3.line()
     .x(d => xScale(+d['年份']))
@@ -166,7 +168,10 @@ function drawLineChart(err, data) {
     })
     .style('stroke-width', 2)
     .style('fill', 'none');
-    
 }
 
 d3.csv('/salary.csv', drawLineChart);
+
+$(document).on('resize', (e) => {
+  
+})
