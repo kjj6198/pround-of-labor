@@ -30,6 +30,7 @@ app.use(require('webpack-dev-middleware')(compiler, {
 }));
 
 app.use(express.static(path.join(__dirname, 'app', 'data')));
+app.use(express.static(path.join(__dirname, 'app', 'img')));
 
 app.use(require('webpack-hot-middleware')(compiler, {
   log: () => {}

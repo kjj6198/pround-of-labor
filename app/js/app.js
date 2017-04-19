@@ -1,5 +1,8 @@
 import 'main.scss';
 
+function drawTimeline() {}
+
+
 
 const getTranslate = (translate) => {
   const matches = /\s?(\d+\.*\d+)\,\s?(\d+)/.exec(translate);
@@ -122,7 +125,7 @@ function drawLineChart(err, data) {
       .attr('transform', d => `translate(${xScale(+d['年份'])}, ${yScale(+d['平均薪資'])})`)
         .append('circle')
           .attr('class', 'circle')
-          .attr('r', 12)
+          .attr('r', 5)
           .attr('stroke-width', 10)
           .on('mouseover', function(data) {
             this.classList.add('toggle');
@@ -167,5 +170,3 @@ function drawLineChart(err, data) {
 }
 
 d3.csv('/salary.csv', drawLineChart);
-
-

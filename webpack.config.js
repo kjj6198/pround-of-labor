@@ -48,7 +48,10 @@ module.exports = (env) => {
         PATH.bower,
         PATH.stylesheets,
         'node_modules',
-      ]
+      ],
+      alias: {
+        "~sexy": "./bower_components/sexy/src/sexy.scss"
+      }
     },
     devtool: env.production ? 'source-map' : 'eval',
     entry: {

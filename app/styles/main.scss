@@ -1,6 +1,7 @@
 @import "variables";
 @import "normalize.scss";
 @import "base.scss";
+@import "hero-image";
 
 svg {
   width: 100%;
@@ -19,5 +20,9 @@ svg {
 }
 
 .circle {
-  stroke: #fff;
+  stroke: transparent;
+}
+
+.container {
+  padding: 15px;
 }
