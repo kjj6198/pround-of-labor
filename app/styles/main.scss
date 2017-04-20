@@ -12,12 +12,30 @@ svg {
 .line { height: 100%; }
 
 .detail {
-  display: none;
+  display: block;
   position: absolute;
-  padding: 5px;
+  padding: 3px 8px;
   background-color: rgba(125,125,125, .6);
   color: #fff;
-  line-height: 1.4;
+  line-height: 1;
+  border-radius: 3px;
+
+  font-family: Oswald;
+
+  
+
+  .detail-item {
+    &.jobless:before { color: #27cc95;}
+    &.salary:before { color: #39a5c8;}
+    &.hours:before { color: darken(#39a5c8, 5%); }
+
+    &:before {
+      font-size: 1.2em;
+      display: inline-block;
+      margin-right: 4px;
+      content: "●";
+    }
+  }
 }
 
 .tick text {
@@ -32,12 +50,18 @@ svg {
   margin: 0 auto;
   background-color: rgba(125,125,125, .6);
   color: #fff;
+  backdrop-filter: blur(2px);
   -webkit-backdrop-filter: blur(2px);
   border-radius: 3px;
 }
 
 .circle {
-  stroke: transparent;
+  stroke: #fff;
+
+  &.toggle {
+    fill: #fff;
+    stroke: #ff6565;
+  }
 }
 
 .container {
@@ -83,6 +107,10 @@ h1,h2,h3,h4,h5,h6 { margin: 0; }
   top: 0;
 }
 
+.circle {
+  fill: #ff6565;
+}
+
 .story {
   margin-left: 1.5em;
   margin-right: 5%;
@@ -121,7 +149,7 @@ h1,h2,h3,h4,h5,h6 { margin: 0; }
 
 }
 .board {
-  width: 30%;
+  width: 31%;
   padding: 10px;
   background-color: #fff;
   box-shadow: 0 0 2px 1px rgba(100, 100, 100, 0.5);
@@ -137,7 +165,9 @@ h1,h2,h3,h4,h5,h6 { margin: 0; }
     display: block;
     color: #213670;
     font-family: Oswald;
-    font-size: 4em;
+    font-size: 3em;
     text-align: center;
+
+    small { font-size: 15%; }
   }
 }
