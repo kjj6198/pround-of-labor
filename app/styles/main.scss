@@ -43,6 +43,11 @@ svg {
   font-family: Oswald;
 }
 
+.tick line {
+  stroke: #aaa;
+  stroke-dasharray: 3,3;
+}
+
 .top-summary-board {
   width: 80%;
   max-width: 700px;

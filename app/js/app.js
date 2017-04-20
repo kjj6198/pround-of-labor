@@ -11,20 +11,22 @@ function updateBoardDisplay(data, datas) {
   const jobless = document.querySelector('#jobless > .number');
   const hours   = document.querySelector('#hours > .number');
   const price   = document.querySelector('#price > .number');
+  const prevYear = $('#chartArea').attr('data-current-year');
 
-  const [prevData] = datas.filter(d => +data['年份'] - 1 === +d.key);
+  const [prevData] = datas.filter(d => +d.key === +prevYear);
+  if (!prevData) { return ; }
   
   d3.selectAll('.number')
     .transition()
     .duration(600)
     .tween('number', () => {
-      const joblessRate = d3.interpolate(+prevData.values[0]['失業率'] || 0, +data['失業率']);
-      const workHours   = d3.interpolate(+prevData.values[0]['平均工時'] || 0, +data['平均工時']);
-      const salary      = d3.interpolateRound(+prevData.values[0]['平均薪資'] || 0, +data['平均薪資']);
+      const joblessRate = d3.interpolate(+prevData.values[0]['失業率'], +data['失業率']);
+      const workHours   = d3.interpolate(+prevData.values[0]['平均工時'], +data['平均工時']);
+      const salary      = d3.interpolateRound(+prevData.values[0]['平均薪資'], +data['平均薪資']);
 
       return function(t) {
         jobless.textContent = joblessRate(t).toFixed(2) + '%';
-        hours.textContent = workHours(t).toFixed(2);
+        hours.textContent = workHours(t).toFixed(1);
         price.innerHTML = `${numToCurrency(salary(t))}<small>hr/月</small>`;
       }
     })
@@ -40,7 +42,7 @@ function showSalaryDetail(targetNode, data) {
   const detailTemplate = `
     <div>
       <p class="detail-item salary"><small>平均薪資 </small><strong>${+data["平均薪資"]}</strong></p>
-      <p class="detail-item jobless"><small>薪資漲幅 </small><strong>${data["成長幅度"]}</strong></p>
+      <p class="detail-item jobless"><small>薪資成長幅度 </small><strong>${data["成長幅度"]}</strong></p>
       <p class="detail-item hours"><small>物價指數 </small><strong>${data["物價指數"]}%</strong></p>
     </div>
   `;
@@ -192,6 +194,7 @@ function drawLineChart(err, datas) {
             this.classList.add('toggle');
             showSalaryDetail(this.parentNode, data);
             updateBoardDisplay(data, d3.nest().key(d => d["年份"]).entries(datas));
+            $('#chartArea').attr('data-current-year', data['年份'])
           })
           .on('mouseleave', function() {
             this.classList.remove('toggle');
