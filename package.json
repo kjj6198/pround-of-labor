@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node devServer.js"
+    "start": "node devServer.js",
+    "build": "webpack --env.target=development"
   },
   "keywords": [],
   "author": "Kalan <kjj6198@gmail.com>",

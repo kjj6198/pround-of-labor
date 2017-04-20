@@ -1,641 +1,4 @@
 /******/ (function(modules) { // webpackBootstrap
-/******/ 	function hotDisposeChunk(chunkId) {
-/******/ 		delete installedChunks[chunkId];
-/******/ 	}
-/******/ 	var parentHotUpdateCallback = this["webpackHotUpdate"];
-/******/ 	this["webpackHotUpdate"] = 
-/******/ 	function webpackHotUpdateCallback(chunkId, moreModules) { // eslint-disable-line no-unused-vars
-/******/ 		hotAddUpdateChunk(chunkId, moreModules);
-/******/ 		if(parentHotUpdateCallback) parentHotUpdateCallback(chunkId, moreModules);
-/******/ 	} ;
-/******/ 	
-/******/ 	function hotDownloadUpdateChunk(chunkId) { // eslint-disable-line no-unused-vars
-/******/ 		var head = document.getElementsByTagName("head")[0];
-/******/ 		var script = document.createElement("script");
-/******/ 		script.type = "text/javascript";
-/******/ 		script.charset = "utf-8";
-/******/ 		script.src = __webpack_require__.p + "" + chunkId + "." + hotCurrentHash + ".hot-update.js";
-/******/ 		head.appendChild(script);
-/******/ 	}
-/******/ 	
-/******/ 	function hotDownloadManifest() { // eslint-disable-line no-unused-vars
-/******/ 		return new Promise(function(resolve, reject) {
-/******/ 			if(typeof XMLHttpRequest === "undefined")
-/******/ 				return reject(new Error("No browser support"));
-/******/ 			try {
-/******/ 				var request = new XMLHttpRequest();
-/******/ 				var requestPath = __webpack_require__.p + "" + hotCurrentHash + ".hot-update.json";
-/******/ 				request.open("GET", requestPath, true);
-/******/ 				request.timeout = 10000;
-/******/ 				request.send(null);
-/******/ 			} catch(err) {
-/******/ 				return reject(err);
-/******/ 			}
-/******/ 			request.onreadystatechange = function() {
-/******/ 				if(request.readyState !== 4) return;
-/******/ 				if(request.status === 0) {
-/******/ 					// timeout
-/******/ 					reject(new Error("Manifest request to " + requestPath + " timed out."));
-/******/ 				} else if(request.status === 404) {
-/******/ 					// no update available
-/******/ 					resolve();
-/******/ 				} else if(request.status !== 200 && request.status !== 304) {
-/******/ 					// other failure
-/******/ 					reject(new Error("Manifest request to " + requestPath + " failed."));
-/******/ 				} else {
-/******/ 					// success
-/******/ 					try {
-/******/ 						var update = JSON.parse(request.responseText);
-/******/ 					} catch(e) {
-/******/ 						reject(e);
-/******/ 						return;
-/******/ 					}
-/******/ 					resolve(update);
-/******/ 				}
-/******/ 			};
-/******/ 		});
-/******/ 	}
-/******/
-/******/ 	
-/******/ 	
-/******/ 	var hotApplyOnUpdate = true;
-/******/ 	var hotCurrentHash = "9ab79f2f7e11b5215fe4"; // eslint-disable-line no-unused-vars
-/******/ 	var hotCurrentModuleData = {};
-/******/ 	var hotMainModule = true; // eslint-disable-line no-unused-vars
-/******/ 	var hotCurrentParents = []; // eslint-disable-line no-unused-vars
-/******/ 	var hotCurrentParentsTemp = []; // eslint-disable-line no-unused-vars
-/******/ 	
-/******/ 	function hotCreateRequire(moduleId) { // eslint-disable-line no-unused-vars
-/******/ 		var me = installedModules[moduleId];
-/******/ 		if(!me) return __webpack_require__;
-/******/ 		var fn = function(request) {
-/******/ 			if(me.hot.active) {
-/******/ 				if(installedModules[request]) {
-/******/ 					if(installedModules[request].parents.indexOf(moduleId) < 0)
-/******/ 						installedModules[request].parents.push(moduleId);
-/******/ 				} else hotCurrentParents = [moduleId];
-/******/ 				if(me.children.indexOf(request) < 0)
-/******/ 					me.children.push(request);
-/******/ 			} else {
-/******/ 				console.warn("[HMR] unexpected require(" + request + ") from disposed module " + moduleId);
-/******/ 				hotCurrentParents = [];
-/******/ 			}
-/******/ 			hotMainModule = false;
-/******/ 			return __webpack_require__(request);
-/******/ 		};
-/******/ 		var ObjectFactory = function ObjectFactory(name) {
-/******/ 			return {
-/******/ 				configurable: true,
-/******/ 				enumerable: true,
-/******/ 				get: function() {
-/******/ 					return __webpack_require__[name];
-/******/ 				},
-/******/ 				set: function(value) {
-/******/ 					__webpack_require__[name] = value;
-/******/ 				}
-/******/ 			};
-/******/ 		};
-/******/ 		for(var name in __webpack_require__) {
-/******/ 			if(Object.prototype.hasOwnProperty.call(__webpack_require__, name)) {
-/******/ 				Object.defineProperty(fn, name, ObjectFactory(name));
-/******/ 			}
-/******/ 		}
-/******/ 		Object.defineProperty(fn, "e", {
-/******/ 			enumerable: true,
-/******/ 			value: function(chunkId) {
-/******/ 				if(hotStatus === "ready")
-/******/ 					hotSetStatus("prepare");
-/******/ 				hotChunksLoading++;
-/******/ 				return __webpack_require__.e(chunkId).then(finishChunkLoading, function(err) {
-/******/ 					finishChunkLoading();
-/******/ 					throw err;
-/******/ 				});
-/******/ 	
-/******/ 				function finishChunkLoading() {
-/******/ 					hotChunksLoading--;
-/******/ 					if(hotStatus === "prepare") {
-/******/ 						if(!hotWaitingFilesMap[chunkId]) {
-/******/ 							hotEnsureUpdateChunk(chunkId);
-/******/ 						}
-/******/ 						if(hotChunksLoading === 0 && hotWaitingFiles === 0) {
-/******/ 							hotUpdateDownloaded();
-/******/ 						}
-/******/ 					}
-/******/ 				}
-/******/ 			}
-/******/ 		});
-/******/ 		return fn;
-/******/ 	}
-/******/ 	
-/******/ 	function hotCreateModule(moduleId) { // eslint-disable-line no-unused-vars
-/******/ 		var hot = {
-/******/ 			// private stuff
-/******/ 			_acceptedDependencies: {},
-/******/ 			_declinedDependencies: {},
-/******/ 			_selfAccepted: false,
-/******/ 			_selfDeclined: false,
-/******/ 			_disposeHandlers: [],
-/******/ 			_main: hotMainModule,
-/******/ 	
-/******/ 			// Module API
-/******/ 			active: true,
-/******/ 			accept: function(dep, callback) {
-/******/ 				if(typeof dep === "undefined")
-/******/ 					hot._selfAccepted = true;
-/******/ 				else if(typeof dep === "function")
-/******/ 					hot._selfAccepted = dep;
-/******/ 				else if(typeof dep === "object")
-/******/ 					for(var i = 0; i < dep.length; i++)
-/******/ 						hot._acceptedDependencies[dep[i]] = callback || function() {};
-/******/ 				else
-/******/ 					hot._acceptedDependencies[dep] = callback || function() {};
-/******/ 			},
-/******/ 			decline: function(dep) {
-/******/ 				if(typeof dep === "undefined")
-/******/ 					hot._selfDeclined = true;
-/******/ 				else if(typeof dep === "object")
-/******/ 					for(var i = 0; i < dep.length; i++)
-/******/ 						hot._declinedDependencies[dep[i]] = true;
-/******/ 				else
-/******/ 					hot._declinedDependencies[dep] = true;
-/******/ 			},
-/******/ 			dispose: function(callback) {
-/******/ 				hot._disposeHandlers.push(callback);
-/******/ 			},
-/******/ 			addDisposeHandler: function(callback) {
-/******/ 				hot._disposeHandlers.push(callback);
-/******/ 			},
-/******/ 			removeDisposeHandler: function(callback) {
-/******/ 				var idx = hot._disposeHandlers.indexOf(callback);
-/******/ 				if(idx >= 0) hot._disposeHandlers.splice(idx, 1);
-/******/ 			},
-/******/ 	
-/******/ 			// Management API
-/******/ 			check: hotCheck,
-/******/ 			apply: hotApply,
-/******/ 			status: function(l) {
-/******/ 				if(!l) return hotStatus;
-/******/ 				hotStatusHandlers.push(l);
-/******/ 			},
-/******/ 			addStatusHandler: function(l) {
-/******/ 				hotStatusHandlers.push(l);
-/******/ 			},
-/******/ 			removeStatusHandler: function(l) {
-/******/ 				var idx = hotStatusHandlers.indexOf(l);
-/******/ 				if(idx >= 0) hotStatusHandlers.splice(idx, 1);
-/******/ 			},
-/******/ 	
-/******/ 			//inherit from previous dispose call
-/******/ 			data: hotCurrentModuleData[moduleId]
-/******/ 		};
-/******/ 		hotMainModule = true;
-/******/ 		return hot;
-/******/ 	}
-/******/ 	
-/******/ 	var hotStatusHandlers = [];
-/******/ 	var hotStatus = "idle";
-/******/ 	
-/******/ 	function hotSetStatus(newStatus) {
-/******/ 		hotStatus = newStatus;
-/******/ 		for(var i = 0; i < hotStatusHandlers.length; i++)
-/******/ 			hotStatusHandlers[i].call(null, newStatus);
-/******/ 	}
-/******/ 	
-/******/ 	// while downloading
-/******/ 	var hotWaitingFiles = 0;
-/******/ 	var hotChunksLoading = 0;
-/******/ 	var hotWaitingFilesMap = {};
-/******/ 	var hotRequestedFilesMap = {};
-/******/ 	var hotAvailableFilesMap = {};
-/******/ 	var hotDeferred;
-/******/ 	
-/******/ 	// The update info
-/******/ 	var hotUpdate, hotUpdateNewHash;
-/******/ 	
-/******/ 	function toModuleId(id) {
-/******/ 		var isNumber = (+id) + "" === id;
-/******/ 		return isNumber ? +id : id;
-/******/ 	}
-/******/ 	
-/******/ 	function hotCheck(apply) {
-/******/ 		if(hotStatus !== "idle") throw new Error("check() is only allowed in idle status");
-/******/ 		hotApplyOnUpdate = apply;
-/******/ 		hotSetStatus("check");
-/******/ 		return hotDownloadManifest().then(function(update) {
-/******/ 			if(!update) {
-/******/ 				hotSetStatus("idle");
-/******/ 				return null;
-/******/ 			}
-/******/ 	
-/******/ 			hotRequestedFilesMap = {};
-/******/ 			hotWaitingFilesMap = {};
-/******/ 			hotAvailableFilesMap = update.c;
-/******/ 			hotUpdateNewHash = update.h;
-/******/ 	
-/******/ 			hotSetStatus("prepare");
-/******/ 			var promise = new Promise(function(resolve, reject) {
-/******/ 				hotDeferred = {
-/******/ 					resolve: resolve,
-/******/ 					reject: reject
-/******/ 				};
-/******/ 			});
-/******/ 			hotUpdate = {};
-/******/ 			var chunkId = 0;
-/******/ 			{ // eslint-disable-line no-lone-blocks
-/******/ 				/*globals chunkId */
-/******/ 				hotEnsureUpdateChunk(chunkId);
-/******/ 			}
-/******/ 			if(hotStatus === "prepare" && hotChunksLoading === 0 && hotWaitingFiles === 0) {
-/******/ 				hotUpdateDownloaded();
-/******/ 			}
-/******/ 			return promise;
-/******/ 		});
-/******/ 	}
-/******/ 	
-/******/ 	function hotAddUpdateChunk(chunkId, moreModules) { // eslint-disable-line no-unused-vars
-/******/ 		if(!hotAvailableFilesMap[chunkId] || !hotRequestedFilesMap[chunkId])
-/******/ 			return;
-/******/ 		hotRequestedFilesMap[chunkId] = false;
-/******/ 		for(var moduleId in moreModules) {
-/******/ 			if(Object.prototype.hasOwnProperty.call(moreModules, moduleId)) {
-/******/ 				hotUpdate[moduleId] = moreModules[moduleId];
-/******/ 			}
-/******/ 		}
-/******/ 		if(--hotWaitingFiles === 0 && hotChunksLoading === 0) {
-/******/ 			hotUpdateDownloaded();
-/******/ 		}
-/******/ 	}
-/******/ 	
-/******/ 	function hotEnsureUpdateChunk(chunkId) {
-/******/ 		if(!hotAvailableFilesMap[chunkId]) {
-/******/ 			hotWaitingFilesMap[chunkId] = true;
-/******/ 		} else {
-/******/ 			hotRequestedFilesMap[chunkId] = true;
-/******/ 			hotWaitingFiles++;
-/******/ 			hotDownloadUpdateChunk(chunkId);
-/******/ 		}
-/******/ 	}
-/******/ 	
-/******/ 	function hotUpdateDownloaded() {
-/******/ 		hotSetStatus("ready");
-/******/ 		var deferred = hotDeferred;
-/******/ 		hotDeferred = null;
-/******/ 		if(!deferred) return;
-/******/ 		if(hotApplyOnUpdate) {
-/******/ 			hotApply(hotApplyOnUpdate).then(function(result) {
-/******/ 				deferred.resolve(result);
-/******/ 			}, function(err) {
-/******/ 				deferred.reject(err);
-/******/ 			});
-/******/ 		} else {
-/******/ 			var outdatedModules = [];
-/******/ 			for(var id in hotUpdate) {
-/******/ 				if(Object.prototype.hasOwnProperty.call(hotUpdate, id)) {
-/******/ 					outdatedModules.push(toModuleId(id));
-/******/ 				}
-/******/ 			}
-/******/ 			deferred.resolve(outdatedModules);
-/******/ 		}
-/******/ 	}
-/******/ 	
-/******/ 	function hotApply(options) {
-/******/ 		if(hotStatus !== "ready") throw new Error("apply() is only allowed in ready status");
-/******/ 		options = options || {};
-/******/ 	
-/******/ 		var cb;
-/******/ 		var i;
-/******/ 		var j;
-/******/ 		var module;
-/******/ 		var moduleId;
-/******/ 	
-/******/ 		function getAffectedStuff(updateModuleId) {
-/******/ 			var outdatedModules = [updateModuleId];
-/******/ 			var outdatedDependencies = {};
-/******/ 	
-/******/ 			var queue = outdatedModules.slice().map(function(id) {
-/******/ 				return {
-/******/ 					chain: [id],
-/******/ 					id: id
-/******/ 				};
-/******/ 			});
-/******/ 			while(queue.length > 0) {
-/******/ 				var queueItem = queue.pop();
-/******/ 				var moduleId = queueItem.id;
-/******/ 				var chain = queueItem.chain;
-/******/ 				module = installedModules[moduleId];
-/******/ 				if(!module || module.hot._selfAccepted)
-/******/ 					continue;
-/******/ 				if(module.hot._selfDeclined) {
-/******/ 					return {
-/******/ 						type: "self-declined",
-/******/ 						chain: chain,
-/******/ 						moduleId: moduleId
-/******/ 					};
-/******/ 				}
-/******/ 				if(module.hot._main) {
-/******/ 					return {
-/******/ 						type: "unaccepted",
-/******/ 						chain: chain,
-/******/ 						moduleId: moduleId
-/******/ 					};
-/******/ 				}
-/******/ 				for(var i = 0; i < module.parents.length; i++) {
-/******/ 					var parentId = module.parents[i];
-/******/ 					var parent = installedModules[parentId];
-/******/ 					if(!parent) continue;
-/******/ 					if(parent.hot._declinedDependencies[moduleId]) {
-/******/ 						return {
-/******/ 							type: "declined",
-/******/ 							chain: chain.concat([parentId]),
-/******/ 							moduleId: moduleId,
-/******/ 							parentId: parentId
-/******/ 						};
-/******/ 					}
-/******/ 					if(outdatedModules.indexOf(parentId) >= 0) continue;
-/******/ 					if(parent.hot._acceptedDependencies[moduleId]) {
-/******/ 						if(!outdatedDependencies[parentId])
-/******/ 							outdatedDependencies[parentId] = [];
-/******/ 						addAllToSet(outdatedDependencies[parentId], [moduleId]);
-/******/ 						continue;
-/******/ 					}
-/******/ 					delete outdatedDependencies[parentId];
-/******/ 					outdatedModules.push(parentId);
-/******/ 					queue.push({
-/******/ 						chain: chain.concat([parentId]),
-/******/ 						id: parentId
-/******/ 					});
-/******/ 				}
-/******/ 			}
-/******/ 	
-/******/ 			return {
-/******/ 				type: "accepted",
-/******/ 				moduleId: updateModuleId,
-/******/ 				outdatedModules: outdatedModules,
-/******/ 				outdatedDependencies: outdatedDependencies
-/******/ 			};
-/******/ 		}
-/******/ 	
-/******/ 		function addAllToSet(a, b) {
-/******/ 			for(var i = 0; i < b.length; i++) {
-/******/ 				var item = b[i];
-/******/ 				if(a.indexOf(item) < 0)
-/******/ 					a.push(item);
-/******/ 			}
-/******/ 		}
-/******/ 	
-/******/ 		// at begin all updates modules are outdated
-/******/ 		// the "outdated" status can propagate to parents if they don't accept the children
-/******/ 		var outdatedDependencies = {};
-/******/ 		var outdatedModules = [];
-/******/ 		var appliedUpdate = {};
-/******/ 	
-/******/ 		var warnUnexpectedRequire = function warnUnexpectedRequire() {
-/******/ 			console.warn("[HMR] unexpected require(" + result.moduleId + ") to disposed module");
-/******/ 		};
-/******/ 	
-/******/ 		for(var id in hotUpdate) {
-/******/ 			if(Object.prototype.hasOwnProperty.call(hotUpdate, id)) {
-/******/ 				moduleId = toModuleId(id);
-/******/ 				var result;
-/******/ 				if(hotUpdate[id]) {
-/******/ 					result = getAffectedStuff(moduleId);
-/******/ 				} else {
-/******/ 					result = {
-/******/ 						type: "disposed",
-/******/ 						moduleId: id
-/******/ 					};
-/******/ 				}
-/******/ 				var abortError = false;
-/******/ 				var doApply = false;
-/******/ 				var doDispose = false;
-/******/ 				var chainInfo = "";
-/******/ 				if(result.chain) {
-/******/ 					chainInfo = "\nUpdate propagation: " + result.chain.join(" -> ");
-/******/ 				}
-/******/ 				switch(result.type) {
-/******/ 					case "self-declined":
-/******/ 						if(options.onDeclined)
-/******/ 							options.onDeclined(result);
-/******/ 						if(!options.ignoreDeclined)
-/******/ 							abortError = new Error("Aborted because of self decline: " + result.moduleId + chainInfo);
-/******/ 						break;
-/******/ 					case "declined":
-/******/ 						if(options.onDeclined)
-/******/ 							options.onDeclined(result);
-/******/ 						if(!options.ignoreDeclined)
-/******/ 							abortError = new Error("Aborted because of declined dependency: " + result.moduleId + " in " + result.parentId + chainInfo);
-/******/ 						break;
-/******/ 					case "unaccepted":
-/******/ 						if(options.onUnaccepted)
-/******/ 							options.onUnaccepted(result);
-/******/ 						if(!options.ignoreUnaccepted)
-/******/ 							abortError = new Error("Aborted because " + moduleId + " is not accepted" + chainInfo);
-/******/ 						break;
-/******/ 					case "accepted":
-/******/ 						if(options.onAccepted)
-/******/ 							options.onAccepted(result);
-/******/ 						doApply = true;
-/******/ 						break;
-/******/ 					case "disposed":
-/******/ 						if(options.onDisposed)
-/******/ 							options.onDisposed(result);
-/******/ 						doDispose = true;
-/******/ 						break;
-/******/ 					default:
-/******/ 						throw new Error("Unexception type " + result.type);
-/******/ 				}
-/******/ 				if(abortError) {
-/******/ 					hotSetStatus("abort");
-/******/ 					return Promise.reject(abortError);
-/******/ 				}
-/******/ 				if(doApply) {
-/******/ 					appliedUpdate[moduleId] = hotUpdate[moduleId];
-/******/ 					addAllToSet(outdatedModules, result.outdatedModules);
-/******/ 					for(moduleId in result.outdatedDependencies) {
-/******/ 						if(Object.prototype.hasOwnProperty.call(result.outdatedDependencies, moduleId)) {
-/******/ 							if(!outdatedDependencies[moduleId])
-/******/ 								outdatedDependencies[moduleId] = [];
-/******/ 							addAllToSet(outdatedDependencies[moduleId], result.outdatedDependencies[moduleId]);
-/******/ 						}
-/******/ 					}
-/******/ 				}
-/******/ 				if(doDispose) {
-/******/ 					addAllToSet(outdatedModules, [result.moduleId]);
-/******/ 					appliedUpdate[moduleId] = warnUnexpectedRequire;
-/******/ 				}
-/******/ 			}
-/******/ 		}
-/******/ 	
-/******/ 		// Store self accepted outdated modules to require them later by the module system
-/******/ 		var outdatedSelfAcceptedModules = [];
-/******/ 		for(i = 0; i < outdatedModules.length; i++) {
-/******/ 			moduleId = outdatedModules[i];
-/******/ 			if(installedModules[moduleId] && installedModules[moduleId].hot._selfAccepted)
-/******/ 				outdatedSelfAcceptedModules.push({
-/******/ 					module: moduleId,
-/******/ 					errorHandler: installedModules[moduleId].hot._selfAccepted
-/******/ 				});
-/******/ 		}
-/******/ 	
-/******/ 		// Now in "dispose" phase
-/******/ 		hotSetStatus("dispose");
-/******/ 		Object.keys(hotAvailableFilesMap).forEach(function(chunkId) {
-/******/ 			if(hotAvailableFilesMap[chunkId] === false) {
-/******/ 				hotDisposeChunk(chunkId);
-/******/ 			}
-/******/ 		});
-/******/ 	
-/******/ 		var idx;
-/******/ 		var queue = outdatedModules.slice();
-/******/ 		while(queue.length > 0) {
-/******/ 			moduleId = queue.pop();
-/******/ 			module = installedModules[moduleId];
-/******/ 			if(!module) continue;
-/******/ 	
-/******/ 			var data = {};
-/******/ 	
-/******/ 			// Call dispose handlers
-/******/ 			var disposeHandlers = module.hot._disposeHandlers;
-/******/ 			for(j = 0; j < disposeHandlers.length; j++) {
-/******/ 				cb = disposeHandlers[j];
-/******/ 				cb(data);
-/******/ 			}
-/******/ 			hotCurrentModuleData[moduleId] = data;
-/******/ 	
-/******/ 			// disable module (this disables requires from this module)
-/******/ 			module.hot.active = false;
-/******/ 	
-/******/ 			// remove module from cache
-/******/ 			delete installedModules[moduleId];
-/******/ 	
-/******/ 			// remove "parents" references from all children
-/******/ 			for(j = 0; j < module.children.length; j++) {
-/******/ 				var child = installedModules[module.children[j]];
-/******/ 				if(!child) continue;
-/******/ 				idx = child.parents.indexOf(moduleId);
-/******/ 				if(idx >= 0) {
-/******/ 					child.parents.splice(idx, 1);
-/******/ 				}
-/******/ 			}
-/******/ 		}
-/******/ 	
-/******/ 		// remove outdated dependency from module children
-/******/ 		var dependency;
-/******/ 		var moduleOutdatedDependencies;
-/******/ 		for(moduleId in outdatedDependencies) {
-/******/ 			if(Object.prototype.hasOwnProperty.call(outdatedDependencies, moduleId)) {
-/******/ 				module = installedModules[moduleId];
-/******/ 				if(module) {
-/******/ 					moduleOutdatedDependencies = outdatedDependencies[moduleId];
-/******/ 					for(j = 0; j < moduleOutdatedDependencies.length; j++) {
-/******/ 						dependency = moduleOutdatedDependencies[j];
-/******/ 						idx = module.children.indexOf(dependency);
-/******/ 						if(idx >= 0) module.children.splice(idx, 1);
-/******/ 					}
-/******/ 				}
-/******/ 			}
-/******/ 		}
-/******/ 	
-/******/ 		// Not in "apply" phase
-/******/ 		hotSetStatus("apply");
-/******/ 	
-/******/ 		hotCurrentHash = hotUpdateNewHash;
-/******/ 	
-/******/ 		// insert new code
-/******/ 		for(moduleId in appliedUpdate) {
-/******/ 			if(Object.prototype.hasOwnProperty.call(appliedUpdate, moduleId)) {
-/******/ 				modules[moduleId] = appliedUpdate[moduleId];
-/******/ 			}
-/******/ 		}
-/******/ 	
-/******/ 		// call accept handlers
-/******/ 		var error = null;
-/******/ 		for(moduleId in outdatedDependencies) {
-/******/ 			if(Object.prototype.hasOwnProperty.call(outdatedDependencies, moduleId)) {
-/******/ 				module = installedModules[moduleId];
-/******/ 				moduleOutdatedDependencies = outdatedDependencies[moduleId];
-/******/ 				var callbacks = [];
-/******/ 				for(i = 0; i < moduleOutdatedDependencies.length; i++) {
-/******/ 					dependency = moduleOutdatedDependencies[i];
-/******/ 					cb = module.hot._acceptedDependencies[dependency];
-/******/ 					if(callbacks.indexOf(cb) >= 0) continue;
-/******/ 					callbacks.push(cb);
-/******/ 				}
-/******/ 				for(i = 0; i < callbacks.length; i++) {
-/******/ 					cb = callbacks[i];
-/******/ 					try {
-/******/ 						cb(moduleOutdatedDependencies);
-/******/ 					} catch(err) {
-/******/ 						if(options.onErrored) {
-/******/ 							options.onErrored({
-/******/ 								type: "accept-errored",
-/******/ 								moduleId: moduleId,
-/******/ 								dependencyId: moduleOutdatedDependencies[i],
-/******/ 								error: err
-/******/ 							});
-/******/ 						}
-/******/ 						if(!options.ignoreErrored) {
-/******/ 							if(!error)
-/******/ 								error = err;
-/******/ 						}
-/******/ 					}
-/******/ 				}
-/******/ 			}
-/******/ 		}
-/******/ 	
-/******/ 		// Load self accepted modules
-/******/ 		for(i = 0; i < outdatedSelfAcceptedModules.length; i++) {
-/******/ 			var item = outdatedSelfAcceptedModules[i];
-/******/ 			moduleId = item.module;
-/******/ 			hotCurrentParents = [moduleId];
-/******/ 			try {
-/******/ 				__webpack_require__(moduleId);
-/******/ 			} catch(err) {
-/******/ 				if(typeof item.errorHandler === "function") {
-/******/ 					try {
-/******/ 						item.errorHandler(err);
-/******/ 					} catch(err2) {
-/******/ 						if(options.onErrored) {
-/******/ 							options.onErrored({
-/******/ 								type: "self-accept-error-handler-errored",
-/******/ 								moduleId: moduleId,
-/******/ 								error: err2,
-/******/ 								orginalError: err
-/******/ 							});
-/******/ 						}
-/******/ 						if(!options.ignoreErrored) {
-/******/ 							if(!error)
-/******/ 								error = err2;
-/******/ 						}
-/******/ 						if(!error)
-/******/ 							error = err;
-/******/ 					}
-/******/ 				} else {
-/******/ 					if(options.onErrored) {
-/******/ 						options.onErrored({
-/******/ 							type: "self-accept-errored",
-/******/ 							moduleId: moduleId,
-/******/ 							error: err
-/******/ 						});
-/******/ 					}
-/******/ 					if(!options.ignoreErrored) {
-/******/ 						if(!error)
-/******/ 							error = err;
-/******/ 					}
-/******/ 				}
-/******/ 			}
-/******/ 		}
-/******/ 	
-/******/ 		// handle errors in accept handlers and self accepted module load
-/******/ 		if(error) {
-/******/ 			hotSetStatus("fail");
-/******/ 			return Promise.reject(error);
-/******/ 		}
-/******/ 	
-/******/ 		hotSetStatus("idle");
-/******/ 		return Promise.resolve(outdatedModules);
-/******/ 	}
-/******/
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
 /******/
@@ -650,14 +13,11 @@
 /******/ 		var module = installedModules[moduleId] = {
 /******/ 			i: moduleId,
 /******/ 			l: false,
-/******/ 			exports: {},
-/******/ 			hot: hotCreateModule(moduleId),
-/******/ 			parents: (hotCurrentParentsTemp = hotCurrentParents, hotCurrentParents = [], hotCurrentParentsTemp),
-/******/ 			children: []
+/******/ 			exports: {}
 /******/ 		};
 /******/
 /******/ 		// Execute the module function
-/******/ 		modules[moduleId].call(module.exports, module, module.exports, hotCreateRequire(moduleId));
+/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
 /******/
 /******/ 		// Flag the module as loaded
 /******/ 		module.l = true;
@@ -702,18 +62,2267 @@
 /******/ 	// __webpack_public_path__
 /******/ 	__webpack_require__.p = "http://localhost:5000/bundle";
 /******/
-/******/ 	// __webpack_hash__
-/******/ 	__webpack_require__.h = function() { return hotCurrentHash; };
-/******/
 /******/ 	// Load entry module and return exports
-/******/ 	return hotCreateRequire(0)(__webpack_require__.s = 0);
+/******/ 	return __webpack_require__(__webpack_require__.s = 118);
 /******/ })
 /************************************************************************/
 /******/ ([
 /* 0 */
-/***/ (function(module, exports) {
+/***/ (function(module, exports, __webpack_require__) {
 
-eval("\n\n//////////////////\n// WEBPACK FOOTER\n// ./app/js/app.js\n// module id = 0\n// module chunks = 0\n\n//# sourceURL=webpack:///./app/js/app.js?");
+"use strict";
+eval("\n\nvar _curry1 = __webpack_require__(1);\nvar _isPlaceholder = __webpack_require__(33);\n\n/**\n * Optimized internal two-arity curry function.\n *\n * @private\n * @category Function\n * @param {Function} fn The function to curry.\n * @return {Function} The curried function.\n */\nmodule.exports = function _curry2(fn) {\n  return function f2(a, b) {\n    switch (arguments.length) {\n      case 0:\n        return f2;\n      case 1:\n        return _isPlaceholder(a) ? f2 : _curry1(function (_b) {\n          return fn(a, _b);\n        });\n      default:\n        return _isPlaceholder(a) && _isPlaceholder(b) ? f2 : _isPlaceholder(a) ? _curry1(function (_a) {\n          return fn(_a, b);\n        }) : _isPlaceholder(b) ? _curry1(function (_b) {\n          return fn(a, _b);\n        }) : fn(a, b);\n    }\n  };\n};\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/internal/_curry2.js\n// module id = 0\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/internal/_curry2.js?");
+
+/***/ }),
+/* 1 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _isPlaceholder = __webpack_require__(33);\n\n/**\n * Optimized internal one-arity curry function.\n *\n * @private\n * @category Function\n * @param {Function} fn The function to curry.\n * @return {Function} The curried function.\n */\nmodule.exports = function _curry1(fn) {\n  return function f1(a) {\n    if (arguments.length === 0 || _isPlaceholder(a)) {\n      return f1;\n    } else {\n      return fn.apply(this, arguments);\n    }\n  };\n};\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/internal/_curry1.js\n// module id = 1\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/internal/_curry1.js?");
+
+/***/ }),
+/* 2 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry1 = __webpack_require__(1);\nvar _curry2 = __webpack_require__(0);\nvar _isPlaceholder = __webpack_require__(33);\n\n/**\n * Optimized internal three-arity curry function.\n *\n * @private\n * @category Function\n * @param {Function} fn The function to curry.\n * @return {Function} The curried function.\n */\nmodule.exports = function _curry3(fn) {\n  return function f3(a, b, c) {\n    switch (arguments.length) {\n      case 0:\n        return f3;\n      case 1:\n        return _isPlaceholder(a) ? f3 : _curry2(function (_b, _c) {\n          return fn(a, _b, _c);\n        });\n      case 2:\n        return _isPlaceholder(a) && _isPlaceholder(b) ? f3 : _isPlaceholder(a) ? _curry2(function (_a, _c) {\n          return fn(_a, b, _c);\n        }) : _isPlaceholder(b) ? _curry2(function (_b, _c) {\n          return fn(a, _b, _c);\n        }) : _curry1(function (_c) {\n          return fn(a, b, _c);\n        });\n      default:\n        return _isPlaceholder(a) && _isPlaceholder(b) && _isPlaceholder(c) ? f3 : _isPlaceholder(a) && _isPlaceholder(b) ? _curry2(function (_a, _b) {\n          return fn(_a, _b, c);\n        }) : _isPlaceholder(a) && _isPlaceholder(c) ? _curry2(function (_a, _c) {\n          return fn(_a, b, _c);\n        }) : _isPlaceholder(b) && _isPlaceholder(c) ? _curry2(function (_b, _c) {\n          return fn(a, _b, _c);\n        }) : _isPlaceholder(a) ? _curry1(function (_a) {\n          return fn(_a, b, c);\n        }) : _isPlaceholder(b) ? _curry1(function (_b) {\n          return fn(a, _b, c);\n        }) : _isPlaceholder(c) ? _curry1(function (_c) {\n          return fn(a, b, _c);\n        }) : fn(a, b, c);\n    }\n  };\n};\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/internal/_curry3.js\n// module id = 2\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/internal/_curry3.js?");
+
+/***/ }),
+/* 3 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _isArray = __webpack_require__(14);\nvar _isTransformer = __webpack_require__(51);\n\n/**\n * Returns a function that dispatches with different strategies based on the\n * object in list position (last argument). If it is an array, executes [fn].\n * Otherwise, if it has a function with one of the given method names, it will\n * execute that function (functor case). Otherwise, if it is a transformer,\n * uses transducer [xf] to return a new transformer (transducer case).\n * Otherwise, it will default to executing [fn].\n *\n * @private\n * @param {Array} methodNames properties to check for a custom implementation\n * @param {Function} xf transducer to initialize if object is transformer\n * @param {Function} fn default ramda implementation\n * @return {Function} A function that dispatches on object in list position\n */\nmodule.exports = function _dispatchable(methodNames, xf, fn) {\n  return function () {\n    if (arguments.length === 0) {\n      return fn();\n    }\n    var args = Array.prototype.slice.call(arguments, 0);\n    var obj = args.pop();\n    if (!_isArray(obj)) {\n      var idx = 0;\n      while (idx < methodNames.length) {\n        if (typeof obj[methodNames[idx]] === 'function') {\n          return obj[methodNames[idx]].apply(obj, args);\n        }\n        idx += 1;\n      }\n      if (_isTransformer(obj)) {\n        var transducer = xf.apply(null, args);\n        return transducer(obj);\n      }\n    }\n    return fn.apply(this, arguments);\n  };\n};\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/internal/_dispatchable.js\n// module id = 3\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/internal/_dispatchable.js?");
+
+/***/ }),
+/* 4 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nmodule.exports = {\n  init: function init() {\n    return this.xf['@@transducer/init']();\n  },\n  result: function result(_result) {\n    return this.xf['@@transducer/result'](_result);\n  }\n};\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/internal/_xfBase.js\n// module id = 4\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/internal/_xfBase.js?");
+
+/***/ }),
+/* 5 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _arity = __webpack_require__(11);\nvar _curry1 = __webpack_require__(1);\nvar _curry2 = __webpack_require__(0);\nvar _curryN = __webpack_require__(31);\n\n/**\n * Returns a curried equivalent of the provided function, with the specified\n * arity. The curried function has two unusual capabilities. First, its\n * arguments needn't be provided one at a time. If `g` is `R.curryN(3, f)`, the\n * following are equivalent:\n *\n *   - `g(1)(2)(3)`\n *   - `g(1)(2, 3)`\n *   - `g(1, 2)(3)`\n *   - `g(1, 2, 3)`\n *\n * Secondly, the special placeholder value `R.__` may be used to specify\n * \"gaps\", allowing partial application of any combination of arguments,\n * regardless of their positions. If `g` is as above and `_` is `R.__`, the\n * following are equivalent:\n *\n *   - `g(1, 2, 3)`\n *   - `g(_, 2, 3)(1)`\n *   - `g(_, _, 3)(1)(2)`\n *   - `g(_, _, 3)(1, 2)`\n *   - `g(_, 2)(1)(3)`\n *   - `g(_, 2)(1, 3)`\n *   - `g(_, 2)(_, 3)(1)`\n *\n * @func\n * @memberOf R\n * @since v0.5.0\n * @category Function\n * @sig Number -> (* -> a) -> (* -> a)\n * @param {Number} length The arity for the returned function.\n * @param {Function} fn The function to curry.\n * @return {Function} A new, curried function.\n * @see R.curry\n * @example\n *\n *      var sumArgs = (...args) => R.sum(args);\n *\n *      var curriedAddFourNumbers = R.curryN(4, sumArgs);\n *      var f = curriedAddFourNumbers(1, 2);\n *      var g = f(3);\n *      g(4); //=> 10\n */\nmodule.exports = _curry2(function curryN(length, fn) {\n  if (length === 1) {\n    return _curry1(fn);\n  }\n  return _arity(length, _curryN(length, [], fn));\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/curryN.js\n// module id = 5\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/curryN.js?");
+
+/***/ }),
+/* 6 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nmodule.exports = function _has(prop, obj) {\n  return Object.prototype.hasOwnProperty.call(obj, prop);\n};\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/internal/_has.js\n// module id = 6\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/internal/_has.js?");
+
+/***/ }),
+/* 7 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\nvar _dispatchable = __webpack_require__(3);\nvar _map = __webpack_require__(35);\nvar _reduce = __webpack_require__(8);\nvar _xmap = __webpack_require__(212);\nvar curryN = __webpack_require__(5);\nvar keys = __webpack_require__(12);\n\n/**\n * Takes a function and\n * a [functor](https://github.com/fantasyland/fantasy-land#functor),\n * applies the function to each of the functor's values, and returns\n * a functor of the same shape.\n *\n * Ramda provides suitable `map` implementations for `Array` and `Object`,\n * so this function may be applied to `[1, 2, 3]` or `{x: 1, y: 2, z: 3}`.\n *\n * Dispatches to the `map` method of the second argument, if present.\n *\n * Acts as a transducer if a transformer is given in list position.\n *\n * Also treats functions as functors and will compose them together.\n *\n * @func\n * @memberOf R\n * @since v0.1.0\n * @category List\n * @sig Functor f => (a -> b) -> f a -> f b\n * @param {Function} fn The function to be called on every element of the input `list`.\n * @param {Array} list The list to be iterated over.\n * @return {Array} The new list.\n * @see R.transduce, R.addIndex\n * @example\n *\n *      var double = x => x * 2;\n *\n *      R.map(double, [1, 2, 3]); //=> [2, 4, 6]\n *\n *      R.map(double, {x: 1, y: 2, z: 3}); //=> {x: 2, y: 4, z: 6}\n * @symb R.map(f, [a, b]) = [f(a), f(b)]\n * @symb R.map(f, { x: a, y: b }) = { x: f(a), y: f(b) }\n * @symb R.map(f, functor_o) = functor_o.map(f)\n */\nmodule.exports = _curry2(_dispatchable(['map'], _xmap, function map(fn, functor) {\n  switch (Object.prototype.toString.call(functor)) {\n    case '[object Function]':\n      return curryN(functor.length, function () {\n        return fn.call(this, functor.apply(this, arguments));\n      });\n    case '[object Object]':\n      return _reduce(function (acc, key) {\n        acc[key] = fn(functor[key]);\n        return acc;\n      }, {}, keys(functor));\n    default:\n      return _map(fn, functor);\n  }\n}));\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/map.js\n// module id = 7\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/map.js?");
+
+/***/ }),
+/* 8 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _xwrap = __webpack_require__(88);\nvar bind = __webpack_require__(63);\nvar isArrayLike = __webpack_require__(22);\n\nmodule.exports = function () {\n  function _arrayReduce(xf, acc, list) {\n    var idx = 0;\n    var len = list.length;\n    while (idx < len) {\n      acc = xf['@@transducer/step'](acc, list[idx]);\n      if (acc && acc['@@transducer/reduced']) {\n        acc = acc['@@transducer/value'];\n        break;\n      }\n      idx += 1;\n    }\n    return xf['@@transducer/result'](acc);\n  }\n\n  function _iterableReduce(xf, acc, iter) {\n    var step = iter.next();\n    while (!step.done) {\n      acc = xf['@@transducer/step'](acc, step.value);\n      if (acc && acc['@@transducer/reduced']) {\n        acc = acc['@@transducer/value'];\n        break;\n      }\n      step = iter.next();\n    }\n    return xf['@@transducer/result'](acc);\n  }\n\n  function _methodReduce(xf, acc, obj) {\n    return xf['@@transducer/result'](obj.reduce(bind(xf['@@transducer/step'], xf), acc));\n  }\n\n  var symIterator = typeof Symbol !== 'undefined' ? Symbol.iterator : '@@iterator';\n  return function _reduce(fn, acc, list) {\n    if (typeof fn === 'function') {\n      fn = _xwrap(fn);\n    }\n    if (isArrayLike(list)) {\n      return _arrayReduce(fn, acc, list);\n    }\n    if (typeof list.reduce === 'function') {\n      return _methodReduce(fn, acc, list);\n    }\n    if (list[symIterator] != null) {\n      return _iterableReduce(fn, acc, list[symIterator]());\n    }\n    if (typeof list.next === 'function') {\n      return _iterableReduce(fn, acc, list);\n    }\n    throw new TypeError('reduce: list must be array or iterable');\n  };\n}();\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/internal/_reduce.js\n// module id = 8\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/internal/_reduce.js?");
+
+/***/ }),
+/* 9 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\n/**\n * Private `concat` function to merge two array-like objects.\n *\n * @private\n * @param {Array|Arguments} [set1=[]] An array-like object.\n * @param {Array|Arguments} [set2=[]] An array-like object.\n * @return {Array} A new, merged array.\n * @example\n *\n *      _concat([4, 5, 6], [1, 2, 3]); //=> [4, 5, 6, 1, 2, 3]\n */\nmodule.exports = function _concat(set1, set2) {\n  set1 = set1 || [];\n  set2 = set2 || [];\n  var idx;\n  var len1 = set1.length;\n  var len2 = set2.length;\n  var result = [];\n\n  idx = 0;\n  while (idx < len1) {\n    result[result.length] = set1[idx];\n    idx += 1;\n  }\n  idx = 0;\n  while (idx < len2) {\n    result[result.length] = set2[idx];\n    idx += 1;\n  }\n  return result;\n};\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/internal/_concat.js\n// module id = 9\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/internal/_concat.js?");
+
+/***/ }),
+/* 10 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\nvar _equals = __webpack_require__(187);\n\n/**\n * Returns `true` if its arguments are equivalent, `false` otherwise. Handles\n * cyclical data structures.\n *\n * Dispatches symmetrically to the `equals` methods of both arguments, if\n * present.\n *\n * @func\n * @memberOf R\n * @since v0.15.0\n * @category Relation\n * @sig a -> b -> Boolean\n * @param {*} a\n * @param {*} b\n * @return {Boolean}\n * @example\n *\n *      R.equals(1, 1); //=> true\n *      R.equals(1, '1'); //=> false\n *      R.equals([1, 2, 3], [1, 2, 3]); //=> true\n *\n *      var a = {}; a.v = a;\n *      var b = {}; b.v = b;\n *      R.equals(a, b); //=> true\n */\nmodule.exports = _curry2(function equals(a, b) {\n  return _equals(a, b, [], []);\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/equals.js\n// module id = 10\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/equals.js?");
+
+/***/ }),
+/* 11 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nmodule.exports = function _arity(n, fn) {\n  /* eslint-disable no-unused-vars */\n  switch (n) {\n    case 0:\n      return function () {\n        return fn.apply(this, arguments);\n      };\n    case 1:\n      return function (a0) {\n        return fn.apply(this, arguments);\n      };\n    case 2:\n      return function (a0, a1) {\n        return fn.apply(this, arguments);\n      };\n    case 3:\n      return function (a0, a1, a2) {\n        return fn.apply(this, arguments);\n      };\n    case 4:\n      return function (a0, a1, a2, a3) {\n        return fn.apply(this, arguments);\n      };\n    case 5:\n      return function (a0, a1, a2, a3, a4) {\n        return fn.apply(this, arguments);\n      };\n    case 6:\n      return function (a0, a1, a2, a3, a4, a5) {\n        return fn.apply(this, arguments);\n      };\n    case 7:\n      return function (a0, a1, a2, a3, a4, a5, a6) {\n        return fn.apply(this, arguments);\n      };\n    case 8:\n      return function (a0, a1, a2, a3, a4, a5, a6, a7) {\n        return fn.apply(this, arguments);\n      };\n    case 9:\n      return function (a0, a1, a2, a3, a4, a5, a6, a7, a8) {\n        return fn.apply(this, arguments);\n      };\n    case 10:\n      return function (a0, a1, a2, a3, a4, a5, a6, a7, a8, a9) {\n        return fn.apply(this, arguments);\n      };\n    default:\n      throw new Error('First argument to _arity must be a non-negative integer no greater than ten');\n  }\n};\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/internal/_arity.js\n// module id = 11\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/internal/_arity.js?");
+
+/***/ }),
+/* 12 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry1 = __webpack_require__(1);\nvar _has = __webpack_require__(6);\nvar _isArguments = __webpack_require__(81);\n\n/**\n * Returns a list containing the names of all the enumerable own properties of\n * the supplied object.\n * Note that the order of the output array is not guaranteed to be consistent\n * across different JS platforms.\n *\n * @func\n * @memberOf R\n * @since v0.1.0\n * @category Object\n * @sig {k: v} -> [k]\n * @param {Object} obj The object to extract properties from\n * @return {Array} An array of the object's own properties.\n * @example\n *\n *      R.keys({a: 1, b: 2, c: 3}); //=> ['a', 'b', 'c']\n */\nmodule.exports = function () {\n  // cover IE < 9 keys issues\n  var hasEnumBug = !{ toString: null }.propertyIsEnumerable('toString');\n  var nonEnumerableProps = ['constructor', 'valueOf', 'isPrototypeOf', 'toString', 'propertyIsEnumerable', 'hasOwnProperty', 'toLocaleString'];\n  // Safari bug\n  var hasArgsEnumBug = function () {\n    'use strict';\n\n    return arguments.propertyIsEnumerable('length');\n  }();\n\n  var contains = function contains(list, item) {\n    var idx = 0;\n    while (idx < list.length) {\n      if (list[idx] === item) {\n        return true;\n      }\n      idx += 1;\n    }\n    return false;\n  };\n\n  return typeof Object.keys === 'function' && !hasArgsEnumBug ? _curry1(function keys(obj) {\n    return Object(obj) !== obj ? [] : Object.keys(obj);\n  }) : _curry1(function keys(obj) {\n    if (Object(obj) !== obj) {\n      return [];\n    }\n    var prop, nIdx;\n    var ks = [];\n    var checkArgsLength = hasArgsEnumBug && _isArguments(obj);\n    for (prop in obj) {\n      if (_has(prop, obj) && (!checkArgsLength || prop !== 'length')) {\n        ks[ks.length] = prop;\n      }\n    }\n    if (hasEnumBug) {\n      nIdx = nonEnumerableProps.length - 1;\n      while (nIdx >= 0) {\n        prop = nonEnumerableProps[nIdx];\n        if (_has(prop, obj) && !contains(ks, prop)) {\n          ks[ks.length] = prop;\n        }\n        nIdx -= 1;\n      }\n    }\n    return ks;\n  });\n}();\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/keys.js\n// module id = 12\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/keys.js?");
+
+/***/ }),
+/* 13 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry3 = __webpack_require__(2);\nvar _reduce = __webpack_require__(8);\n\n/**\n * Returns a single item by iterating through the list, successively calling\n * the iterator function and passing it an accumulator value and the current\n * value from the array, and then passing the result to the next call.\n *\n * The iterator function receives two values: *(acc, value)*. It may use\n * `R.reduced` to shortcut the iteration.\n *\n * The arguments' order of `reduceRight`'s iterator function is *(value, acc)*.\n *\n * Note: `R.reduce` does not skip deleted or unassigned indices (sparse\n * arrays), unlike the native `Array.prototype.reduce` method. For more details\n * on this behavior, see:\n * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reduce#Description\n *\n * Dispatches to the `reduce` method of the third argument, if present.\n *\n * @func\n * @memberOf R\n * @since v0.1.0\n * @category List\n * @sig ((a, b) -> a) -> a -> [b] -> a\n * @param {Function} fn The iterator function. Receives two values, the accumulator and the\n *        current element from the array.\n * @param {*} acc The accumulator value.\n * @param {Array} list The list to iterate over.\n * @return {*} The final, accumulated value.\n * @see R.reduced, R.addIndex, R.reduceRight\n * @example\n *\n *      R.reduce(R.subtract, 0, [1, 2, 3, 4]) // => ((((0 - 1) - 2) - 3) - 4) = -10\n *                -               -10\n *               / \\              / \\\n *              -   4           -6   4\n *             / \\              / \\\n *            -   3   ==>     -3   3\n *           / \\              / \\\n *          -   2           -1   2\n *         / \\              / \\\n *        0   1            0   1\n *\n * @symb R.reduce(f, a, [b, c, d]) = f(f(f(a, b), c), d)\n */\nmodule.exports = _curry3(_reduce);\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/reduce.js\n// module id = 13\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/reduce.js?");
+
+/***/ }),
+/* 14 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\n/**\n * Tests whether or not an object is an array.\n *\n * @private\n * @param {*} val The object to test.\n * @return {Boolean} `true` if `val` is an array, `false` otherwise.\n * @example\n *\n *      _isArray([]); //=> true\n *      _isArray(null); //=> false\n *      _isArray({}); //=> false\n */\nmodule.exports = Array.isArray || function _isArray(val) {\n  return val != null && val.length >= 0 && Object.prototype.toString.call(val) === '[object Array]';\n};\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/internal/_isArray.js\n// module id = 14\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/internal/_isArray.js?");
+
+/***/ }),
+/* 15 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nmodule.exports = function _reduced(x) {\n  return x && x['@@transducer/reduced'] ? x : {\n    '@@transducer/value': x,\n    '@@transducer/reduced': true\n  };\n};\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/internal/_reduced.js\n// module id = 15\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/internal/_reduced.js?");
+
+/***/ }),
+/* 16 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _indexOf = __webpack_require__(80);\n\nmodule.exports = function _contains(a, list) {\n  return _indexOf(list, a, 0) >= 0;\n};\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/internal/_contains.js\n// module id = 16\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/internal/_contains.js?");
+
+/***/ }),
+/* 17 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _checkForMethod = __webpack_require__(20);\nvar _curry3 = __webpack_require__(2);\n\n/**\n * Returns the elements of the given list or string (or object with a `slice`\n * method) from `fromIndex` (inclusive) to `toIndex` (exclusive).\n *\n * Dispatches to the `slice` method of the third argument, if present.\n *\n * @func\n * @memberOf R\n * @since v0.1.4\n * @category List\n * @sig Number -> Number -> [a] -> [a]\n * @sig Number -> Number -> String -> String\n * @param {Number} fromIndex The start index (inclusive).\n * @param {Number} toIndex The end index (exclusive).\n * @param {*} list\n * @return {*}\n * @example\n *\n *      R.slice(1, 3, ['a', 'b', 'c', 'd']);        //=> ['b', 'c']\n *      R.slice(1, Infinity, ['a', 'b', 'c', 'd']); //=> ['b', 'c', 'd']\n *      R.slice(0, -1, ['a', 'b', 'c', 'd']);       //=> ['a', 'b', 'c']\n *      R.slice(-3, -1, ['a', 'b', 'c', 'd']);      //=> ['b', 'c']\n *      R.slice(0, 3, 'ramda');                     //=> 'ram'\n */\nmodule.exports = _curry3(_checkForMethod('slice', function slice(fromIndex, toIndex, list) {\n  return Array.prototype.slice.call(list, fromIndex, toIndex);\n}));\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/slice.js\n// module id = 17\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/slice.js?");
+
+/***/ }),
+/* 18 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry1 = __webpack_require__(1);\n\n/**\n * Returns a function that always returns the given value. Note that for\n * non-primitives the value returned is a reference to the original value.\n *\n * This function is known as `const`, `constant`, or `K` (for K combinator) in\n * other languages and libraries.\n *\n * @func\n * @memberOf R\n * @since v0.1.0\n * @category Function\n * @sig a -> (* -> a)\n * @param {*} val The value to wrap in a function\n * @return {Function} A Function :: * -> val.\n * @example\n *\n *      var t = R.always('Tee');\n *      t(); //=> 'Tee'\n */\nmodule.exports = _curry1(function always(val) {\n  return function () {\n    return val;\n  };\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/always.js\n// module id = 18\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/always.js?");
+
+/***/ }),
+/* 19 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\n\n/**\n * Returns the larger of its two arguments.\n *\n * @func\n * @memberOf R\n * @since v0.1.0\n * @category Relation\n * @sig Ord a => a -> a -> a\n * @param {*} a\n * @param {*} b\n * @return {*}\n * @see R.maxBy, R.min\n * @example\n *\n *      R.max(789, 123); //=> 789\n *      R.max('a', 'b'); //=> 'b'\n */\nmodule.exports = _curry2(function max(a, b) {\n  return b > a ? b : a;\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/max.js\n// module id = 19\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/max.js?");
+
+/***/ }),
+/* 20 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _isArray = __webpack_require__(14);\n\n/**\n * This checks whether a function has a [methodname] function. If it isn't an\n * array it will execute that function otherwise it will default to the ramda\n * implementation.\n *\n * @private\n * @param {Function} fn ramda implemtation\n * @param {String} methodname property to check for a custom implementation\n * @return {Object} Whatever the return value of the method is.\n */\nmodule.exports = function _checkForMethod(methodname, fn) {\n  return function () {\n    var length = arguments.length;\n    if (length === 0) {\n      return fn();\n    }\n    var obj = arguments[length - 1];\n    return _isArray(obj) || typeof obj[methodname] !== 'function' ? fn.apply(this, arguments) : obj[methodname].apply(obj, Array.prototype.slice.call(arguments, 0, length - 1));\n  };\n};\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/internal/_checkForMethod.js\n// module id = 20\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/internal/_checkForMethod.js?");
+
+/***/ }),
+/* 21 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\nvar _isFunction = __webpack_require__(32);\nvar curryN = __webpack_require__(5);\nvar toString = __webpack_require__(26);\n\n/**\n * Turns a named method with a specified arity into a function that can be\n * called directly supplied with arguments and a target object.\n *\n * The returned function is curried and accepts `arity + 1` parameters where\n * the final parameter is the target object.\n *\n * @func\n * @memberOf R\n * @since v0.1.0\n * @category Function\n * @sig Number -> String -> (a -> b -> ... -> n -> Object -> *)\n * @param {Number} arity Number of arguments the returned function should take\n *        before the target object.\n * @param {String} method Name of the method to call.\n * @return {Function} A new curried function.\n * @example\n *\n *      var sliceFrom = R.invoker(1, 'slice');\n *      sliceFrom(6, 'abcdefghijklm'); //=> 'ghijklm'\n *      var sliceFrom6 = R.invoker(2, 'slice')(6);\n *      sliceFrom6(8, 'abcdefghijklm'); //=> 'gh'\n * @symb R.invoker(0, 'method')(o) = o['method']()\n * @symb R.invoker(1, 'method')(a, o) = o['method'](a)\n * @symb R.invoker(2, 'method')(a, b, o) = o['method'](a, b)\n */\nmodule.exports = _curry2(function invoker(arity, method) {\n  return curryN(arity + 1, function () {\n    var target = arguments[arity];\n    if (target != null && _isFunction(target[method])) {\n      return target[method].apply(target, Array.prototype.slice.call(arguments, 0, arity));\n    }\n    throw new TypeError(toString(target) + ' does not have a method named \"' + method + '\"');\n  });\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/invoker.js\n// module id = 21\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/invoker.js?");
+
+/***/ }),
+/* 22 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _typeof = typeof Symbol === \"function\" && typeof Symbol.iterator === \"symbol\" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === \"function\" && obj.constructor === Symbol && obj !== Symbol.prototype ? \"symbol\" : typeof obj; };\n\nvar _curry1 = __webpack_require__(1);\nvar _isArray = __webpack_require__(14);\nvar _isString = __webpack_require__(34);\n\n/**\n * Tests whether or not an object is similar to an array.\n *\n * @func\n * @memberOf R\n * @since v0.5.0\n * @category Type\n * @category List\n * @sig * -> Boolean\n * @param {*} x The object to test.\n * @return {Boolean} `true` if `x` has a numeric length property and extreme indices defined; `false` otherwise.\n * @deprecated since v0.23.0\n * @example\n *\n *      R.isArrayLike([]); //=> true\n *      R.isArrayLike(true); //=> false\n *      R.isArrayLike({}); //=> false\n *      R.isArrayLike({length: 10}); //=> false\n *      R.isArrayLike({0: 'zero', 9: 'nine', length: 10}); //=> true\n */\nmodule.exports = _curry1(function isArrayLike(x) {\n  if (_isArray(x)) {\n    return true;\n  }\n  if (!x) {\n    return false;\n  }\n  if ((typeof x === 'undefined' ? 'undefined' : _typeof(x)) !== 'object') {\n    return false;\n  }\n  if (_isString(x)) {\n    return false;\n  }\n  if (x.nodeType === 1) {\n    return !!x.length;\n  }\n  if (x.length === 0) {\n    return true;\n  }\n  if (x.length > 0) {\n    return x.hasOwnProperty(0) && x.hasOwnProperty(x.length - 1);\n  }\n  return false;\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/isArrayLike.js\n// module id = 22\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/isArrayLike.js?");
+
+/***/ }),
+/* 23 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\nvar _isString = __webpack_require__(34);\n\n/**\n * Returns the nth element of the given list or string. If n is negative the\n * element at index length + n is returned.\n *\n * @func\n * @memberOf R\n * @since v0.1.0\n * @category List\n * @sig Number -> [a] -> a | Undefined\n * @sig Number -> String -> String\n * @param {Number} offset\n * @param {*} list\n * @return {*}\n * @example\n *\n *      var list = ['foo', 'bar', 'baz', 'quux'];\n *      R.nth(1, list); //=> 'bar'\n *      R.nth(-1, list); //=> 'quux'\n *      R.nth(-99, list); //=> undefined\n *\n *      R.nth(2, 'abc'); //=> 'c'\n *      R.nth(3, 'abc'); //=> ''\n * @symb R.nth(-1, [a, b, c]) = c\n * @symb R.nth(0, [a, b, c]) = a\n * @symb R.nth(1, [a, b, c]) = b\n */\nmodule.exports = _curry2(function nth(offset, list) {\n  var idx = offset < 0 ? list.length + offset : offset;\n  return _isString(list) ? list.charAt(idx) : list[idx];\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/nth.js\n// module id = 23\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/nth.js?");
+
+/***/ }),
+/* 24 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\n\n/**\n * Retrieve the value at a given path.\n *\n * @func\n * @memberOf R\n * @since v0.2.0\n * @category Object\n * @typedefn Idx = String | Int\n * @sig [Idx] -> {a} -> a | Undefined\n * @param {Array} path The path to use.\n * @param {Object} obj The object to retrieve the nested property from.\n * @return {*} The data at `path`.\n * @see R.prop\n * @example\n *\n *      R.path(['a', 'b'], {a: {b: 2}}); //=> 2\n *      R.path(['a', 'b'], {c: {b: 2}}); //=> undefined\n */\nmodule.exports = _curry2(function path(paths, obj) {\n  var val = obj;\n  var idx = 0;\n  while (idx < paths.length) {\n    if (val == null) {\n      return;\n    }\n    val = val[paths[idx]];\n    idx += 1;\n  }\n  return val;\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/path.js\n// module id = 24\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/path.js?");
+
+/***/ }),
+/* 25 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\nvar map = __webpack_require__(7);\nvar prop = __webpack_require__(52);\n\n/**\n * Returns a new list by plucking the same named property off all objects in\n * the list supplied.\n *\n * @func\n * @memberOf R\n * @since v0.1.0\n * @category List\n * @sig k -> [{k: v}] -> [v]\n * @param {Number|String} key The key name to pluck off of each object.\n * @param {Array} list The array to consider.\n * @return {Array} The list of values for the given key.\n * @see R.props\n * @example\n *\n *      R.pluck('a')([{a: 1}, {a: 2}]); //=> [1, 2]\n *      R.pluck(0)([[1, 2], [3, 4]]);   //=> [1, 3]\n * @symb R.pluck('x', [{x: 1, y: 2}, {x: 3, y: 4}, {x: 5, y: 6}]) = [1, 3, 5]\n * @symb R.pluck(0, [[1, 2], [3, 4], [5, 6]]) = [1, 3, 5]\n */\nmodule.exports = _curry2(function pluck(p, list) {\n  return map(prop(p), list);\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/pluck.js\n// module id = 25\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/pluck.js?");
+
+/***/ }),
+/* 26 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry1 = __webpack_require__(1);\nvar _toString = __webpack_require__(199);\n\n/**\n * Returns the string representation of the given value. `eval`'ing the output\n * should result in a value equivalent to the input value. Many of the built-in\n * `toString` methods do not satisfy this requirement.\n *\n * If the given value is an `[object Object]` with a `toString` method other\n * than `Object.prototype.toString`, this method is invoked with no arguments\n * to produce the return value. This means user-defined constructor functions\n * can provide a suitable `toString` method. For example:\n *\n *     function Point(x, y) {\n *       this.x = x;\n *       this.y = y;\n *     }\n *\n *     Point.prototype.toString = function() {\n *       return 'new Point(' + this.x + ', ' + this.y + ')';\n *     };\n *\n *     R.toString(new Point(1, 2)); //=> 'new Point(1, 2)'\n *\n * @func\n * @memberOf R\n * @since v0.14.0\n * @category String\n * @sig * -> String\n * @param {*} val\n * @return {String}\n * @example\n *\n *      R.toString(42); //=> '42'\n *      R.toString('abc'); //=> '\"abc\"'\n *      R.toString([1, 2, 3]); //=> '[1, 2, 3]'\n *      R.toString({foo: 1, bar: 2, baz: 3}); //=> '{\"bar\": 2, \"baz\": 3, \"foo\": 1}'\n *      R.toString(new Date('2001-02-03T04:05:06Z')); //=> 'new Date(\"2001-02-03T04:05:06.000Z\")'\n */\nmodule.exports = _curry1(function toString(val) {\n  return _toString(val, []);\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/toString.js\n// module id = 26\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/toString.js?");
+
+/***/ }),
+/* 27 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\n\n/**\n * Adds two values.\n *\n * @func\n * @memberOf R\n * @since v0.1.0\n * @category Math\n * @sig Number -> Number -> Number\n * @param {Number} a\n * @param {Number} b\n * @return {Number}\n * @see R.subtract\n * @example\n *\n *      R.add(2, 3);       //=>  5\n *      R.add(7)(10);      //=> 17\n */\nmodule.exports = _curry2(function add(a, b) {\n  return Number(a) + Number(b);\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/add.js\n// module id = 27\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/add.js?");
+
+/***/ }),
+/* 28 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry3 = __webpack_require__(2);\n\n/**\n * Makes a shallow clone of an object, setting or overriding the specified\n * property with the given value. Note that this copies and flattens prototype\n * properties onto the new object as well. All non-primitive properties are\n * copied by reference.\n *\n * @func\n * @memberOf R\n * @since v0.8.0\n * @category Object\n * @sig String -> a -> {k: v} -> {k: v}\n * @param {String} prop The property name to set\n * @param {*} val The new value\n * @param {Object} obj The object to clone\n * @return {Object} A new object equivalent to the original except for the changed property.\n * @see R.dissoc\n * @example\n *\n *      R.assoc('c', 3, {a: 1, b: 2}); //=> {a: 1, b: 2, c: 3}\n */\nmodule.exports = _curry3(function assoc(prop, val, obj) {\n  var result = {};\n  for (var p in obj) {\n    result[p] = obj[p];\n  }\n  result[prop] = val;\n  return result;\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/assoc.js\n// module id = 28\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/assoc.js?");
+
+/***/ }),
+/* 29 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry1 = __webpack_require__(1);\nvar curryN = __webpack_require__(5);\n\n/**\n * Returns a curried equivalent of the provided function. The curried function\n * has two unusual capabilities. First, its arguments needn't be provided one\n * at a time. If `f` is a ternary function and `g` is `R.curry(f)`, the\n * following are equivalent:\n *\n *   - `g(1)(2)(3)`\n *   - `g(1)(2, 3)`\n *   - `g(1, 2)(3)`\n *   - `g(1, 2, 3)`\n *\n * Secondly, the special placeholder value `R.__` may be used to specify\n * \"gaps\", allowing partial application of any combination of arguments,\n * regardless of their positions. If `g` is as above and `_` is `R.__`, the\n * following are equivalent:\n *\n *   - `g(1, 2, 3)`\n *   - `g(_, 2, 3)(1)`\n *   - `g(_, _, 3)(1)(2)`\n *   - `g(_, _, 3)(1, 2)`\n *   - `g(_, 2)(1)(3)`\n *   - `g(_, 2)(1, 3)`\n *   - `g(_, 2)(_, 3)(1)`\n *\n * @func\n * @memberOf R\n * @since v0.1.0\n * @category Function\n * @sig (* -> a) -> (* -> a)\n * @param {Function} fn The function to curry.\n * @return {Function} A new, curried function.\n * @see R.curryN\n * @example\n *\n *      var addFourNumbers = (a, b, c, d) => a + b + c + d;\n *\n *      var curriedAddFourNumbers = R.curry(addFourNumbers);\n *      var f = curriedAddFourNumbers(1, 2);\n *      var g = f(3);\n *      g(4); //=> 10\n */\nmodule.exports = _curry1(function curry(fn) {\n  return curryN(fn.length, fn);\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/curry.js\n// module id = 29\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/curry.js?");
+
+/***/ }),
+/* 30 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry1 = __webpack_require__(1);\nvar curry = __webpack_require__(29);\n\n/**\n * Returns a new function much like the supplied one, except that the first two\n * arguments' order is reversed.\n *\n * @func\n * @memberOf R\n * @since v0.1.0\n * @category Function\n * @sig (a -> b -> c -> ... -> z) -> (b -> a -> c -> ... -> z)\n * @param {Function} fn The function to invoke with its first two parameters reversed.\n * @return {*} The result of invoking `fn` with its first two parameters' order reversed.\n * @example\n *\n *      var mergeThree = (a, b, c) => [].concat(a, b, c);\n *\n *      mergeThree(1, 2, 3); //=> [1, 2, 3]\n *\n *      R.flip(mergeThree)(1, 2, 3); //=> [2, 1, 3]\n * @symb R.flip(f)(a, b, c) = f(b, a, c)\n */\nmodule.exports = _curry1(function flip(fn) {\n  return curry(function (a, b) {\n    var args = Array.prototype.slice.call(arguments, 0);\n    args[0] = b;\n    args[1] = a;\n    return fn.apply(this, args);\n  });\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/flip.js\n// module id = 30\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/flip.js?");
+
+/***/ }),
+/* 31 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _arity = __webpack_require__(11);\nvar _isPlaceholder = __webpack_require__(33);\n\n/**\n * Internal curryN function.\n *\n * @private\n * @category Function\n * @param {Number} length The arity of the curried function.\n * @param {Array} received An array of arguments received thus far.\n * @param {Function} fn The function to curry.\n * @return {Function} The curried function.\n */\nmodule.exports = function _curryN(length, received, fn) {\n  return function () {\n    var combined = [];\n    var argsIdx = 0;\n    var left = length;\n    var combinedIdx = 0;\n    while (combinedIdx < received.length || argsIdx < arguments.length) {\n      var result;\n      if (combinedIdx < received.length && (!_isPlaceholder(received[combinedIdx]) || argsIdx >= arguments.length)) {\n        result = received[combinedIdx];\n      } else {\n        result = arguments[argsIdx];\n        argsIdx += 1;\n      }\n      combined[combinedIdx] = result;\n      if (!_isPlaceholder(result)) {\n        left -= 1;\n      }\n      combinedIdx += 1;\n    }\n    return left <= 0 ? fn.apply(this, combined) : _arity(left, _curryN(length, combined, fn));\n  };\n};\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/internal/_curryN.js\n// module id = 31\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/internal/_curryN.js?");
+
+/***/ }),
+/* 32 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nmodule.exports = function _isFunction(x) {\n  return Object.prototype.toString.call(x) === '[object Function]';\n};\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/internal/_isFunction.js\n// module id = 32\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/internal/_isFunction.js?");
+
+/***/ }),
+/* 33 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _typeof = typeof Symbol === \"function\" && typeof Symbol.iterator === \"symbol\" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === \"function\" && obj.constructor === Symbol && obj !== Symbol.prototype ? \"symbol\" : typeof obj; };\n\nmodule.exports = function _isPlaceholder(a) {\n       return a != null && (typeof a === 'undefined' ? 'undefined' : _typeof(a)) === 'object' && a['@@functional/placeholder'] === true;\n};\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/internal/_isPlaceholder.js\n// module id = 33\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/internal/_isPlaceholder.js?");
+
+/***/ }),
+/* 34 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nmodule.exports = function _isString(x) {\n  return Object.prototype.toString.call(x) === '[object String]';\n};\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/internal/_isString.js\n// module id = 34\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/internal/_isString.js?");
+
+/***/ }),
+/* 35 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nmodule.exports = function _map(fn, functor) {\n  var idx = 0;\n  var len = functor.length;\n  var result = Array(len);\n  while (idx < len) {\n    result[idx] = fn(functor[idx]);\n    idx += 1;\n  }\n  return result;\n};\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/internal/_map.js\n// module id = 35\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/internal/_map.js?");
+
+/***/ }),
+/* 36 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\nvar map = __webpack_require__(7);\n\n/**\n * Returns a lens for the given getter and setter functions. The getter \"gets\"\n * the value of the focus; the setter \"sets\" the value of the focus. The setter\n * should not mutate the data structure.\n *\n * @func\n * @memberOf R\n * @since v0.8.0\n * @category Object\n * @typedefn Lens s a = Functor f => (a -> f a) -> s -> f s\n * @sig (s -> a) -> ((a, s) -> s) -> Lens s a\n * @param {Function} getter\n * @param {Function} setter\n * @return {Lens}\n * @see R.view, R.set, R.over, R.lensIndex, R.lensProp\n * @example\n *\n *      var xLens = R.lens(R.prop('x'), R.assoc('x'));\n *\n *      R.view(xLens, {x: 1, y: 2});            //=> 1\n *      R.set(xLens, 4, {x: 1, y: 2});          //=> {x: 4, y: 2}\n *      R.over(xLens, R.negate, {x: 1, y: 2});  //=> {x: -1, y: 2}\n */\nmodule.exports = _curry2(function lens(getter, setter) {\n  return function (toFunctorFn) {\n    return function (target) {\n      return map(function (focus) {\n        return setter(focus, target);\n      }, toFunctorFn(getter(target)));\n    };\n  };\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/lens.js\n// module id = 36\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/lens.js?");
+
+/***/ }),
+/* 37 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry1 = __webpack_require__(1);\nvar liftN = __webpack_require__(93);\n\n/**\n * \"lifts\" a function of arity > 1 so that it may \"map over\" a list, Function or other\n * object that satisfies the [FantasyLand Apply spec](https://github.com/fantasyland/fantasy-land#apply).\n *\n * @func\n * @memberOf R\n * @since v0.7.0\n * @category Function\n * @sig (*... -> *) -> ([*]... -> [*])\n * @param {Function} fn The function to lift into higher context\n * @return {Function} The lifted function.\n * @see R.liftN\n * @example\n *\n *      var madd3 = R.lift((a, b, c) => a + b + c);\n *\n *      madd3([1,2,3], [1,2,3], [1]); //=> [3, 4, 5, 4, 5, 6, 5, 6, 7]\n *\n *      var madd5 = R.lift((a, b, c, d, e) => a + b + c + d + e);\n *\n *      madd5([1,2], [3], [4, 5], [6], [7, 8]); //=> [21, 22, 22, 23, 22, 23, 23, 24]\n */\nmodule.exports = _curry1(function lift(fn) {\n  return liftN(fn.length, fn);\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/lift.js\n// module id = 37\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/lift.js?");
+
+/***/ }),
+/* 38 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\n\n/**\n * Wraps a function of any arity (including nullary) in a function that accepts\n * exactly `n` parameters. Any extraneous parameters will not be passed to the\n * supplied function.\n *\n * @func\n * @memberOf R\n * @since v0.1.0\n * @category Function\n * @sig Number -> (* -> a) -> (* -> a)\n * @param {Number} n The desired arity of the new function.\n * @param {Function} fn The function to wrap.\n * @return {Function} A new function wrapping `fn`. The new function is guaranteed to be of\n *         arity `n`.\n * @example\n *\n *      var takesTwoArgs = (a, b) => [a, b];\n *\n *      takesTwoArgs.length; //=> 2\n *      takesTwoArgs(1, 2); //=> [1, 2]\n *\n *      var takesOneArg = R.nAry(1, takesTwoArgs);\n *      takesOneArg.length; //=> 1\n *      // Only `n` arguments are passed to the wrapped function\n *      takesOneArg(1, 2); //=> [1, undefined]\n * @symb R.nAry(0, f)(a, b) = f()\n * @symb R.nAry(1, f)(a, b) = f(a)\n * @symb R.nAry(2, f)(a, b) = f(a, b)\n */\nmodule.exports = _curry2(function nAry(n, fn) {\n  switch (n) {\n    case 0:\n      return function () {\n        return fn.call(this);\n      };\n    case 1:\n      return function (a0) {\n        return fn.call(this, a0);\n      };\n    case 2:\n      return function (a0, a1) {\n        return fn.call(this, a0, a1);\n      };\n    case 3:\n      return function (a0, a1, a2) {\n        return fn.call(this, a0, a1, a2);\n      };\n    case 4:\n      return function (a0, a1, a2, a3) {\n        return fn.call(this, a0, a1, a2, a3);\n      };\n    case 5:\n      return function (a0, a1, a2, a3, a4) {\n        return fn.call(this, a0, a1, a2, a3, a4);\n      };\n    case 6:\n      return function (a0, a1, a2, a3, a4, a5) {\n        return fn.call(this, a0, a1, a2, a3, a4, a5);\n      };\n    case 7:\n      return function (a0, a1, a2, a3, a4, a5, a6) {\n        return fn.call(this, a0, a1, a2, a3, a4, a5, a6);\n      };\n    case 8:\n      return function (a0, a1, a2, a3, a4, a5, a6, a7) {\n        return fn.call(this, a0, a1, a2, a3, a4, a5, a6, a7);\n      };\n    case 9:\n      return function (a0, a1, a2, a3, a4, a5, a6, a7, a8) {\n        return fn.call(this, a0, a1, a2, a3, a4, a5, a6, a7, a8);\n      };\n    case 10:\n      return function (a0, a1, a2, a3, a4, a5, a6, a7, a8, a9) {\n        return fn.call(this, a0, a1, a2, a3, a4, a5, a6, a7, a8, a9);\n      };\n    default:\n      throw new Error('First argument to nAry must be a non-negative integer no greater than ten');\n  }\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/nAry.js\n// module id = 38\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/nAry.js?");
+
+/***/ }),
+/* 39 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curryN = __webpack_require__(31);\nvar _dispatchable = __webpack_require__(3);\nvar _has = __webpack_require__(6);\nvar _reduce = __webpack_require__(8);\nvar _xreduceBy = __webpack_require__(213);\n\n/**\n * Groups the elements of the list according to the result of calling\n * the String-returning function `keyFn` on each element and reduces the elements\n * of each group to a single value via the reducer function `valueFn`.\n *\n * This function is basically a more general `groupBy` function.\n *\n * Acts as a transducer if a transformer is given in list position.\n *\n * @func\n * @memberOf R\n * @since v0.20.0\n * @category List\n * @sig ((a, b) -> a) -> a -> (b -> String) -> [b] -> {String: a}\n * @param {Function} valueFn The function that reduces the elements of each group to a single\n *        value. Receives two values, accumulator for a particular group and the current element.\n * @param {*} acc The (initial) accumulator value for each group.\n * @param {Function} keyFn The function that maps the list's element into a key.\n * @param {Array} list The array to group.\n * @return {Object} An object with the output of `keyFn` for keys, mapped to the output of\n *         `valueFn` for elements which produced that key when passed to `keyFn`.\n * @see R.groupBy, R.reduce\n * @example\n *\n *      var reduceToNamesBy = R.reduceBy((acc, student) => acc.concat(student.name), []);\n *      var namesByGrade = reduceToNamesBy(function(student) {\n *        var score = student.score;\n *        return score < 65 ? 'F' :\n *               score < 70 ? 'D' :\n *               score < 80 ? 'C' :\n *               score < 90 ? 'B' : 'A';\n *      });\n *      var students = [{name: 'Lucy', score: 92},\n *                      {name: 'Drew', score: 85},\n *                      // ...\n *                      {name: 'Bart', score: 62}];\n *      namesByGrade(students);\n *      // {\n *      //   'A': ['Lucy'],\n *      //   'B': ['Drew']\n *      //   // ...,\n *      //   'F': ['Bart']\n *      // }\n */\nmodule.exports = _curryN(4, [], _dispatchable([], _xreduceBy, function reduceBy(valueFn, valueAcc, keyFn, list) {\n  return _reduce(function (acc, elt) {\n    var key = keyFn(elt);\n    acc[key] = valueFn(_has(key, acc) ? acc[key] : valueAcc, elt);\n    return acc;\n  }, {}, list);\n}));\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/reduceBy.js\n// module id = 39\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/reduceBy.js?");
+
+/***/ }),
+/* 40 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _complement = __webpack_require__(77);\nvar _curry2 = __webpack_require__(0);\nvar filter = __webpack_require__(46);\n\n/**\n * The complement of `filter`.\n *\n * Acts as a transducer if a transformer is given in list position.\n *\n * @func\n * @memberOf R\n * @since v0.1.0\n * @category List\n * @sig Filterable f => (a -> Boolean) -> f a -> f a\n * @param {Function} pred\n * @param {Array} filterable\n * @return {Array}\n * @see R.filter, R.transduce, R.addIndex\n * @example\n *\n *      var isOdd = (n) => n % 2 === 1;\n *\n *      R.reject(isOdd, [1, 2, 3, 4]); //=> [2, 4]\n *\n *      R.reject(isOdd, {a: 1, b: 2, c: 3, d: 4}); //=> {b: 2, d: 4}\n */\nmodule.exports = _curry2(function reject(pred, filterable) {\n  return filter(_complement(pred), filterable);\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/reject.js\n// module id = 40\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/reject.js?");
+
+/***/ }),
+/* 41 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry1 = __webpack_require__(1);\nvar _isString = __webpack_require__(34);\n\n/**\n * Returns a new list or string with the elements or characters in reverse\n * order.\n *\n * @func\n * @memberOf R\n * @since v0.1.0\n * @category List\n * @sig [a] -> [a]\n * @sig String -> String\n * @param {Array|String} list\n * @return {Array|String}\n * @example\n *\n *      R.reverse([1, 2, 3]);  //=> [3, 2, 1]\n *      R.reverse([1, 2]);     //=> [2, 1]\n *      R.reverse([1]);        //=> [1]\n *      R.reverse([]);         //=> []\n *\n *      R.reverse('abc');      //=> 'cba'\n *      R.reverse('ab');       //=> 'ba'\n *      R.reverse('a');        //=> 'a'\n *      R.reverse('');         //=> ''\n */\nmodule.exports = _curry1(function reverse(list) {\n  return _isString(list) ? list.split('').reverse().join('') : Array.prototype.slice.call(list, 0).reverse();\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/reverse.js\n// module id = 41\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/reverse.js?");
+
+/***/ }),
+/* 42 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _concat = __webpack_require__(9);\nvar _curry2 = __webpack_require__(0);\nvar _reduce = __webpack_require__(8);\nvar map = __webpack_require__(7);\n\n/**\n * ap applies a list of functions to a list of values.\n *\n * Dispatches to the `ap` method of the second argument, if present. Also\n * treats curried functions as applicatives.\n *\n * @func\n * @memberOf R\n * @since v0.3.0\n * @category Function\n * @sig [a -> b] -> [a] -> [b]\n * @sig Apply f => f (a -> b) -> f a -> f b\n * @param {Array} fns An array of functions\n * @param {Array} vs An array of values\n * @return {Array} An array of results of applying each of `fns` to all of `vs` in turn.\n * @example\n *\n *      R.ap([R.multiply(2), R.add(3)], [1,2,3]); //=> [2, 4, 6, 4, 5, 6]\n *      R.ap([R.concat('tasty '), R.toUpper], ['pizza', 'salad']); //=> [\"tasty pizza\", \"tasty salad\", \"PIZZA\", \"SALAD\"]\n * @symb R.ap([f, g], [a, b]) = [f(a), f(b), g(a), g(b)]\n */\nmodule.exports = _curry2(function ap(applicative, fn) {\n  return typeof applicative.ap === 'function' ? applicative.ap(fn) : typeof applicative === 'function' ? function (x) {\n    return applicative(x)(fn(x));\n  } :\n  // else\n  _reduce(function (acc, f) {\n    return _concat(acc, map(f, fn));\n  }, [], applicative);\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/ap.js\n// module id = 42\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/ap.js?");
+
+/***/ }),
+/* 43 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\nvar _dispatchable = __webpack_require__(3);\nvar _makeFlat = __webpack_require__(85);\nvar _xchain = __webpack_require__(202);\nvar map = __webpack_require__(7);\n\n/**\n * `chain` maps a function over a list and concatenates the results. `chain`\n * is also known as `flatMap` in some libraries\n *\n * Dispatches to the `chain` method of the second argument, if present,\n * according to the [FantasyLand Chain spec](https://github.com/fantasyland/fantasy-land#chain).\n *\n * @func\n * @memberOf R\n * @since v0.3.0\n * @category List\n * @sig Chain m => (a -> m b) -> m a -> m b\n * @param {Function} fn The function to map with\n * @param {Array} list The list to map over\n * @return {Array} The result of flat-mapping `list` with `fn`\n * @example\n *\n *      var duplicate = n => [n, n];\n *      R.chain(duplicate, [1, 2, 3]); //=> [1, 1, 2, 2, 3, 3]\n *\n *      R.chain(R.append, R.head)([1, 2, 3]); //=> [1, 2, 3, 1]\n */\nmodule.exports = _curry2(_dispatchable(['chain'], _xchain, function chain(fn, monad) {\n  if (typeof monad === 'function') {\n    return function (x) {\n      return fn(monad(x))(x);\n    };\n  }\n  return _makeFlat(false)(map(fn, monad));\n}));\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/chain.js\n// module id = 43\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/chain.js?");
+
+/***/ }),
+/* 44 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar pipe = __webpack_require__(102);\nvar reverse = __webpack_require__(41);\n\n/**\n * Performs right-to-left function composition. The rightmost function may have\n * any arity; the remaining functions must be unary.\n *\n * **Note:** The result of compose is not automatically curried.\n *\n * @func\n * @memberOf R\n * @since v0.1.0\n * @category Function\n * @sig ((y -> z), (x -> y), ..., (o -> p), ((a, b, ..., n) -> o)) -> ((a, b, ..., n) -> z)\n * @param {...Function} ...functions The functions to compose\n * @return {Function}\n * @see R.pipe\n * @example\n *\n *      var classyGreeting = (firstName, lastName) => \"The name's \" + lastName + \", \" + firstName + \" \" + lastName\n *      var yellGreeting = R.compose(R.toUpper, classyGreeting);\n *      yellGreeting('James', 'Bond'); //=> \"THE NAME'S BOND, JAMES BOND\"\n *\n *      R.compose(Math.abs, R.add(1), R.multiply(2))(-4) //=> 7\n *\n * @symb R.compose(f, g, h)(a, b) = f(g(h(a, b)))\n */\nmodule.exports = function compose() {\n  if (arguments.length === 0) {\n    throw new Error('compose requires at least one argument');\n  }\n  return pipe.apply(this, reverse(arguments));\n};\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/compose.js\n// module id = 44\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/compose.js?");
+
+/***/ }),
+/* 45 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\nvar _isArray = __webpack_require__(14);\nvar _isFunction = __webpack_require__(32);\nvar toString = __webpack_require__(26);\n\n/**\n * Returns the result of concatenating the given lists or strings.\n *\n * Note: `R.concat` expects both arguments to be of the same type,\n * unlike the native `Array.prototype.concat` method. It will throw\n * an error if you `concat` an Array with a non-Array value.\n *\n * Dispatches to the `concat` method of the first argument, if present.\n *\n * @func\n * @memberOf R\n * @since v0.1.0\n * @category List\n * @sig [a] -> [a] -> [a]\n * @sig String -> String -> String\n * @param {Array|String} firstList The first list\n * @param {Array|String} secondList The second list\n * @return {Array|String} A list consisting of the elements of `firstList` followed by the elements of\n * `secondList`.\n *\n * @example\n *\n *      R.concat('ABC', 'DEF'); // 'ABCDEF'\n *      R.concat([4, 5, 6], [1, 2, 3]); //=> [4, 5, 6, 1, 2, 3]\n *      R.concat([], []); //=> []\n */\nmodule.exports = _curry2(function concat(a, b) {\n  if (a == null || !_isFunction(a.concat)) {\n    throw new TypeError(toString(a) + ' does not have a method named \"concat\"');\n  }\n  if (_isArray(a) && !_isArray(b)) {\n    throw new TypeError(toString(b) + ' is not an array');\n  }\n  return a.concat(b);\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/concat.js\n// module id = 45\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/concat.js?");
+
+/***/ }),
+/* 46 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\nvar _dispatchable = __webpack_require__(3);\nvar _filter = __webpack_require__(79);\nvar _isObject = __webpack_require__(84);\nvar _reduce = __webpack_require__(8);\nvar _xfilter = __webpack_require__(207);\nvar keys = __webpack_require__(12);\n\n/**\n * Takes a predicate and a \"filterable\", and returns a new filterable of the\n * same type containing the members of the given filterable which satisfy the\n * given predicate.\n *\n * Dispatches to the `filter` method of the second argument, if present.\n *\n * Acts as a transducer if a transformer is given in list position.\n *\n * @func\n * @memberOf R\n * @since v0.1.0\n * @category List\n * @sig Filterable f => (a -> Boolean) -> f a -> f a\n * @param {Function} pred\n * @param {Array} filterable\n * @return {Array}\n * @see R.reject, R.transduce, R.addIndex\n * @example\n *\n *      var isEven = n => n % 2 === 0;\n *\n *      R.filter(isEven, [1, 2, 3, 4]); //=> [2, 4]\n *\n *      R.filter(isEven, {a: 1, b: 2, c: 3, d: 4}); //=> {b: 2, d: 4}\n */\nmodule.exports = _curry2(_dispatchable(['filter'], _xfilter, function (pred, filterable) {\n  return _isObject(filterable) ? _reduce(function (acc, key) {\n    if (pred(filterable[key])) {\n      acc[key] = filterable[key];\n    }\n    return acc;\n  }, {}, keys(filterable)) :\n  // else\n  _filter(pred, filterable);\n}));\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/filter.js\n// module id = 46\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/filter.js?");
+
+/***/ }),
+/* 47 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry1 = __webpack_require__(1);\nvar _identity = __webpack_require__(50);\n\n/**\n * A function that does nothing but return the parameter supplied to it. Good\n * as a default or placeholder function.\n *\n * @func\n * @memberOf R\n * @since v0.1.0\n * @category Function\n * @sig a -> a\n * @param {*} x The value to return.\n * @return {*} The input value, `x`.\n * @example\n *\n *      R.identity(1); //=> 1\n *\n *      var obj = {};\n *      R.identity(obj) === obj; //=> true\n * @symb R.identity(a) = a\n */\nmodule.exports = _curry1(_identity);\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/identity.js\n// module id = 47\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/identity.js?");
+
+/***/ }),
+/* 48 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _objectAssign = __webpack_require__(192);\n\nmodule.exports = typeof Object.assign === 'function' ? Object.assign : _objectAssign;\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/internal/_assign.js\n// module id = 48\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/internal/_assign.js?");
+
+/***/ }),
+/* 49 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nmodule.exports = function _containsWith(pred, x, list) {\n  var idx = 0;\n  var len = list.length;\n\n  while (idx < len) {\n    if (pred(x, list[idx])) {\n      return true;\n    }\n    idx += 1;\n  }\n  return false;\n};\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/internal/_containsWith.js\n// module id = 49\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/internal/_containsWith.js?");
+
+/***/ }),
+/* 50 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nmodule.exports = function _identity(x) {\n  return x;\n};\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/internal/_identity.js\n// module id = 50\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/internal/_identity.js?");
+
+/***/ }),
+/* 51 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nmodule.exports = function _isTransformer(obj) {\n  return typeof obj['@@transducer/step'] === 'function';\n};\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/internal/_isTransformer.js\n// module id = 51\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/internal/_isTransformer.js?");
+
+/***/ }),
+/* 52 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\n\n/**\n * Returns a function that when supplied an object returns the indicated\n * property of that object, if it exists.\n *\n * @func\n * @memberOf R\n * @since v0.1.0\n * @category Object\n * @sig s -> {s: a} -> a | Undefined\n * @param {String} p The property name\n * @param {Object} obj The object to query\n * @return {*} The value at `obj.p`.\n * @see R.path\n * @example\n *\n *      R.prop('x', {x: 100}); //=> 100\n *      R.prop('x', {}); //=> undefined\n */\nmodule.exports = _curry2(function prop(p, obj) {\n  return obj[p];\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/prop.js\n// module id = 52\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/prop.js?");
+
+/***/ }),
+/* 53 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _checkForMethod = __webpack_require__(20);\nvar _curry1 = __webpack_require__(1);\nvar slice = __webpack_require__(17);\n\n/**\n * Returns all but the first element of the given list or string (or object\n * with a `tail` method).\n *\n * Dispatches to the `slice` method of the first argument, if present.\n *\n * @func\n * @memberOf R\n * @since v0.1.0\n * @category List\n * @sig [a] -> [a]\n * @sig String -> String\n * @param {*} list\n * @return {*}\n * @see R.head, R.init, R.last\n * @example\n *\n *      R.tail([1, 2, 3]);  //=> [2, 3]\n *      R.tail([1, 2]);     //=> [2]\n *      R.tail([1]);        //=> []\n *      R.tail([]);         //=> []\n *\n *      R.tail('abc');  //=> 'bc'\n *      R.tail('ab');   //=> 'b'\n *      R.tail('a');    //=> ''\n *      R.tail('');     //=> ''\n */\nmodule.exports = _curry1(_checkForMethod('tail', slice(1, Infinity)));\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/tail.js\n// module id = 53\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/tail.js?");
+
+/***/ }),
+/* 54 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry1 = __webpack_require__(1);\n\n/**\n * Gives a single-word string description of the (native) type of a value,\n * returning such answers as 'Object', 'Number', 'Array', or 'Null'. Does not\n * attempt to distinguish user Object types any further, reporting them all as\n * 'Object'.\n *\n * @func\n * @memberOf R\n * @since v0.8.0\n * @category Type\n * @sig (* -> {*}) -> String\n * @param {*} val The value to test\n * @return {String}\n * @example\n *\n *      R.type({}); //=> \"Object\"\n *      R.type(1); //=> \"Number\"\n *      R.type(false); //=> \"Boolean\"\n *      R.type('s'); //=> \"String\"\n *      R.type(null); //=> \"Null\"\n *      R.type([]); //=> \"Array\"\n *      R.type(/[A-z]/); //=> \"RegExp\"\n */\nmodule.exports = _curry1(function type(val) {\n  return val === null ? 'Null' : val === undefined ? 'Undefined' : Object.prototype.toString.call(val).slice(8, -1);\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/type.js\n// module id = 54\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/type.js?");
+
+/***/ }),
+/* 55 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar identity = __webpack_require__(47);\nvar uniqBy = __webpack_require__(110);\n\n/**\n * Returns a new list containing only one copy of each element in the original\n * list. `R.equals` is used to determine equality.\n *\n * @func\n * @memberOf R\n * @since v0.1.0\n * @category List\n * @sig [a] -> [a]\n * @param {Array} list The array to consider.\n * @return {Array} The list of unique items.\n * @example\n *\n *      R.uniq([1, 1, 2, 1]); //=> [1, 2]\n *      R.uniq([1, '1']);     //=> [1, '1']\n *      R.uniq([[42], [42]]); //=> [[42]]\n */\nmodule.exports = uniqBy(identity);\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/uniq.js\n// module id = 55\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/uniq.js?");
+
+/***/ }),
+/* 56 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _containsWith = __webpack_require__(49);\nvar _curry2 = __webpack_require__(0);\n\n/**\n * Returns a new list containing only one copy of each element in the original\n * list, based upon the value returned by applying the supplied predicate to\n * two list elements. Prefers the first item if two items compare equal based\n * on the predicate.\n *\n * @func\n * @memberOf R\n * @since v0.2.0\n * @category List\n * @sig (a, a -> Boolean) -> [a] -> [a]\n * @param {Function} pred A predicate used to test whether two items are equal.\n * @param {Array} list The array to consider.\n * @return {Array} The list of unique items.\n * @example\n *\n *      var strEq = R.eqBy(String);\n *      R.uniqWith(strEq)([1, '1', 2, 1]); //=> [1, 2]\n *      R.uniqWith(strEq)([{}, {}]);       //=> [{}]\n *      R.uniqWith(strEq)([1, '1', 1]);    //=> [1]\n *      R.uniqWith(strEq)(['1', 1, 1]);    //=> ['1']\n */\nmodule.exports = _curry2(function uniqWith(pred, list) {\n  var idx = 0;\n  var len = list.length;\n  var result = [];\n  var item;\n  while (idx < len) {\n    item = list[idx];\n    if (!_containsWith(pred, item, result)) {\n      result[result.length] = item;\n    }\n    idx += 1;\n  }\n  return result;\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/uniqWith.js\n// module id = 56\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/uniqWith.js?");
+
+/***/ }),
+/* 57 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nObject.defineProperty(exports, \"__esModule\", {\n  value: true\n});\nexports.simpleFormat = exports.numToCurrency = exports.formatNumber = undefined;\n\nvar _ramda = __webpack_require__(124);\n\nvar formatNumber = exports.formatNumber = function formatNumber(num) {\n  var numberString = num.toString();\n  var numberParts = numberString.split('.');\n  var n = numberParts[0] + (numberParts[1] ? '.' + numberParts[1].slice(0, 2) : '');\n\n  return n.replace(/\\B(?=(\\d{3})+(?!\\d))/g, \",\");\n};\n\nvar numToCurrency = exports.numToCurrency = function numToCurrency(number) {\n  var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {\n    locale: 'twd'\n  };\n\n  var locale = (0, _ramda.prop)('locale')(options);\n  var currency = {\n    TWD: '$',\n    USD: '$',\n    JPY: '¥',\n    CAD: '$'\n  };\n  var getCurrency = function getCurrency(num) {\n    return (0, _ramda.prop)(locale.toUpperCase())(currency) + num;\n  };\n\n  return (0, _ramda.compose)(getCurrency, formatNumber)(number);\n};\n\nvar simpleFormat = exports.simpleFormat = function simpleFormat(str) {\n  return str.split('\\n').map(function (line) {\n    return line + '<br/>';\n  }).join('');\n};\n\n//////////////////\n// WEBPACK FOOTER\n// ./app/js/utils.js\n// module id = 57\n// module chunks = 0\n\n//# sourceURL=webpack:///./app/js/utils.js?");
+
+/***/ }),
+/* 58 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _concat = __webpack_require__(9);\nvar _curry3 = __webpack_require__(2);\n\n/**\n * Applies a function to the value at the given index of an array, returning a\n * new copy of the array with the element at the given index replaced with the\n * result of the function application.\n *\n * @func\n * @memberOf R\n * @since v0.14.0\n * @category List\n * @sig (a -> a) -> Number -> [a] -> [a]\n * @param {Function} fn The function to apply.\n * @param {Number} idx The index.\n * @param {Array|Arguments} list An array-like object whose value\n *        at the supplied index will be replaced.\n * @return {Array} A copy of the supplied array-like object with\n *         the element at index `idx` replaced with the value\n *         returned by applying `fn` to the existing element.\n * @see R.update\n * @example\n *\n *      R.adjust(R.add(10), 1, [1, 2, 3]);     //=> [1, 12, 3]\n *      R.adjust(R.add(10))(1)([1, 2, 3]);     //=> [1, 12, 3]\n * @symb R.adjust(f, -1, [a, b]) = [a, f(b)]\n * @symb R.adjust(f, 0, [a, b]) = [f(a), b]\n */\nmodule.exports = _curry3(function adjust(fn, idx, list) {\n  if (idx >= list.length || idx < -list.length) {\n    return list;\n  }\n  var start = idx < 0 ? list.length : 0;\n  var _idx = start + idx;\n  var _list = _concat(list);\n  _list[_idx] = fn(list[_idx]);\n  return _list;\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/adjust.js\n// module id = 58\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/adjust.js?");
+
+/***/ }),
+/* 59 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\n\n/**\n * Returns `true` if both arguments are `true`; `false` otherwise.\n *\n * @func\n * @memberOf R\n * @since v0.1.0\n * @category Logic\n * @sig a -> b -> a | b\n * @param {Any} a\n * @param {Any} b\n * @return {Any} the first argument if it is falsy, otherwise the second argument.\n * @see R.both\n * @example\n *\n *      R.and(true, true); //=> true\n *      R.and(true, false); //=> false\n *      R.and(false, true); //=> false\n *      R.and(false, false); //=> false\n */\nmodule.exports = _curry2(function and(a, b) {\n  return a && b;\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/and.js\n// module id = 59\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/and.js?");
+
+/***/ }),
+/* 60 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\nvar _dispatchable = __webpack_require__(3);\nvar _xany = __webpack_require__(86);\n\n/**\n * Returns `true` if at least one of elements of the list match the predicate,\n * `false` otherwise.\n *\n * Dispatches to the `any` method of the second argument, if present.\n *\n * Acts as a transducer if a transformer is given in list position.\n *\n * @func\n * @memberOf R\n * @since v0.1.0\n * @category List\n * @sig (a -> Boolean) -> [a] -> Boolean\n * @param {Function} fn The predicate function.\n * @param {Array} list The array to consider.\n * @return {Boolean} `true` if the predicate is satisfied by at least one element, `false`\n *         otherwise.\n * @see R.all, R.none, R.transduce\n * @example\n *\n *      var lessThan0 = R.flip(R.lt)(0);\n *      var lessThan2 = R.flip(R.lt)(2);\n *      R.any(lessThan0)([1, 2]); //=> false\n *      R.any(lessThan2)([1, 2]); //=> true\n */\nmodule.exports = _curry2(_dispatchable(['any'], _xany, function any(fn, list) {\n  var idx = 0;\n  while (idx < list.length) {\n    if (fn(list[idx])) {\n      return true;\n    }\n    idx += 1;\n  }\n  return false;\n}));\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/any.js\n// module id = 60\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/any.js?");
+
+/***/ }),
+/* 61 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\n\n/**\n * Applies function `fn` to the argument list `args`. This is useful for\n * creating a fixed-arity function from a variadic function. `fn` should be a\n * bound function if context is significant.\n *\n * @func\n * @memberOf R\n * @since v0.7.0\n * @category Function\n * @sig (*... -> a) -> [*] -> a\n * @param {Function} fn The function which will be called with `args`\n * @param {Array} args The arguments to call `fn` with\n * @return {*} result The result, equivalent to `fn(...args)`\n * @see R.call, R.unapply\n * @example\n *\n *      var nums = [1, 2, 3, -99, 42, 6, 7];\n *      R.apply(Math.max, nums); //=> 42\n * @symb R.apply(f, [a, b, c]) = f(a, b, c)\n */\nmodule.exports = _curry2(function apply(fn, args) {\n  return fn.apply(this, args);\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/apply.js\n// module id = 61\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/apply.js?");
+
+/***/ }),
+/* 62 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry3 = __webpack_require__(2);\nvar _has = __webpack_require__(6);\nvar _isArray = __webpack_require__(14);\nvar _isInteger = __webpack_require__(82);\nvar assoc = __webpack_require__(28);\n\n/**\n * Makes a shallow clone of an object, setting or overriding the nodes required\n * to create the given path, and placing the specific value at the tail end of\n * that path. Note that this copies and flattens prototype properties onto the\n * new object as well. All non-primitive properties are copied by reference.\n *\n * @func\n * @memberOf R\n * @since v0.8.0\n * @category Object\n * @typedefn Idx = String | Int\n * @sig [Idx] -> a -> {a} -> {a}\n * @param {Array} path the path to set\n * @param {*} val The new value\n * @param {Object} obj The object to clone\n * @return {Object} A new object equivalent to the original except along the specified path.\n * @see R.dissocPath\n * @example\n *\n *      R.assocPath(['a', 'b', 'c'], 42, {a: {b: {c: 0}}}); //=> {a: {b: {c: 42}}}\n *\n *      // Any missing or non-object keys in path will be overridden\n *      R.assocPath(['a', 'b', 'c'], 42, {a: 5}); //=> {a: {b: {c: 42}}}\n */\nmodule.exports = _curry3(function assocPath(path, val, obj) {\n  if (path.length === 0) {\n    return val;\n  }\n  var idx = path[0];\n  if (path.length > 1) {\n    var nextObj = _has(idx, obj) ? obj[idx] : _isInteger(path[1]) ? [] : {};\n    val = assocPath(Array.prototype.slice.call(path, 1), val, nextObj);\n  }\n  if (_isInteger(idx) && _isArray(obj)) {\n    var arr = [].concat(obj);\n    arr[idx] = val;\n    return arr;\n  } else {\n    return assoc(idx, val, obj);\n  }\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/assocPath.js\n// module id = 62\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/assocPath.js?");
+
+/***/ }),
+/* 63 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _arity = __webpack_require__(11);\nvar _curry2 = __webpack_require__(0);\n\n/**\n * Creates a function that is bound to a context.\n * Note: `R.bind` does not provide the additional argument-binding capabilities of\n * [Function.prototype.bind](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/bind).\n *\n * @func\n * @memberOf R\n * @since v0.6.0\n * @category Function\n * @category Object\n * @sig (* -> *) -> {*} -> (* -> *)\n * @param {Function} fn The function to bind to context\n * @param {Object} thisObj The context to bind `fn` to\n * @return {Function} A function that will execute in the context of `thisObj`.\n * @see R.partial\n * @example\n *\n *      var log = R.bind(console.log, console);\n *      R.pipe(R.assoc('a', 2), R.tap(log), R.assoc('a', 3))({a: 1}); //=> {a: 3}\n *      // logs {a: 2}\n * @symb R.bind(f, o)(a, b) = f.call(o, a, b)\n */\nmodule.exports = _curry2(function bind(fn, thisObj) {\n  return _arity(fn.length, function () {\n    return fn.apply(thisObj, arguments);\n  });\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/bind.js\n// module id = 63\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/bind.js?");
+
+/***/ }),
+/* 64 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar chain = __webpack_require__(43);\nvar compose = __webpack_require__(44);\nvar map = __webpack_require__(7);\n\n/**\n * Returns the right-to-left Kleisli composition of the provided functions,\n * each of which must return a value of a type supported by [`chain`](#chain).\n *\n * `R.composeK(h, g, f)` is equivalent to `R.compose(R.chain(h), R.chain(g), R.chain(f))`.\n *\n * @func\n * @memberOf R\n * @since v0.16.0\n * @category Function\n * @sig Chain m => ((y -> m z), (x -> m y), ..., (a -> m b)) -> (a -> m z)\n * @param {...Function} ...functions The functions to compose\n * @return {Function}\n * @see R.pipeK\n * @example\n *\n *       //  get :: String -> Object -> Maybe *\n *       var get = R.curry((propName, obj) => Maybe(obj[propName]))\n *\n *       //  getStateCode :: Maybe String -> Maybe String\n *       var getStateCode = R.composeK(\n *         R.compose(Maybe.of, R.toUpper),\n *         get('state'),\n *         get('address'),\n *         get('user'),\n *       );\n *       getStateCode({\"user\":{\"address\":{\"state\":\"ny\"}}}); //=> Maybe.Just(\"NY\")\n *       getStateCode({}); //=> Maybe.Nothing()\n * @symb R.composeK(f, g, h)(a) = R.chain(f, R.chain(g, h(a)))\n */\nmodule.exports = function composeK() {\n  if (arguments.length === 0) {\n    throw new Error('composeK requires at least one argument');\n  }\n  var init = Array.prototype.slice.call(arguments);\n  var last = init.pop();\n  return compose(compose.apply(this, map(chain, init)), last);\n};\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/composeK.js\n// module id = 64\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/composeK.js?");
+
+/***/ }),
+/* 65 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\nvar curry = __webpack_require__(29);\nvar nAry = __webpack_require__(38);\n\n/**\n * Wraps a constructor function inside a curried function that can be called\n * with the same arguments and returns the same type. The arity of the function\n * returned is specified to allow using variadic constructor functions.\n *\n * @func\n * @memberOf R\n * @since v0.4.0\n * @category Function\n * @sig Number -> (* -> {*}) -> (* -> {*})\n * @param {Number} n The arity of the constructor function.\n * @param {Function} Fn The constructor function to wrap.\n * @return {Function} A wrapped, curried constructor function.\n * @example\n *\n *      // Variadic Constructor function\n *      function Salad() {\n *        this.ingredients = arguments;\n *      };\n *      Salad.prototype.recipe = function() {\n *        var instructions = R.map((ingredient) => (\n *          'Add a whollop of ' + ingredient, this.ingredients)\n *        )\n *        return R.join('\\n', instructions)\n *      }\n *\n *      var ThreeLayerSalad = R.constructN(3, Salad)\n *\n *      // Notice we no longer need the 'new' keyword, and the constructor is curried for 3 arguments.\n *      var salad = ThreeLayerSalad('Mayonnaise')('Potato Chips')('Ketchup')\n *      console.log(salad.recipe());\n *      // Add a whollop of Mayonnaise\n *      // Add a whollop of Potato Chips\n *      // Add a whollop of Potato Ketchup\n */\nmodule.exports = _curry2(function constructN(n, Fn) {\n  if (n > 10) {\n    throw new Error('Constructor with greater than ten arguments');\n  }\n  if (n === 0) {\n    return function () {\n      return new Fn();\n    };\n  }\n  return curry(nAry(n, function ($0, $1, $2, $3, $4, $5, $6, $7, $8, $9) {\n    switch (arguments.length) {\n      case 1:\n        return new Fn($0);\n      case 2:\n        return new Fn($0, $1);\n      case 3:\n        return new Fn($0, $1, $2);\n      case 4:\n        return new Fn($0, $1, $2, $3);\n      case 5:\n        return new Fn($0, $1, $2, $3, $4);\n      case 6:\n        return new Fn($0, $1, $2, $3, $4, $5);\n      case 7:\n        return new Fn($0, $1, $2, $3, $4, $5, $6);\n      case 8:\n        return new Fn($0, $1, $2, $3, $4, $5, $6, $7);\n      case 9:\n        return new Fn($0, $1, $2, $3, $4, $5, $6, $7, $8);\n      case 10:\n        return new Fn($0, $1, $2, $3, $4, $5, $6, $7, $8, $9);\n    }\n  }));\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/constructN.js\n// module id = 65\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/constructN.js?");
+
+/***/ }),
+/* 66 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\nvar _map = __webpack_require__(35);\nvar curryN = __webpack_require__(5);\nvar max = __webpack_require__(19);\nvar pluck = __webpack_require__(25);\nvar reduce = __webpack_require__(13);\n\n/**\n * Accepts a converging function and a list of branching functions and returns\n * a new function. When invoked, this new function is applied to some\n * arguments, each branching function is applied to those same arguments. The\n * results of each branching function are passed as arguments to the converging\n * function to produce the return value.\n *\n * @func\n * @memberOf R\n * @since v0.4.2\n * @category Function\n * @sig (x1 -> x2 -> ... -> z) -> [(a -> b -> ... -> x1), (a -> b -> ... -> x2), ...] -> (a -> b -> ... -> z)\n * @param {Function} after A function. `after` will be invoked with the return values of\n *        `fn1` and `fn2` as its arguments.\n * @param {Array} functions A list of functions.\n * @return {Function} A new function.\n * @see R.useWith\n * @example\n *\n *      var average = R.converge(R.divide, [R.sum, R.length])\n *      average([1, 2, 3, 4, 5, 6, 7]) //=> 4\n *\n *      var strangeConcat = R.converge(R.concat, [R.toUpper, R.toLower])\n *      strangeConcat(\"Yodel\") //=> \"YODELyodel\"\n *\n * @symb R.converge(f, [g, h])(a, b) = f(g(a, b), h(a, b))\n */\nmodule.exports = _curry2(function converge(after, fns) {\n  return curryN(reduce(max, 0, pluck('length', fns)), function () {\n    var args = arguments;\n    var context = this;\n    return after.apply(context, _map(function (fn) {\n      return fn.apply(context, args);\n    }, fns));\n  });\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/converge.js\n// module id = 66\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/converge.js?");
+
+/***/ }),
+/* 67 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\n\n/**\n * Returns the second argument if it is not `null`, `undefined` or `NaN`\n * otherwise the first argument is returned.\n *\n * @func\n * @memberOf R\n * @since v0.10.0\n * @category Logic\n * @sig a -> b -> a | b\n * @param {a} default The default value.\n * @param {b} val `val` will be returned instead of `default` unless `val` is `null`, `undefined` or `NaN`.\n * @return {*} The second value if it is not `null`, `undefined` or `NaN`, otherwise the default value\n * @example\n *\n *      var defaultTo42 = R.defaultTo(42);\n *\n *      defaultTo42(null);  //=> 42\n *      defaultTo42(undefined);  //=> 42\n *      defaultTo42('Ramda');  //=> 'Ramda'\n *      // parseInt('string') results in NaN\n *      defaultTo42(parseInt('string')); //=> 42\n */\nmodule.exports = _curry2(function defaultTo(d, v) {\n  return v == null || v !== v ? d : v;\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/defaultTo.js\n// module id = 67\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/defaultTo.js?");
+
+/***/ }),
+/* 68 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _contains = __webpack_require__(16);\nvar _curry2 = __webpack_require__(0);\n\n/**\n * Finds the set (i.e. no duplicates) of all elements in the first list not\n * contained in the second list. Objects and Arrays are compared are compared\n * in terms of value equality, not reference equality.\n *\n * @func\n * @memberOf R\n * @since v0.1.0\n * @category Relation\n * @sig [*] -> [*] -> [*]\n * @param {Array} list1 The first list.\n * @param {Array} list2 The second list.\n * @return {Array} The elements in `list1` that are not in `list2`.\n * @see R.differenceWith, R.symmetricDifference, R.symmetricDifferenceWith\n * @example\n *\n *      R.difference([1,2,3,4], [7,6,5,4,3]); //=> [1,2]\n *      R.difference([7,6,5,4,3], [1,2,3,4]); //=> [7,6,5]\n *      R.difference([{a: 1}, {b: 2}], [{a: 1}, {c: 3}]) //=> [{b: 2}]\n */\nmodule.exports = _curry2(function difference(first, second) {\n  var out = [];\n  var idx = 0;\n  var firstLen = first.length;\n  while (idx < firstLen) {\n    if (!_contains(first[idx], second) && !_contains(first[idx], out)) {\n      out[out.length] = first[idx];\n    }\n    idx += 1;\n  }\n  return out;\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/difference.js\n// module id = 68\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/difference.js?");
+
+/***/ }),
+/* 69 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _containsWith = __webpack_require__(49);\nvar _curry3 = __webpack_require__(2);\n\n/**\n * Finds the set (i.e. no duplicates) of all elements in the first list not\n * contained in the second list. Duplication is determined according to the\n * value returned by applying the supplied predicate to two list elements.\n *\n * @func\n * @memberOf R\n * @since v0.1.0\n * @category Relation\n * @sig ((a, a) -> Boolean) -> [a] -> [a] -> [a]\n * @param {Function} pred A predicate used to test whether two items are equal.\n * @param {Array} list1 The first list.\n * @param {Array} list2 The second list.\n * @return {Array} The elements in `list1` that are not in `list2`.\n * @see R.difference, R.symmetricDifference, R.symmetricDifferenceWith\n * @example\n *\n *      var cmp = (x, y) => x.a === y.a;\n *      var l1 = [{a: 1}, {a: 2}, {a: 3}];\n *      var l2 = [{a: 3}, {a: 4}];\n *      R.differenceWith(cmp, l1, l2); //=> [{a: 1}, {a: 2}]\n */\nmodule.exports = _curry3(function differenceWith(pred, first, second) {\n  var out = [];\n  var idx = 0;\n  var firstLen = first.length;\n  while (idx < firstLen) {\n    if (!_containsWith(pred, first[idx], second) && !_containsWith(pred, first[idx], out)) {\n      out.push(first[idx]);\n    }\n    idx += 1;\n  }\n  return out;\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/differenceWith.js\n// module id = 69\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/differenceWith.js?");
+
+/***/ }),
+/* 70 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\n\n/**\n * Returns a new object that does not contain a `prop` property.\n *\n * @func\n * @memberOf R\n * @since v0.10.0\n * @category Object\n * @sig String -> {k: v} -> {k: v}\n * @param {String} prop The name of the property to dissociate\n * @param {Object} obj The object to clone\n * @return {Object} A new object equivalent to the original but without the specified property\n * @see R.assoc\n * @example\n *\n *      R.dissoc('b', {a: 1, b: 2, c: 3}); //=> {a: 1, c: 3}\n */\nmodule.exports = _curry2(function dissoc(prop, obj) {\n  var result = {};\n  for (var p in obj) {\n    result[p] = obj[p];\n  }\n  delete result[prop];\n  return result;\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/dissoc.js\n// module id = 70\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/dissoc.js?");
+
+/***/ }),
+/* 71 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\nvar _dispatchable = __webpack_require__(3);\nvar _xdrop = __webpack_require__(203);\nvar slice = __webpack_require__(17);\n\n/**\n * Returns all but the first `n` elements of the given list, string, or\n * transducer/transformer (or object with a `drop` method).\n *\n * Dispatches to the `drop` method of the second argument, if present.\n *\n * @func\n * @memberOf R\n * @since v0.1.0\n * @category List\n * @sig Number -> [a] -> [a]\n * @sig Number -> String -> String\n * @param {Number} n\n * @param {[a]} list\n * @return {[a]} A copy of list without the first `n` elements\n * @see R.take, R.transduce, R.dropLast, R.dropWhile\n * @example\n *\n *      R.drop(1, ['foo', 'bar', 'baz']); //=> ['bar', 'baz']\n *      R.drop(2, ['foo', 'bar', 'baz']); //=> ['baz']\n *      R.drop(3, ['foo', 'bar', 'baz']); //=> []\n *      R.drop(4, ['foo', 'bar', 'baz']); //=> []\n *      R.drop(3, 'ramda');               //=> 'da'\n */\nmodule.exports = _curry2(_dispatchable(['drop'], _xdrop, function drop(n, xs) {\n  return slice(Math.max(0, n), Infinity, xs);\n}));\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/drop.js\n// module id = 71\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/drop.js?");
+
+/***/ }),
+/* 72 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\nvar _dispatchable = __webpack_require__(3);\nvar _xdropRepeatsWith = __webpack_require__(87);\nvar last = __webpack_require__(91);\n\n/**\n * Returns a new list without any consecutively repeating elements. Equality is\n * determined by applying the supplied predicate to each pair of consecutive elements. The\n * first element in a series of equal elements will be preserved.\n *\n * Acts as a transducer if a transformer is given in list position.\n *\n * @func\n * @memberOf R\n * @since v0.14.0\n * @category List\n * @sig (a, a -> Boolean) -> [a] -> [a]\n * @param {Function} pred A predicate used to test whether two items are equal.\n * @param {Array} list The array to consider.\n * @return {Array} `list` without repeating elements.\n * @see R.transduce\n * @example\n *\n *      var l = [1, -1, 1, 3, 4, -4, -4, -5, 5, 3, 3];\n *      R.dropRepeatsWith(R.eqBy(Math.abs), l); //=> [1, 3, 4, -5, 3]\n */\nmodule.exports = _curry2(_dispatchable([], _xdropRepeatsWith, function dropRepeatsWith(pred, list) {\n  var result = [];\n  var idx = 1;\n  var len = list.length;\n  if (len !== 0) {\n    result[0] = list[0];\n    while (idx < len) {\n      if (!pred(last(result), list[idx])) {\n        result[result.length] = list[idx];\n      }\n      idx += 1;\n    }\n  }\n  return result;\n}));\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/dropRepeatsWith.js\n// module id = 72\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/dropRepeatsWith.js?");
+
+/***/ }),
+/* 73 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry1 = __webpack_require__(1);\nvar _isArguments = __webpack_require__(81);\nvar _isArray = __webpack_require__(14);\nvar _isObject = __webpack_require__(84);\nvar _isString = __webpack_require__(34);\n\n/**\n * Returns the empty value of its argument's type. Ramda defines the empty\n * value of Array (`[]`), Object (`{}`), String (`''`), and Arguments. Other\n * types are supported if they define `<Type>.empty` and/or\n * `<Type>.prototype.empty`.\n *\n * Dispatches to the `empty` method of the first argument, if present.\n *\n * @func\n * @memberOf R\n * @since v0.3.0\n * @category Function\n * @sig a -> a\n * @param {*} x\n * @return {*}\n * @example\n *\n *      R.empty(Just(42));      //=> Nothing()\n *      R.empty([1, 2, 3]);     //=> []\n *      R.empty('unicorns');    //=> ''\n *      R.empty({x: 1, y: 2});  //=> {}\n */\nmodule.exports = _curry1(function empty(x) {\n  return x != null && typeof x.empty === 'function' ? x.empty() : x != null && x.constructor != null && typeof x.constructor.empty === 'function' ? x.constructor.empty() : _isArray(x) ? [] : _isString(x) ? '' : _isObject(x) ? {} : _isArguments(x) ? function () {\n    return arguments;\n  }() :\n  // else\n  void 0;\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/empty.js\n// module id = 73\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/empty.js?");
+
+/***/ }),
+/* 74 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\n\n/**\n * Returns true if its arguments are identical, false otherwise. Values are\n * identical if they reference the same memory. `NaN` is identical to `NaN`;\n * `0` and `-0` are not identical.\n *\n * @func\n * @memberOf R\n * @since v0.15.0\n * @category Relation\n * @sig a -> a -> Boolean\n * @param {*} a\n * @param {*} b\n * @return {Boolean}\n * @example\n *\n *      var o = {};\n *      R.identical(o, o); //=> true\n *      R.identical(1, 1); //=> true\n *      R.identical(1, '1'); //=> false\n *      R.identical([], []); //=> false\n *      R.identical(0, -0); //=> false\n *      R.identical(NaN, NaN); //=> true\n */\nmodule.exports = _curry2(function identical(a, b) {\n  // SameValue algorithm\n  if (a === b) {\n    // Steps 1-5, 7-10\n    // Steps 6.b-6.e: +0 != -0\n    return a !== 0 || 1 / a === 1 / b;\n  } else {\n    // Step 6.a: NaN == NaN\n    return a !== a && b !== b;\n  }\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/identical.js\n// module id = 74\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/identical.js?");
+
+/***/ }),
+/* 75 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _cloneRegExp = __webpack_require__(76);\nvar type = __webpack_require__(54);\n\n/**\n * Copies an object.\n *\n * @private\n * @param {*} value The value to be copied\n * @param {Array} refFrom Array containing the source references\n * @param {Array} refTo Array containing the copied source references\n * @param {Boolean} deep Whether or not to perform deep cloning.\n * @return {*} The copied value.\n */\nmodule.exports = function _clone(value, refFrom, refTo, deep) {\n  var copy = function copy(copiedValue) {\n    var len = refFrom.length;\n    var idx = 0;\n    while (idx < len) {\n      if (value === refFrom[idx]) {\n        return refTo[idx];\n      }\n      idx += 1;\n    }\n    refFrom[idx + 1] = value;\n    refTo[idx + 1] = copiedValue;\n    for (var key in value) {\n      copiedValue[key] = deep ? _clone(value[key], refFrom, refTo, true) : value[key];\n    }\n    return copiedValue;\n  };\n  switch (type(value)) {\n    case 'Object':\n      return copy({});\n    case 'Array':\n      return copy([]);\n    case 'Date':\n      return new Date(value.valueOf());\n    case 'RegExp':\n      return _cloneRegExp(value);\n    default:\n      return value;\n  }\n};\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/internal/_clone.js\n// module id = 75\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/internal/_clone.js?");
+
+/***/ }),
+/* 76 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nmodule.exports = function _cloneRegExp(pattern) {\n                                  return new RegExp(pattern.source, (pattern.global ? 'g' : '') + (pattern.ignoreCase ? 'i' : '') + (pattern.multiline ? 'm' : '') + (pattern.sticky ? 'y' : '') + (pattern.unicode ? 'u' : ''));\n};\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/internal/_cloneRegExp.js\n// module id = 76\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/internal/_cloneRegExp.js?");
+
+/***/ }),
+/* 77 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nmodule.exports = function _complement(f) {\n  return function () {\n    return !f.apply(this, arguments);\n  };\n};\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/internal/_complement.js\n// module id = 77\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/internal/_complement.js?");
+
+/***/ }),
+/* 78 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _arity = __webpack_require__(11);\nvar _curry2 = __webpack_require__(0);\n\nmodule.exports = function _createPartialApplicator(concat) {\n  return _curry2(function (fn, args) {\n    return _arity(Math.max(0, fn.length - args.length), function () {\n      return fn.apply(this, concat(args, arguments));\n    });\n  });\n};\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/internal/_createPartialApplicator.js\n// module id = 78\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/internal/_createPartialApplicator.js?");
+
+/***/ }),
+/* 79 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nmodule.exports = function _filter(fn, list) {\n  var idx = 0;\n  var len = list.length;\n  var result = [];\n\n  while (idx < len) {\n    if (fn(list[idx])) {\n      result[result.length] = list[idx];\n    }\n    idx += 1;\n  }\n  return result;\n};\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/internal/_filter.js\n// module id = 79\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/internal/_filter.js?");
+
+/***/ }),
+/* 80 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _typeof = typeof Symbol === \"function\" && typeof Symbol.iterator === \"symbol\" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === \"function\" && obj.constructor === Symbol && obj !== Symbol.prototype ? \"symbol\" : typeof obj; };\n\nvar equals = __webpack_require__(10);\n\nmodule.exports = function _indexOf(list, a, idx) {\n  var inf, item;\n  // Array.prototype.indexOf doesn't exist below IE9\n  if (typeof list.indexOf === 'function') {\n    switch (typeof a === 'undefined' ? 'undefined' : _typeof(a)) {\n      case 'number':\n        if (a === 0) {\n          // manually crawl the list to distinguish between +0 and -0\n          inf = 1 / a;\n          while (idx < list.length) {\n            item = list[idx];\n            if (item === 0 && 1 / item === inf) {\n              return idx;\n            }\n            idx += 1;\n          }\n          return -1;\n        } else if (a !== a) {\n          // NaN\n          while (idx < list.length) {\n            item = list[idx];\n            if (typeof item === 'number' && item !== item) {\n              return idx;\n            }\n            idx += 1;\n          }\n          return -1;\n        }\n        // non-zero numbers can utilise Set\n        return list.indexOf(a, idx);\n\n      // all these types can utilise Set\n      case 'string':\n      case 'boolean':\n      case 'function':\n      case 'undefined':\n        return list.indexOf(a, idx);\n\n      case 'object':\n        if (a === null) {\n          // null can utilise Set\n          return list.indexOf(a, idx);\n        }\n    }\n  }\n  // anything else not covered above, defer to R.equals\n  while (idx < list.length) {\n    if (equals(list[idx], a)) {\n      return idx;\n    }\n    idx += 1;\n  }\n  return -1;\n};\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/internal/_indexOf.js\n// module id = 80\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/internal/_indexOf.js?");
+
+/***/ }),
+/* 81 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _has = __webpack_require__(6);\n\nmodule.exports = function () {\n  var toString = Object.prototype.toString;\n  return toString.call(arguments) === '[object Arguments]' ? function _isArguments(x) {\n    return toString.call(x) === '[object Arguments]';\n  } : function _isArguments(x) {\n    return _has('callee', x);\n  };\n}();\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/internal/_isArguments.js\n// module id = 81\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/internal/_isArguments.js?");
+
+/***/ }),
+/* 82 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\n/**\n * Determine if the passed argument is an integer.\n *\n * @private\n * @param {*} n\n * @category Type\n * @return {Boolean}\n */\nmodule.exports = Number.isInteger || function _isInteger(n) {\n  return n << 0 === n;\n};\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/internal/_isInteger.js\n// module id = 82\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/internal/_isInteger.js?");
+
+/***/ }),
+/* 83 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nmodule.exports = function _isNumber(x) {\n  return Object.prototype.toString.call(x) === '[object Number]';\n};\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/internal/_isNumber.js\n// module id = 83\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/internal/_isNumber.js?");
+
+/***/ }),
+/* 84 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nmodule.exports = function _isObject(x) {\n  return Object.prototype.toString.call(x) === '[object Object]';\n};\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/internal/_isObject.js\n// module id = 84\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/internal/_isObject.js?");
+
+/***/ }),
+/* 85 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar isArrayLike = __webpack_require__(22);\n\n/**\n * `_makeFlat` is a helper function that returns a one-level or fully recursive\n * function based on the flag passed in.\n *\n * @private\n */\nmodule.exports = function _makeFlat(recursive) {\n  return function flatt(list) {\n    var value, jlen, j;\n    var result = [];\n    var idx = 0;\n    var ilen = list.length;\n\n    while (idx < ilen) {\n      if (isArrayLike(list[idx])) {\n        value = recursive ? flatt(list[idx]) : list[idx];\n        j = 0;\n        jlen = value.length;\n        while (j < jlen) {\n          result[result.length] = value[j];\n          j += 1;\n        }\n      } else {\n        result[result.length] = list[idx];\n      }\n      idx += 1;\n    }\n    return result;\n  };\n};\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/internal/_makeFlat.js\n// module id = 85\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/internal/_makeFlat.js?");
+
+/***/ }),
+/* 86 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\nvar _reduced = __webpack_require__(15);\nvar _xfBase = __webpack_require__(4);\n\nmodule.exports = function () {\n  function XAny(f, xf) {\n    this.xf = xf;\n    this.f = f;\n    this.any = false;\n  }\n  XAny.prototype['@@transducer/init'] = _xfBase.init;\n  XAny.prototype['@@transducer/result'] = function (result) {\n    if (!this.any) {\n      result = this.xf['@@transducer/step'](result, false);\n    }\n    return this.xf['@@transducer/result'](result);\n  };\n  XAny.prototype['@@transducer/step'] = function (result, input) {\n    if (this.f(input)) {\n      this.any = true;\n      result = _reduced(this.xf['@@transducer/step'](result, true));\n    }\n    return result;\n  };\n\n  return _curry2(function _xany(f, xf) {\n    return new XAny(f, xf);\n  });\n}();\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/internal/_xany.js\n// module id = 86\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/internal/_xany.js?");
+
+/***/ }),
+/* 87 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\nvar _xfBase = __webpack_require__(4);\n\nmodule.exports = function () {\n  function XDropRepeatsWith(pred, xf) {\n    this.xf = xf;\n    this.pred = pred;\n    this.lastValue = undefined;\n    this.seenFirstValue = false;\n  }\n\n  XDropRepeatsWith.prototype['@@transducer/init'] = _xfBase.init;\n  XDropRepeatsWith.prototype['@@transducer/result'] = _xfBase.result;\n  XDropRepeatsWith.prototype['@@transducer/step'] = function (result, input) {\n    var sameAsLast = false;\n    if (!this.seenFirstValue) {\n      this.seenFirstValue = true;\n    } else if (this.pred(this.lastValue, input)) {\n      sameAsLast = true;\n    }\n    this.lastValue = input;\n    return sameAsLast ? result : this.xf['@@transducer/step'](result, input);\n  };\n\n  return _curry2(function _xdropRepeatsWith(pred, xf) {\n    return new XDropRepeatsWith(pred, xf);\n  });\n}();\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/internal/_xdropRepeatsWith.js\n// module id = 87\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/internal/_xdropRepeatsWith.js?");
+
+/***/ }),
+/* 88 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nmodule.exports = function () {\n  function XWrap(fn) {\n    this.f = fn;\n  }\n  XWrap.prototype['@@transducer/init'] = function () {\n    throw new Error('init not implemented on XWrap');\n  };\n  XWrap.prototype['@@transducer/result'] = function (acc) {\n    return acc;\n  };\n  XWrap.prototype['@@transducer/step'] = function (acc, x) {\n    return this.f(acc, x);\n  };\n\n  return function _xwrap(fn) {\n    return new XWrap(fn);\n  };\n}();\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/internal/_xwrap.js\n// module id = 88\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/internal/_xwrap.js?");
+
+/***/ }),
+/* 89 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\n\n/**\n * See if an object (`val`) is an instance of the supplied constructor. This\n * function will check up the inheritance chain, if any.\n *\n * @func\n * @memberOf R\n * @since v0.3.0\n * @category Type\n * @sig (* -> {*}) -> a -> Boolean\n * @param {Object} ctor A constructor\n * @param {*} val The value to test\n * @return {Boolean}\n * @example\n *\n *      R.is(Object, {}); //=> true\n *      R.is(Number, 1); //=> true\n *      R.is(Object, 1); //=> false\n *      R.is(String, 's'); //=> true\n *      R.is(String, new String('')); //=> true\n *      R.is(Object, new String('')); //=> true\n *      R.is(Object, 's'); //=> false\n *      R.is(Number, {}); //=> false\n */\nmodule.exports = _curry2(function is(Ctor, val) {\n  return val != null && val.constructor === Ctor || val instanceof Ctor;\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/is.js\n// module id = 89\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/is.js?");
+
+/***/ }),
+/* 90 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry1 = __webpack_require__(1);\nvar converge = __webpack_require__(66);\n\n/**\n * juxt applies a list of functions to a list of values.\n *\n * @func\n * @memberOf R\n * @since v0.19.0\n * @category Function\n * @sig [(a, b, ..., m) -> n] -> ((a, b, ..., m) -> [n])\n * @param {Array} fns An array of functions\n * @return {Function} A function that returns a list of values after applying each of the original `fns` to its parameters.\n * @see R.applySpec\n * @example\n *\n *      var getRange = R.juxt([Math.min, Math.max]);\n *      getRange(3, 4, 9, -3); //=> [-3, 9]\n * @symb R.juxt([f, g, h])(a, b) = [f(a, b), g(a, b), h(a, b)]\n */\nmodule.exports = _curry1(function juxt(fns) {\n  return converge(function () {\n    return Array.prototype.slice.call(arguments, 0);\n  }, fns);\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/juxt.js\n// module id = 90\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/juxt.js?");
+
+/***/ }),
+/* 91 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar nth = __webpack_require__(23);\n\n/**\n * Returns the last element of the given list or string.\n *\n * @func\n * @memberOf R\n * @since v0.1.4\n * @category List\n * @sig [a] -> a | Undefined\n * @sig String -> String\n * @param {*} list\n * @return {*}\n * @see R.init, R.head, R.tail\n * @example\n *\n *      R.last(['fi', 'fo', 'fum']); //=> 'fum'\n *      R.last([]); //=> undefined\n *\n *      R.last('abc'); //=> 'c'\n *      R.last(''); //=> ''\n */\nmodule.exports = nth(-1);\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/last.js\n// module id = 91\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/last.js?");
+
+/***/ }),
+/* 92 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry1 = __webpack_require__(1);\nvar _isNumber = __webpack_require__(83);\n\n/**\n * Returns the number of elements in the array by returning `list.length`.\n *\n * @func\n * @memberOf R\n * @since v0.3.0\n * @category List\n * @sig [a] -> Number\n * @param {Array} list The array to inspect.\n * @return {Number} The length of the array.\n * @example\n *\n *      R.length([]); //=> 0\n *      R.length([1, 2, 3]); //=> 3\n */\nmodule.exports = _curry1(function length(list) {\n  return list != null && _isNumber(list.length) ? list.length : NaN;\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/length.js\n// module id = 92\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/length.js?");
+
+/***/ }),
+/* 93 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\nvar _reduce = __webpack_require__(8);\nvar ap = __webpack_require__(42);\nvar curryN = __webpack_require__(5);\nvar map = __webpack_require__(7);\n\n/**\n * \"lifts\" a function to be the specified arity, so that it may \"map over\" that\n * many lists, Functions or other objects that satisfy the [FantasyLand Apply spec](https://github.com/fantasyland/fantasy-land#apply).\n *\n * @func\n * @memberOf R\n * @since v0.7.0\n * @category Function\n * @sig Number -> (*... -> *) -> ([*]... -> [*])\n * @param {Function} fn The function to lift into higher context\n * @return {Function} The lifted function.\n * @see R.lift, R.ap\n * @example\n *\n *      var madd3 = R.liftN(3, (...args) => R.sum(args));\n *      madd3([1,2,3], [1,2,3], [1]); //=> [3, 4, 5, 4, 5, 6, 5, 6, 7]\n */\nmodule.exports = _curry2(function liftN(arity, fn) {\n  var lifted = curryN(arity, fn);\n  return curryN(arity, function () {\n    return _reduce(ap, map(lifted, arguments[0]), Array.prototype.slice.call(arguments, 1));\n  });\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/liftN.js\n// module id = 93\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/liftN.js?");
+
+/***/ }),
+/* 94 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry1 = __webpack_require__(1);\nvar sum = __webpack_require__(107);\n\n/**\n * Returns the mean of the given list of numbers.\n *\n * @func\n * @memberOf R\n * @since v0.14.0\n * @category Math\n * @sig [Number] -> Number\n * @param {Array} list\n * @return {Number}\n * @example\n *\n *      R.mean([2, 7, 9]); //=> 6\n *      R.mean([]); //=> NaN\n */\nmodule.exports = _curry1(function mean(list) {\n  return sum(list) / list.length;\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/mean.js\n// module id = 94\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/mean.js?");
+
+/***/ }),
+/* 95 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry3 = __webpack_require__(2);\nvar _has = __webpack_require__(6);\n\n/**\n * Creates a new object with the own properties of the two provided objects. If\n * a key exists in both objects, the provided function is applied to the key\n * and the values associated with the key in each object, with the result being\n * used as the value associated with the key in the returned object. The key\n * will be excluded from the returned object if the resulting value is\n * `undefined`.\n *\n * @func\n * @memberOf R\n * @since v0.19.0\n * @category Object\n * @sig (String -> a -> a -> a) -> {a} -> {a} -> {a}\n * @param {Function} fn\n * @param {Object} l\n * @param {Object} r\n * @return {Object}\n * @see R.merge, R.mergeWith\n * @example\n *\n *      let concatValues = (k, l, r) => k == 'values' ? R.concat(l, r) : r\n *      R.mergeWithKey(concatValues,\n *                     { a: true, thing: 'foo', values: [10, 20] },\n *                     { b: true, thing: 'bar', values: [15, 35] });\n *      //=> { a: true, b: true, thing: 'bar', values: [10, 20, 15, 35] }\n * @symb R.mergeWithKey(f, { x: 1, y: 2 }, { y: 5, z: 3 }) = { x: 1, y: f('y', 2, 5), z: 3 }\n */\nmodule.exports = _curry3(function mergeWithKey(fn, l, r) {\n  var result = {};\n  var k;\n\n  for (k in l) {\n    if (_has(k, l)) {\n      result[k] = _has(k, r) ? fn(k, l[k], r[k]) : l[k];\n    }\n  }\n\n  for (k in r) {\n    if (_has(k, r) && !_has(k, result)) {\n      result[k] = r[k];\n    }\n  }\n\n  return result;\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/mergeWithKey.js\n// module id = 95\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/mergeWithKey.js?");
+
+/***/ }),
+/* 96 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\n\n/**\n * Multiplies two numbers. Equivalent to `a * b` but curried.\n *\n * @func\n * @memberOf R\n * @since v0.1.0\n * @category Math\n * @sig Number -> Number -> Number\n * @param {Number} a The first value.\n * @param {Number} b The second value.\n * @return {Number} The result of `a * b`.\n * @see R.divide\n * @example\n *\n *      var double = R.multiply(2);\n *      var triple = R.multiply(3);\n *      double(3);       //=>  6\n *      triple(4);       //=> 12\n *      R.multiply(2, 5);  //=> 10\n */\nmodule.exports = _curry2(function multiply(a, b) {\n  return a * b;\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/multiply.js\n// module id = 96\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/multiply.js?");
+
+/***/ }),
+/* 97 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry1 = __webpack_require__(1);\n\n/**\n * A function that returns the `!` of its argument. It will return `true` when\n * passed false-y value, and `false` when passed a truth-y one.\n *\n * @func\n * @memberOf R\n * @since v0.1.0\n * @category Logic\n * @sig * -> Boolean\n * @param {*} a any value\n * @return {Boolean} the logical inverse of passed argument.\n * @see R.complement\n * @example\n *\n *      R.not(true); //=> false\n *      R.not(false); //=> true\n *      R.not(0); //=> true\n *      R.not(1); //=> false\n */\nmodule.exports = _curry1(function not(a) {\n  return !a;\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/not.js\n// module id = 97\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/not.js?");
+
+/***/ }),
+/* 98 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\n\n/**\n * Creates an object containing a single key:value pair.\n *\n * @func\n * @memberOf R\n * @since v0.18.0\n * @category Object\n * @sig String -> a -> {String:a}\n * @param {String} key\n * @param {*} val\n * @return {Object}\n * @see R.pair\n * @example\n *\n *      var matchPhrases = R.compose(\n *        R.objOf('must'),\n *        R.map(R.objOf('match_phrase'))\n *      );\n *      matchPhrases(['foo', 'bar', 'baz']); //=> {must: [{match_phrase: 'foo'}, {match_phrase: 'bar'}, {match_phrase: 'baz'}]}\n */\nmodule.exports = _curry2(function objOf(key, val) {\n  var obj = {};\n  obj[key] = val;\n  return obj;\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/objOf.js\n// module id = 98\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/objOf.js?");
+
+/***/ }),
+/* 99 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\n\n/**\n * Returns `true` if one or both of its arguments are `true`. Returns `false`\n * if both arguments are `false`.\n *\n * @func\n * @memberOf R\n * @since v0.1.0\n * @category Logic\n * @sig a -> b -> a | b\n * @param {Any} a\n * @param {Any} b\n * @return {Any} the first argument if truthy, otherwise the second argument.\n * @see R.either\n * @example\n *\n *      R.or(true, true); //=> true\n *      R.or(true, false); //=> true\n *      R.or(false, true); //=> true\n *      R.or(false, false); //=> false\n */\nmodule.exports = _curry2(function or(a, b) {\n  return a || b;\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/or.js\n// module id = 99\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/or.js?");
+
+/***/ }),
+/* 100 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry3 = __webpack_require__(2);\n\n/**\n * Returns the result of \"setting\" the portion of the given data structure\n * focused by the given lens to the result of applying the given function to\n * the focused value.\n *\n * @func\n * @memberOf R\n * @since v0.16.0\n * @category Object\n * @typedefn Lens s a = Functor f => (a -> f a) -> s -> f s\n * @sig Lens s a -> (a -> a) -> s -> s\n * @param {Lens} lens\n * @param {*} v\n * @param {*} x\n * @return {*}\n * @see R.prop, R.lensIndex, R.lensProp\n * @example\n *\n *      var headLens = R.lensIndex(0);\n *\n *      R.over(headLens, R.toUpper, ['foo', 'bar', 'baz']); //=> ['FOO', 'bar', 'baz']\n */\nmodule.exports = function () {\n  // `Identity` is a functor that holds a single value, where `map` simply\n  // transforms the held value with the provided function.\n  var Identity = function Identity(x) {\n    return { value: x, map: function map(f) {\n        return Identity(f(x));\n      } };\n  };\n\n  return _curry3(function over(lens, f, x) {\n    // The value returned by the getter function is first transformed with `f`,\n    // then set as the value of an `Identity`. This is then mapped over with the\n    // setter function of the lens.\n    return lens(function (y) {\n      return Identity(f(y));\n    })(x).value;\n  });\n}();\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/over.js\n// module id = 100\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/over.js?");
+
+/***/ }),
+/* 101 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\n\n/**\n * Similar to `pick` except that this one includes a `key: undefined` pair for\n * properties that don't exist.\n *\n * @func\n * @memberOf R\n * @since v0.1.0\n * @category Object\n * @sig [k] -> {k: v} -> {k: v}\n * @param {Array} names an array of String property names to copy onto a new object\n * @param {Object} obj The object to copy from\n * @return {Object} A new object with only properties from `names` on it.\n * @see R.pick\n * @example\n *\n *      R.pickAll(['a', 'd'], {a: 1, b: 2, c: 3, d: 4}); //=> {a: 1, d: 4}\n *      R.pickAll(['a', 'e', 'f'], {a: 1, b: 2, c: 3, d: 4}); //=> {a: 1, e: undefined, f: undefined}\n */\nmodule.exports = _curry2(function pickAll(names, obj) {\n  var result = {};\n  var idx = 0;\n  var len = names.length;\n  while (idx < len) {\n    var name = names[idx];\n    result[name] = obj[name];\n    idx += 1;\n  }\n  return result;\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/pickAll.js\n// module id = 101\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/pickAll.js?");
+
+/***/ }),
+/* 102 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _arity = __webpack_require__(11);\nvar _pipe = __webpack_require__(194);\nvar reduce = __webpack_require__(13);\nvar tail = __webpack_require__(53);\n\n/**\n * Performs left-to-right function composition. The leftmost function may have\n * any arity; the remaining functions must be unary.\n *\n * In some libraries this function is named `sequence`.\n *\n * **Note:** The result of pipe is not automatically curried.\n *\n * @func\n * @memberOf R\n * @since v0.1.0\n * @category Function\n * @sig (((a, b, ..., n) -> o), (o -> p), ..., (x -> y), (y -> z)) -> ((a, b, ..., n) -> z)\n * @param {...Function} functions\n * @return {Function}\n * @see R.compose\n * @example\n *\n *      var f = R.pipe(Math.pow, R.negate, R.inc);\n *\n *      f(3, 4); // -(3^4) + 1\n * @symb R.pipe(f, g, h)(a, b) = h(g(f(a, b)))\n */\nmodule.exports = function pipe() {\n  if (arguments.length === 0) {\n    throw new Error('pipe requires at least one argument');\n  }\n  return _arity(arguments[0].length, reduce(_pipe, arguments[0], tail(arguments)));\n};\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/pipe.js\n// module id = 102\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/pipe.js?");
+
+/***/ }),
+/* 103 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _arity = __webpack_require__(11);\nvar _pipeP = __webpack_require__(195);\nvar reduce = __webpack_require__(13);\nvar tail = __webpack_require__(53);\n\n/**\n * Performs left-to-right composition of one or more Promise-returning\n * functions. The leftmost function may have any arity; the remaining functions\n * must be unary.\n *\n * @func\n * @memberOf R\n * @since v0.10.0\n * @category Function\n * @sig ((a -> Promise b), (b -> Promise c), ..., (y -> Promise z)) -> (a -> Promise z)\n * @param {...Function} functions\n * @return {Function}\n * @see R.composeP\n * @example\n *\n *      //  followersForUser :: String -> Promise [User]\n *      var followersForUser = R.pipeP(db.getUserById, db.getFollowers);\n */\nmodule.exports = function pipeP() {\n  if (arguments.length === 0) {\n    throw new Error('pipeP requires at least one argument');\n  }\n  return _arity(arguments[0].length, reduce(_pipeP, arguments[0], tail(arguments)));\n};\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/pipeP.js\n// module id = 103\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/pipeP.js?");
+
+/***/ }),
+/* 104 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _concat = __webpack_require__(9);\nvar _curry2 = __webpack_require__(0);\n\n/**\n * Returns a new list with the given element at the front, followed by the\n * contents of the list.\n *\n * @func\n * @memberOf R\n * @since v0.1.0\n * @category List\n * @sig a -> [a] -> [a]\n * @param {*} el The item to add to the head of the output list.\n * @param {Array} list The array to add to the tail of the output list.\n * @return {Array} A new array.\n * @see R.append\n * @example\n *\n *      R.prepend('fee', ['fi', 'fo', 'fum']); //=> ['fee', 'fi', 'fo', 'fum']\n */\nmodule.exports = _curry2(function prepend(el, list) {\n  return _concat([el], list);\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/prepend.js\n// module id = 104\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/prepend.js?");
+
+/***/ }),
+/* 105 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry3 = __webpack_require__(2);\n\n/**\n * Returns a single item by iterating through the list, successively calling\n * the iterator function and passing it an accumulator value and the current\n * value from the array, and then passing the result to the next call.\n *\n * Similar to `reduce`, except moves through the input list from the right to\n * the left.\n *\n * The iterator function receives two values: *(value, acc)*, while the arguments'\n * order of `reduce`'s iterator function is *(acc, value)*.\n *\n * Note: `R.reduceRight` does not skip deleted or unassigned indices (sparse\n * arrays), unlike the native `Array.prototype.reduce` method. For more details\n * on this behavior, see:\n * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reduceRight#Description\n *\n * @func\n * @memberOf R\n * @since v0.1.0\n * @category List\n * @sig (a, b -> b) -> b -> [a] -> b\n * @param {Function} fn The iterator function. Receives two values, the current element from the array\n *        and the accumulator.\n * @param {*} acc The accumulator value.\n * @param {Array} list The list to iterate over.\n * @return {*} The final, accumulated value.\n * @see R.reduce, R.addIndex\n * @example\n *\n *      R.reduceRight(R.subtract, 0, [1, 2, 3, 4]) // => (1 - (2 - (3 - (4 - 0)))) = -2\n *          -               -2\n *         / \\              / \\\n *        1   -            1   3\n *           / \\              / \\\n *          2   -     ==>    2  -1\n *             / \\              / \\\n *            3   -            3   4\n *               / \\              / \\\n *              4   0            4   0\n *\n * @symb R.reduceRight(f, a, [b, c, d]) = f(b, f(c, f(d, a)))\n */\nmodule.exports = _curry3(function reduceRight(fn, acc, list) {\n  var idx = list.length - 1;\n  while (idx >= 0) {\n    acc = fn(list[idx], acc);\n    idx -= 1;\n  }\n  return acc;\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/reduceRight.js\n// module id = 105\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/reduceRight.js?");
+
+/***/ }),
+/* 106 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\nvar ap = __webpack_require__(42);\nvar map = __webpack_require__(7);\nvar prepend = __webpack_require__(104);\nvar reduceRight = __webpack_require__(105);\n\n/**\n * Transforms a [Traversable](https://github.com/fantasyland/fantasy-land#traversable)\n * of [Applicative](https://github.com/fantasyland/fantasy-land#applicative) into an\n * Applicative of Traversable.\n *\n * Dispatches to the `sequence` method of the second argument, if present.\n *\n * @func\n * @memberOf R\n * @since v0.19.0\n * @category List\n * @sig (Applicative f, Traversable t) => (a -> f a) -> t (f a) -> f (t a)\n * @param {Function} of\n * @param {*} traversable\n * @return {*}\n * @see R.traverse\n * @example\n *\n *      R.sequence(Maybe.of, [Just(1), Just(2), Just(3)]);   //=> Just([1, 2, 3])\n *      R.sequence(Maybe.of, [Just(1), Just(2), Nothing()]); //=> Nothing()\n *\n *      R.sequence(R.of, Just([1, 2, 3])); //=> [Just(1), Just(2), Just(3)]\n *      R.sequence(R.of, Nothing());       //=> [Nothing()]\n */\nmodule.exports = _curry2(function sequence(of, traversable) {\n  return typeof traversable.sequence === 'function' ? traversable.sequence(of) : reduceRight(function (x, acc) {\n    return ap(map(prepend, x), acc);\n  }, of([]), traversable);\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/sequence.js\n// module id = 106\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/sequence.js?");
+
+/***/ }),
+/* 107 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar add = __webpack_require__(27);\nvar reduce = __webpack_require__(13);\n\n/**\n * Adds together all the elements of a list.\n *\n * @func\n * @memberOf R\n * @since v0.1.0\n * @category Math\n * @sig [Number] -> Number\n * @param {Array} list An array of numbers\n * @return {Number} The sum of all the numbers in the list.\n * @see R.reduce\n * @example\n *\n *      R.sum([2,4,6,8,100,1]); //=> 121\n */\nmodule.exports = reduce(add, 0);\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/sum.js\n// module id = 107\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/sum.js?");
+
+/***/ }),
+/* 108 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\nvar _dispatchable = __webpack_require__(3);\nvar _xtake = __webpack_require__(214);\nvar slice = __webpack_require__(17);\n\n/**\n * Returns the first `n` elements of the given list, string, or\n * transducer/transformer (or object with a `take` method).\n *\n * Dispatches to the `take` method of the second argument, if present.\n *\n * @func\n * @memberOf R\n * @since v0.1.0\n * @category List\n * @sig Number -> [a] -> [a]\n * @sig Number -> String -> String\n * @param {Number} n\n * @param {*} list\n * @return {*}\n * @see R.drop\n * @example\n *\n *      R.take(1, ['foo', 'bar', 'baz']); //=> ['foo']\n *      R.take(2, ['foo', 'bar', 'baz']); //=> ['foo', 'bar']\n *      R.take(3, ['foo', 'bar', 'baz']); //=> ['foo', 'bar', 'baz']\n *      R.take(4, ['foo', 'bar', 'baz']); //=> ['foo', 'bar', 'baz']\n *      R.take(3, 'ramda');               //=> 'ram'\n *\n *      var personnel = [\n *        'Dave Brubeck',\n *        'Paul Desmond',\n *        'Eugene Wright',\n *        'Joe Morello',\n *        'Gerry Mulligan',\n *        'Bob Bates',\n *        'Joe Dodge',\n *        'Ron Crotty'\n *      ];\n *\n *      var takeFive = R.take(5);\n *      takeFive(personnel);\n *      //=> ['Dave Brubeck', 'Paul Desmond', 'Eugene Wright', 'Joe Morello', 'Gerry Mulligan']\n * @symb R.take(-1, [a, b]) = [a, b]\n * @symb R.take(0, [a, b]) = []\n * @symb R.take(1, [a, b]) = [a]\n * @symb R.take(2, [a, b]) = [a, b]\n */\nmodule.exports = _curry2(_dispatchable(['take'], _xtake, function take(n, xs) {\n  return slice(0, n < 0 ? Infinity : n, xs);\n}));\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/take.js\n// module id = 108\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/take.js?");
+
+/***/ }),
+/* 109 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\n\n/**\n * Calls an input function `n` times, returning an array containing the results\n * of those function calls.\n *\n * `fn` is passed one argument: The current value of `n`, which begins at `0`\n * and is gradually incremented to `n - 1`.\n *\n * @func\n * @memberOf R\n * @since v0.2.3\n * @category List\n * @sig (Number -> a) -> Number -> [a]\n * @param {Function} fn The function to invoke. Passed one argument, the current value of `n`.\n * @param {Number} n A value between `0` and `n - 1`. Increments after each function call.\n * @return {Array} An array containing the return values of all calls to `fn`.\n * @example\n *\n *      R.times(R.identity, 5); //=> [0, 1, 2, 3, 4]\n * @symb R.times(f, 0) = []\n * @symb R.times(f, 1) = [f(0)]\n * @symb R.times(f, 2) = [f(0), f(1)]\n */\nmodule.exports = _curry2(function times(fn, n) {\n  var len = Number(n);\n  var idx = 0;\n  var list;\n\n  if (len < 0 || isNaN(len)) {\n    throw new RangeError('n must be a non-negative number');\n  }\n  list = new Array(len);\n  while (idx < len) {\n    list[idx] = fn(idx);\n    idx += 1;\n  }\n  return list;\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/times.js\n// module id = 109\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/times.js?");
+
+/***/ }),
+/* 110 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _Set = __webpack_require__(182);\nvar _curry2 = __webpack_require__(0);\n\n/**\n * Returns a new list containing only one copy of each element in the original\n * list, based upon the value returned by applying the supplied function to\n * each list element. Prefers the first item if the supplied function produces\n * the same value on two items. `R.equals` is used for comparison.\n *\n * @func\n * @memberOf R\n * @since v0.16.0\n * @category List\n * @sig (a -> b) -> [a] -> [a]\n * @param {Function} fn A function used to produce a value to use during comparisons.\n * @param {Array} list The array to consider.\n * @return {Array} The list of unique items.\n * @example\n *\n *      R.uniqBy(Math.abs, [-1, -5, 2, 10, 1, 2]); //=> [-1, -5, 2, 10]\n */\nmodule.exports = _curry2(function uniqBy(fn, list) {\n  var set = new _Set();\n  var result = [];\n  var idx = 0;\n  var appliedItem, item;\n\n  while (idx < list.length) {\n    item = list[idx];\n    appliedItem = fn(item);\n    if (set.add(appliedItem)) {\n      result.push(item);\n    }\n    idx += 1;\n  }\n  return result;\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/uniqBy.js\n// module id = 110\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/uniqBy.js?");
+
+/***/ }),
+/* 111 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry3 = __webpack_require__(2);\nvar adjust = __webpack_require__(58);\nvar always = __webpack_require__(18);\n\n/**\n * Returns a new copy of the array with the element at the provided index\n * replaced with the given value.\n *\n * @func\n * @memberOf R\n * @since v0.14.0\n * @category List\n * @sig Number -> a -> [a] -> [a]\n * @param {Number} idx The index to update.\n * @param {*} x The value to exist at the given index of the returned array.\n * @param {Array|Arguments} list The source array-like object to be updated.\n * @return {Array} A copy of `list` with the value at index `idx` replaced with `x`.\n * @see R.adjust\n * @example\n *\n *      R.update(1, 11, [0, 1, 2]);     //=> [0, 11, 2]\n *      R.update(1)(11)([0, 1, 2]);     //=> [0, 11, 2]\n * @symb R.update(-1, a, [b, c]) = [b, a]\n * @symb R.update(0, a, [b, c]) = [a, c]\n * @symb R.update(1, a, [b, c]) = [b, a]\n */\nmodule.exports = _curry3(function update(idx, x, list) {\n  return adjust(always(x), idx, list);\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/update.js\n// module id = 111\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/update.js?");
+
+/***/ }),
+/* 112 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\nvar curryN = __webpack_require__(5);\n\n/**\n * Accepts a function `fn` and a list of transformer functions and returns a\n * new curried function. When the new function is invoked, it calls the\n * function `fn` with parameters consisting of the result of calling each\n * supplied handler on successive arguments to the new function.\n *\n * If more arguments are passed to the returned function than transformer\n * functions, those arguments are passed directly to `fn` as additional\n * parameters. If you expect additional arguments that don't need to be\n * transformed, although you can ignore them, it's best to pass an identity\n * function so that the new function reports the correct arity.\n *\n * @func\n * @memberOf R\n * @since v0.1.0\n * @category Function\n * @sig (x1 -> x2 -> ... -> z) -> [(a -> x1), (b -> x2), ...] -> (a -> b -> ... -> z)\n * @param {Function} fn The function to wrap.\n * @param {Array} transformers A list of transformer functions\n * @return {Function} The wrapped function.\n * @see R.converge\n * @example\n *\n *      R.useWith(Math.pow, [R.identity, R.identity])(3, 4); //=> 81\n *      R.useWith(Math.pow, [R.identity, R.identity])(3)(4); //=> 81\n *      R.useWith(Math.pow, [R.dec, R.inc])(3, 4); //=> 32\n *      R.useWith(Math.pow, [R.dec, R.inc])(3)(4); //=> 32\n * @symb R.useWith(f, [g, h])(a, b) = f(g(a), h(b))\n */\nmodule.exports = _curry2(function useWith(fn, transformers) {\n  return curryN(transformers.length, function () {\n    var args = [];\n    var idx = 0;\n    while (idx < transformers.length) {\n      args.push(transformers[idx].call(this, arguments[idx]));\n      idx += 1;\n    }\n    return fn.apply(this, args.concat(Array.prototype.slice.call(arguments, transformers.length)));\n  });\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/useWith.js\n// module id = 112\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/useWith.js?");
+
+/***/ }),
+/* 113 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry1 = __webpack_require__(1);\nvar keys = __webpack_require__(12);\n\n/**\n * Returns a list of all the enumerable own properties of the supplied object.\n * Note that the order of the output array is not guaranteed across different\n * JS platforms.\n *\n * @func\n * @memberOf R\n * @since v0.1.0\n * @category Object\n * @sig {k: v} -> [v]\n * @param {Object} obj The object to extract values from\n * @return {Array} An array of the values of the object's own properties.\n * @example\n *\n *      R.values({a: 1, b: 2, c: 3}); //=> [1, 2, 3]\n */\nmodule.exports = _curry1(function values(obj) {\n  var props = keys(obj);\n  var len = props.length;\n  var vals = [];\n  var idx = 0;\n  while (idx < len) {\n    vals[idx] = obj[props[idx]];\n    idx += 1;\n  }\n  return vals;\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/values.js\n// module id = 113\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/values.js?");
+
+/***/ }),
+/* 114 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\nvar _has = __webpack_require__(6);\n\n/**\n * Takes a spec object and a test object; returns true if the test satisfies\n * the spec. Each of the spec's own properties must be a predicate function.\n * Each predicate is applied to the value of the corresponding property of the\n * test object. `where` returns true if all the predicates return true, false\n * otherwise.\n *\n * `where` is well suited to declaratively expressing constraints for other\n * functions such as `filter` and `find`.\n *\n * @func\n * @memberOf R\n * @since v0.1.1\n * @category Object\n * @sig {String: (* -> Boolean)} -> {String: *} -> Boolean\n * @param {Object} spec\n * @param {Object} testObj\n * @return {Boolean}\n * @example\n *\n *      // pred :: Object -> Boolean\n *      var pred = R.where({\n *        a: R.equals('foo'),\n *        b: R.complement(R.equals('bar')),\n *        x: R.gt(__, 10),\n *        y: R.lt(__, 20)\n *      });\n *\n *      pred({a: 'foo', b: 'xxx', x: 11, y: 19}); //=> true\n *      pred({a: 'xxx', b: 'xxx', x: 11, y: 19}); //=> false\n *      pred({a: 'foo', b: 'bar', x: 11, y: 19}); //=> false\n *      pred({a: 'foo', b: 'xxx', x: 10, y: 19}); //=> false\n *      pred({a: 'foo', b: 'xxx', x: 11, y: 20}); //=> false\n */\nmodule.exports = _curry2(function where(spec, testObj) {\n  for (var prop in spec) {\n    if (_has(prop, spec) && !spec[prop](testObj[prop])) {\n      return false;\n    }\n  }\n  return true;\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/where.js\n// module id = 114\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/where.js?");
+
+/***/ }),
+/* 115 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _typeof = typeof Symbol === \"function\" && typeof Symbol.iterator === \"symbol\" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === \"function\" && obj.constructor === Symbol && obj !== Symbol.prototype ? \"symbol\" : typeof obj; };\n\n;(function () {\n  /* ========================================================================\n   * Bootstrap: affix.js v3.0.2\n   * http://getbootstrap.com/javascript/#affix\n   * ========================================================================\n   * Copyright 2013 Twitter, Inc.\n   *\n   * Licensed under the Apache License, Version 2.0 (the \"License\");\n   * you may not use this file except in compliance with the License.\n   * You may obtain a copy of the License at\n   *\n   * http://www.apache.org/licenses/LICENSE-2.0\n   *\n   * Unless required by applicable law or agreed to in writing, software\n   * distributed under the License is distributed on an \"AS IS\" BASIS,\n   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n   * See the License for the specific language governing permissions and\n   * limitations under the License.\n   * ======================================================================== */\n\n  +function ($) {\n    \"use strict\";\n\n    // AFFIX CLASS DEFINITION\n    // ======================\n\n    var Affix = function Affix(element, options) {\n      this.options = $.extend({}, Affix.DEFAULTS, options);\n      this.$window = $(window).on('scroll.bs.affix.data-api', $.proxy(this.checkPosition, this)).on('click.bs.affix.data-api', $.proxy(this.checkPositionWithEventLoop, this));\n\n      this.$element = $(element);\n      this.affixed = this.unpin = null;\n\n      this.checkPosition();\n    };\n\n    Affix.RESET = 'affix affix-top affix-bottom';\n\n    Affix.DEFAULTS = {\n      offset: 0\n    };\n\n    Affix.prototype.checkPositionWithEventLoop = function () {\n      setTimeout($.proxy(this.checkPosition, this), 1);\n    };\n\n    Affix.prototype.checkPosition = function () {\n      if (!this.$element.is(':visible')) return;\n\n      var scrollHeight = $(document).height();\n      var scrollTop = this.$window.scrollTop();\n      var position = this.$element.offset();\n      var offset = this.options.offset;\n      var offsetTop = offset.top;\n      var offsetBottom = offset.bottom;\n\n      if ((typeof offset === 'undefined' ? 'undefined' : _typeof(offset)) != 'object') offsetBottom = offsetTop = offset;\n      if (typeof offsetTop == 'function') offsetTop = offset.top();\n      if (typeof offsetBottom == 'function') offsetBottom = offset.bottom();\n\n      var affix = this.unpin != null && scrollTop + this.unpin <= position.top ? false : offsetBottom != null && position.top + this.$element.height() >= scrollHeight - offsetBottom ? 'bottom' : offsetTop != null && scrollTop <= offsetTop ? 'top' : false;\n\n      if (this.affixed === affix) return;\n      if (this.unpin) this.$element.css('top', '');\n\n      this.affixed = affix;\n      this.unpin = affix == 'bottom' ? position.top - scrollTop : null;\n\n      this.$element.removeClass(Affix.RESET).addClass('affix' + (affix ? '-' + affix : ''));\n\n      if (affix == 'bottom') {\n        this.$element.offset({ top: document.body.offsetHeight - offsetBottom - this.$element.height() });\n      }\n    };\n\n    // AFFIX PLUGIN DEFINITION\n    // =======================\n\n    var old = $.fn.affix;\n\n    $.fn.affix = function (option) {\n      return this.each(function () {\n        var $this = $(this);\n        var data = $this.data('bs.affix');\n        var options = (typeof option === 'undefined' ? 'undefined' : _typeof(option)) == 'object' && option;\n\n        if (!data) $this.data('bs.affix', data = new Affix(this, options));\n        if (typeof option == 'string') data[option]();\n      });\n    };\n\n    $.fn.affix.Constructor = Affix;\n\n    // AFFIX NO CONFLICT\n    // =================\n\n    $.fn.affix.noConflict = function () {\n      $.fn.affix = old;\n      return this;\n    };\n\n    // AFFIX DATA-API\n    // ==============\n\n    $(window).on('load', function () {\n      $('[data-spy=\"affix\"]').each(function () {\n        var $spy = $(this);\n        var data = $spy.data();\n\n        data.offset = data.offset || {};\n\n        if (data.offsetBottom) data.offset.bottom = data.offsetBottom;\n        if (data.offsetTop) data.offset.top = data.offsetTop;\n        if (data.offsetTop == null) data.offset.top = $spy.offset().top - 1;\n\n        $spy.affix(data);\n      });\n    });\n  }(jQuery);\n})();\n\n//////////////////\n// WEBPACK FOOTER\n// ./app/js/affix.jquery.js\n// module id = 115\n// module chunks = 0\n\n//# sourceURL=webpack:///./app/js/affix.jquery.js?");
+
+/***/ }),
+/* 116 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _utils = __webpack_require__(57);\n\nvar contextRange = document.createRange();\ncontextRange.setStart(document.body, 0);\n\nfunction strToEls(str) {\n  return contextRange.createContextualFragment(str);\n}\n\nvar storyTemplate = function storyTemplate(_ref) {\n  var time = _ref.time,\n      title = _ref.title,\n      description = _ref.description,\n      image_url = _ref.image_url;\n\n  console.log(description);\n  return \"\\n    <div class=\\\"story\\\">\\n      <time class=\\\"story-time\\\">\" + time + \"</time>\\n      <h4 class=\\\"story-title\\\">\" + title + \"</h4>\\n      <p class=\\\"story-content\\\">\\n        \" + (0, _utils.simpleFormat)(description) + \"\\n      </p>\\n      <img class=\\\"story-image\\\" src=\\\"\" + image_url + \"\\\" />\\n    </div>\\n  \";\n};\n\nvar storyElm = strToEls(storyTemplate({\n  time: new Date(),\n  title: \"hello\",\n  description: \"hello\"\n}));\nconsole.log(storyElm);\n\nfunction drawEvents(events) {\n  console.table(events);\n  var $storyArea = $('.js-story-timeline');\n  events.map(function (event) {\n    var story = strToEls(storyTemplate({\n      time: event['Year'] + \" / \" + event['Month'] + \" / \" + event['Date'] + \" \",\n      description: event['Description'],\n      title: event['Title'],\n      image_url: event['Image_url']\n    }));\n    $storyArea.append(story);\n  });\n}\n\nd3.csv('/events.csv', drawEvents);\n\n//////////////////\n// WEBPACK FOOTER\n// ./app/js/storys.js\n// module id = 116\n// module chunks = 0\n\n//# sourceURL=webpack:///./app/js/storys.js?");
+
+/***/ }),
+/* 117 */
+/***/ (function(module, exports, __webpack_require__) {
+
+eval("// style-loader: Adds some css to the DOM by adding a <style> tag\n\n// load the styles\nvar content = __webpack_require__(321);\nif(typeof content === 'string') content = [[module.i, content, '']];\n// add the styles to the DOM\nvar update = __webpack_require__(322)(content, {\"sourceMap\":true});\nif(content.locals) module.exports = content.locals;\n// Hot Module Replacement\nif(false) {\n\t// When the styles change, update the <style> tags\n\tif(!content.locals) {\n\t\tmodule.hot.accept(\"!!../../node_modules/css-loader/index.js?sourceMap=true!../../node_modules/sass-loader/lib/loader.js?sourceMap=true!./main.scss\", function() {\n\t\t\tvar newContent = require(\"!!../../node_modules/css-loader/index.js?sourceMap=true!../../node_modules/sass-loader/lib/loader.js?sourceMap=true!./main.scss\");\n\t\t\tif(typeof newContent === 'string') newContent = [[module.id, newContent, '']];\n\t\t\tupdate(newContent);\n\t\t});\n\t}\n\t// When the module is disposed, remove the <style> tags\n\tmodule.hot.dispose(function() { update(); });\n}\n\n//////////////////\n// WEBPACK FOOTER\n// ./app/styles/main.scss\n// module id = 117\n// module chunks = 0\n\n//# sourceURL=webpack:///./app/styles/main.scss?");
+
+/***/ }),
+/* 118 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i[\"return\"]) _i[\"return\"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError(\"Invalid attempt to destructure non-iterable instance\"); } }; }();\n\n__webpack_require__(117);\n\n__webpack_require__(115);\n\n__webpack_require__(116);\n\nvar _utils = __webpack_require__(57);\n\nfunction drawTimeline() {}\n\nfunction updateBoardDisplay(data, datas) {\n  var jobless = document.querySelector('#jobless > .number');\n  var hours = document.querySelector('#hours > .number');\n  var price = document.querySelector('#price > .number');\n  var prevYear = $('#chartArea').attr('data-current-year');\n\n  var _datas$filter = datas.filter(function (d) {\n    return +d.key === +prevYear;\n  }),\n      _datas$filter2 = _slicedToArray(_datas$filter, 1),\n      prevData = _datas$filter2[0];\n\n  if (!prevData) {\n    return;\n  }\n\n  d3.selectAll('.number').transition().duration(600).tween('number', function () {\n    var joblessRate = d3.interpolate(+prevData.values[0]['失業率'], +data['失業率']);\n    var workHours = d3.interpolate(+prevData.values[0]['平均工時'], +data['平均工時']);\n    var salary = d3.interpolateRound(+prevData.values[0]['平均薪資'], +data['平均薪資']);\n\n    return function (t) {\n      jobless.textContent = joblessRate(t).toFixed(2) + '%';\n      hours.textContent = workHours(t).toFixed(1);\n      price.innerHTML = (0, _utils.numToCurrency)(salary(t)) + \"<small>hr/\\u6708</small>\";\n    };\n  });\n}\n\nvar getTranslate = function getTranslate(translate) {\n  var matches = /\\s?(\\d+\\.*\\d+)\\,\\s?(\\d+)/.exec(translate);\n\n  return \"translate(\" + +matches[1] + \"px, \" + +matches[2] + \"px)\";\n};\nfunction showSalaryDetail(targetNode, data) {\n  var detailTemplate = \"\\n    <div>\\n      <p class=\\\"detail-item salary\\\"><small>\\u5E73\\u5747\\u85AA\\u8CC7 </small><strong>\" + +data[\"平均薪資\"] + \"</strong></p>\\n      <p class=\\\"detail-item jobless\\\"><small>\\u85AA\\u8CC7\\u6F32\\u5E45 </small><strong>\" + data[\"成長幅度\"] + \"</strong></p>\\n      <p class=\\\"detail-item hours\\\"><small>\\u7269\\u50F9\\u6307\\u6578 </small><strong>\" + data[\"物價指數\"] + \"%</strong></p>\\n    </div>\\n  \";\n\n  var translate = getTranslate($(targetNode).attr('transform'));\n\n  $('.detail').html(detailTemplate).css('transform', translate).show();\n}\n\nfunction hideDetail() {\n  $('.detail').hide();\n}\n\nfunction responsivefy(svg) {\n  var container = d3.select(svg.node().parentNode);\n\n  var width = svg.attr('width');\n  var height = svg.attr('height');\n  var aspect = width / height;\n\n  var resize = function resize() {\n    var targetWidth = container.attr('width');\n    svg.attr('width', targetWidth).attr('height', targetWidth / aspect);\n  };\n\n  svg.attr('viewBox', '0 0 ' + width + ' ' + height).attr('preserveAspectRadio', 'xMinYMid').call(resize);\n\n  d3.select(window).on('resize.' + 'chart', resize);\n}\n\nfunction drawLineChart(err, datas) {\n  console.table(datas);\n  var margin = {\n    top: 30,\n    right: 20,\n    bottom: 30,\n    left: 80\n  };\n\n  var width = window.innerWidth - margin.left - margin.right;\n  var height = window.innerHeight - margin.top - margin.bottom;\n\n  var svg = d3.select('#chartArea').append('svg').attr('width', width + margin.left + margin.right).attr('height', height + margin.top + margin.bottom).call(responsivefy).append('g').attr('transform', \"translate(\" + margin.left + \", \" + margin.bottom + \")\");\n  var xScale = d3.scaleLinear().domain([60, 105]).range([0, width]);\n\n  var yJoblessScale = d3.scaleLinear().domain([0, 8]).range([height, 0]);\n\n  var yScale = d3.scaleLinear().domain([2000, 50000]).range([height, 0]);\n  svg.append('g').attr('transform', \"translate(0, \" + height + \")\").call(d3.axisBottom(xScale).ticks(10).tickSize(-height));\n\n  svg.append('g').call(d3.axisLeft(yScale).ticks(15).tickSize(-width));\n\n  var line = d3.line().x(function (d) {\n    return xScale(+d['年份']);\n  }).y(function (d) {\n    return yScale(+d['平均薪資']);\n  });\n  // .curve(d3.curveCatmullRom.alpha(0.5))\n  var circles = svg.selectAll('circle').attr('r', 5).attr('fill', '#aaa');\n\n  var joblessLine = d3.line().x(function (d) {\n    return xScale(+d['年份']);\n  }).y(function (d) {\n    return yJoblessScale(+d['失業率']);\n  }).curve(d3.curveCatmullRom.alpha(0.5));\n\n  svg.selectAll('.line1').data(datas).enter().append('path').attr('class', 'line').attr('stroke', '#ff6565').attr('d', function (d) {\n    return line(datas);\n  }).style('stroke-width', 2).style('fill', 'none');\n\n  // svg\n  //   .selectAll('.line2')\n  //   .data(data)\n  //   .enter()\n  //   .append('path')\n  //   .attr('class', 'line')\n  //   .attr('stroke', '#123')\n  //   .attr('d', d => {\n  //     return joblessLine(data);\n  //   })\n  //   .style('stroke-width', 2)\n  //   .style('fill', 'none');\n  // displayBoard(data[]);\n\n  svg.selectAll('circle').data(datas).enter().append('circle').attr('cx', function (d) {\n    return xScale(+d['年份']);\n  }).attr('cy', function (d) {\n    return yScale(+d['平均薪資']);\n  }).attr('class', 'circle').attr('r', 8).attr('stroke-width', 2).on('mouseover', function (data) {\n    this.classList.add('toggle');\n    console.log(this, d3.mouse(this));\n    showSalaryDetail(this.parentNode, data);\n    updateBoardDisplay(data, d3.nest().key(function (d) {\n      return d[\"年份\"];\n    }).entries(datas));\n    $('#chartArea').attr('data-current-year', data['年份']);\n  }).on('mouseleave', function () {\n    this.classList.remove('toggle');\n    // hideDetail();\n  });\n};\n\nd3.csv('/salary.csv', drawLineChart);\n\n//////////////////\n// WEBPACK FOOTER\n// ./app/js/app.js\n// module id = 118\n// module chunks = 0\n\n//# sourceURL=webpack:///./app/js/app.js?");
+
+/***/ }),
+/* 119 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nexports.byteLength = byteLength;\nexports.toByteArray = toByteArray;\nexports.fromByteArray = fromByteArray;\n\nvar lookup = [];\nvar revLookup = [];\nvar Arr = typeof Uint8Array !== 'undefined' ? Uint8Array : Array;\n\nvar code = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';\nfor (var i = 0, len = code.length; i < len; ++i) {\n  lookup[i] = code[i];\n  revLookup[code.charCodeAt(i)] = i;\n}\n\nrevLookup['-'.charCodeAt(0)] = 62;\nrevLookup['_'.charCodeAt(0)] = 63;\n\nfunction placeHoldersCount(b64) {\n  var len = b64.length;\n  if (len % 4 > 0) {\n    throw new Error('Invalid string. Length must be a multiple of 4');\n  }\n\n  // the number of equal signs (place holders)\n  // if there are two placeholders, than the two characters before it\n  // represent one byte\n  // if there is only one, then the three characters before it represent 2 bytes\n  // this is just a cheap hack to not do indexOf twice\n  return b64[len - 2] === '=' ? 2 : b64[len - 1] === '=' ? 1 : 0;\n}\n\nfunction byteLength(b64) {\n  // base64 is 4/3 + up to two characters of the original data\n  return b64.length * 3 / 4 - placeHoldersCount(b64);\n}\n\nfunction toByteArray(b64) {\n  var i, j, l, tmp, placeHolders, arr;\n  var len = b64.length;\n  placeHolders = placeHoldersCount(b64);\n\n  arr = new Arr(len * 3 / 4 - placeHolders);\n\n  // if there are placeholders, only get up to the last complete 4 chars\n  l = placeHolders > 0 ? len - 4 : len;\n\n  var L = 0;\n\n  for (i = 0, j = 0; i < l; i += 4, j += 3) {\n    tmp = revLookup[b64.charCodeAt(i)] << 18 | revLookup[b64.charCodeAt(i + 1)] << 12 | revLookup[b64.charCodeAt(i + 2)] << 6 | revLookup[b64.charCodeAt(i + 3)];\n    arr[L++] = tmp >> 16 & 0xFF;\n    arr[L++] = tmp >> 8 & 0xFF;\n    arr[L++] = tmp & 0xFF;\n  }\n\n  if (placeHolders === 2) {\n    tmp = revLookup[b64.charCodeAt(i)] << 2 | revLookup[b64.charCodeAt(i + 1)] >> 4;\n    arr[L++] = tmp & 0xFF;\n  } else if (placeHolders === 1) {\n    tmp = revLookup[b64.charCodeAt(i)] << 10 | revLookup[b64.charCodeAt(i + 1)] << 4 | revLookup[b64.charCodeAt(i + 2)] >> 2;\n    arr[L++] = tmp >> 8 & 0xFF;\n    arr[L++] = tmp & 0xFF;\n  }\n\n  return arr;\n}\n\nfunction tripletToBase64(num) {\n  return lookup[num >> 18 & 0x3F] + lookup[num >> 12 & 0x3F] + lookup[num >> 6 & 0x3F] + lookup[num & 0x3F];\n}\n\nfunction encodeChunk(uint8, start, end) {\n  var tmp;\n  var output = [];\n  for (var i = start; i < end; i += 3) {\n    tmp = (uint8[i] << 16) + (uint8[i + 1] << 8) + uint8[i + 2];\n    output.push(tripletToBase64(tmp));\n  }\n  return output.join('');\n}\n\nfunction fromByteArray(uint8) {\n  var tmp;\n  var len = uint8.length;\n  var extraBytes = len % 3; // if we have 1 byte left, pad 2 bytes\n  var output = '';\n  var parts = [];\n  var maxChunkLength = 16383; // must be multiple of 3\n\n  // go through the array every three bytes, we'll deal with trailing stuff later\n  for (var i = 0, len2 = len - extraBytes; i < len2; i += maxChunkLength) {\n    parts.push(encodeChunk(uint8, i, i + maxChunkLength > len2 ? len2 : i + maxChunkLength));\n  }\n\n  // pad the end with zeros, but make sure to not forget the extra bytes\n  if (extraBytes === 1) {\n    tmp = uint8[len - 1];\n    output += lookup[tmp >> 2];\n    output += lookup[tmp << 4 & 0x3F];\n    output += '==';\n  } else if (extraBytes === 2) {\n    tmp = (uint8[len - 2] << 8) + uint8[len - 1];\n    output += lookup[tmp >> 10];\n    output += lookup[tmp >> 4 & 0x3F];\n    output += lookup[tmp << 2 & 0x3F];\n    output += '=';\n  }\n\n  parts.push(output);\n\n  return parts.join('');\n}\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/base64-js/index.js\n// module id = 119\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/base64-js/index.js?");
+
+/***/ }),
+/* 120 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("/* WEBPACK VAR INJECTION */(function(global) {/*!\n * The buffer module from node.js, for the browser.\n *\n * @author   Feross Aboukhadijeh <feross@feross.org> <http://feross.org>\n * @license  MIT\n */\n/* eslint-disable no-proto */\n\n\n\nvar base64 = __webpack_require__(119);\nvar ieee754 = __webpack_require__(122);\nvar isArray = __webpack_require__(123);\n\nexports.Buffer = Buffer;\nexports.SlowBuffer = SlowBuffer;\nexports.INSPECT_MAX_BYTES = 50;\n\n/**\n * If `Buffer.TYPED_ARRAY_SUPPORT`:\n *   === true    Use Uint8Array implementation (fastest)\n *   === false   Use Object implementation (most compatible, even IE6)\n *\n * Browsers that support typed arrays are IE 10+, Firefox 4+, Chrome 7+, Safari 5.1+,\n * Opera 11.6+, iOS 4.2+.\n *\n * Due to various browser bugs, sometimes the Object implementation will be used even\n * when the browser supports typed arrays.\n *\n * Note:\n *\n *   - Firefox 4-29 lacks support for adding new properties to `Uint8Array` instances,\n *     See: https://bugzilla.mozilla.org/show_bug.cgi?id=695438.\n *\n *   - Chrome 9-10 is missing the `TypedArray.prototype.subarray` function.\n *\n *   - IE10 has a broken `TypedArray.prototype.subarray` function which returns arrays of\n *     incorrect length in some situations.\n\n * We detect these buggy browsers and set `Buffer.TYPED_ARRAY_SUPPORT` to `false` so they\n * get the Object implementation, which is slower but behaves correctly.\n */\nBuffer.TYPED_ARRAY_SUPPORT = global.TYPED_ARRAY_SUPPORT !== undefined ? global.TYPED_ARRAY_SUPPORT : typedArraySupport();\n\n/*\n * Export kMaxLength after typed array support is determined.\n */\nexports.kMaxLength = kMaxLength();\n\nfunction typedArraySupport() {\n  try {\n    var arr = new Uint8Array(1);\n    arr.__proto__ = { __proto__: Uint8Array.prototype, foo: function foo() {\n        return 42;\n      } };\n    return arr.foo() === 42 && // typed array instances can be augmented\n    typeof arr.subarray === 'function' && // chrome 9-10 lack `subarray`\n    arr.subarray(1, 1).byteLength === 0; // ie10 has broken `subarray`\n  } catch (e) {\n    return false;\n  }\n}\n\nfunction kMaxLength() {\n  return Buffer.TYPED_ARRAY_SUPPORT ? 0x7fffffff : 0x3fffffff;\n}\n\nfunction createBuffer(that, length) {\n  if (kMaxLength() < length) {\n    throw new RangeError('Invalid typed array length');\n  }\n  if (Buffer.TYPED_ARRAY_SUPPORT) {\n    // Return an augmented `Uint8Array` instance, for best performance\n    that = new Uint8Array(length);\n    that.__proto__ = Buffer.prototype;\n  } else {\n    // Fallback: Return an object instance of the Buffer class\n    if (that === null) {\n      that = new Buffer(length);\n    }\n    that.length = length;\n  }\n\n  return that;\n}\n\n/**\n * The Buffer constructor returns instances of `Uint8Array` that have their\n * prototype changed to `Buffer.prototype`. Furthermore, `Buffer` is a subclass of\n * `Uint8Array`, so the returned instances will have all the node `Buffer` methods\n * and the `Uint8Array` methods. Square bracket notation works as expected -- it\n * returns a single octet.\n *\n * The `Uint8Array` prototype remains unmodified.\n */\n\nfunction Buffer(arg, encodingOrOffset, length) {\n  if (!Buffer.TYPED_ARRAY_SUPPORT && !(this instanceof Buffer)) {\n    return new Buffer(arg, encodingOrOffset, length);\n  }\n\n  // Common case.\n  if (typeof arg === 'number') {\n    if (typeof encodingOrOffset === 'string') {\n      throw new Error('If encoding is specified then the first argument must be a string');\n    }\n    return allocUnsafe(this, arg);\n  }\n  return from(this, arg, encodingOrOffset, length);\n}\n\nBuffer.poolSize = 8192; // not used by this implementation\n\n// TODO: Legacy, not needed anymore. Remove in next major version.\nBuffer._augment = function (arr) {\n  arr.__proto__ = Buffer.prototype;\n  return arr;\n};\n\nfunction from(that, value, encodingOrOffset, length) {\n  if (typeof value === 'number') {\n    throw new TypeError('\"value\" argument must not be a number');\n  }\n\n  if (typeof ArrayBuffer !== 'undefined' && value instanceof ArrayBuffer) {\n    return fromArrayBuffer(that, value, encodingOrOffset, length);\n  }\n\n  if (typeof value === 'string') {\n    return fromString(that, value, encodingOrOffset);\n  }\n\n  return fromObject(that, value);\n}\n\n/**\n * Functionally equivalent to Buffer(arg, encoding) but throws a TypeError\n * if value is a number.\n * Buffer.from(str[, encoding])\n * Buffer.from(array)\n * Buffer.from(buffer)\n * Buffer.from(arrayBuffer[, byteOffset[, length]])\n **/\nBuffer.from = function (value, encodingOrOffset, length) {\n  return from(null, value, encodingOrOffset, length);\n};\n\nif (Buffer.TYPED_ARRAY_SUPPORT) {\n  Buffer.prototype.__proto__ = Uint8Array.prototype;\n  Buffer.__proto__ = Uint8Array;\n  if (typeof Symbol !== 'undefined' && Symbol.species && Buffer[Symbol.species] === Buffer) {\n    // Fix subarray() in ES2016. See: https://github.com/feross/buffer/pull/97\n    Object.defineProperty(Buffer, Symbol.species, {\n      value: null,\n      configurable: true\n    });\n  }\n}\n\nfunction assertSize(size) {\n  if (typeof size !== 'number') {\n    throw new TypeError('\"size\" argument must be a number');\n  } else if (size < 0) {\n    throw new RangeError('\"size\" argument must not be negative');\n  }\n}\n\nfunction alloc(that, size, fill, encoding) {\n  assertSize(size);\n  if (size <= 0) {\n    return createBuffer(that, size);\n  }\n  if (fill !== undefined) {\n    // Only pay attention to encoding if it's a string. This\n    // prevents accidentally sending in a number that would\n    // be interpretted as a start offset.\n    return typeof encoding === 'string' ? createBuffer(that, size).fill(fill, encoding) : createBuffer(that, size).fill(fill);\n  }\n  return createBuffer(that, size);\n}\n\n/**\n * Creates a new filled Buffer instance.\n * alloc(size[, fill[, encoding]])\n **/\nBuffer.alloc = function (size, fill, encoding) {\n  return alloc(null, size, fill, encoding);\n};\n\nfunction allocUnsafe(that, size) {\n  assertSize(size);\n  that = createBuffer(that, size < 0 ? 0 : checked(size) | 0);\n  if (!Buffer.TYPED_ARRAY_SUPPORT) {\n    for (var i = 0; i < size; ++i) {\n      that[i] = 0;\n    }\n  }\n  return that;\n}\n\n/**\n * Equivalent to Buffer(num), by default creates a non-zero-filled Buffer instance.\n * */\nBuffer.allocUnsafe = function (size) {\n  return allocUnsafe(null, size);\n};\n/**\n * Equivalent to SlowBuffer(num), by default creates a non-zero-filled Buffer instance.\n */\nBuffer.allocUnsafeSlow = function (size) {\n  return allocUnsafe(null, size);\n};\n\nfunction fromString(that, string, encoding) {\n  if (typeof encoding !== 'string' || encoding === '') {\n    encoding = 'utf8';\n  }\n\n  if (!Buffer.isEncoding(encoding)) {\n    throw new TypeError('\"encoding\" must be a valid string encoding');\n  }\n\n  var length = byteLength(string, encoding) | 0;\n  that = createBuffer(that, length);\n\n  var actual = that.write(string, encoding);\n\n  if (actual !== length) {\n    // Writing a hex string, for example, that contains invalid characters will\n    // cause everything after the first invalid character to be ignored. (e.g.\n    // 'abxxcd' will be treated as 'ab')\n    that = that.slice(0, actual);\n  }\n\n  return that;\n}\n\nfunction fromArrayLike(that, array) {\n  var length = array.length < 0 ? 0 : checked(array.length) | 0;\n  that = createBuffer(that, length);\n  for (var i = 0; i < length; i += 1) {\n    that[i] = array[i] & 255;\n  }\n  return that;\n}\n\nfunction fromArrayBuffer(that, array, byteOffset, length) {\n  array.byteLength; // this throws if `array` is not a valid ArrayBuffer\n\n  if (byteOffset < 0 || array.byteLength < byteOffset) {\n    throw new RangeError('\\'offset\\' is out of bounds');\n  }\n\n  if (array.byteLength < byteOffset + (length || 0)) {\n    throw new RangeError('\\'length\\' is out of bounds');\n  }\n\n  if (byteOffset === undefined && length === undefined) {\n    array = new Uint8Array(array);\n  } else if (length === undefined) {\n    array = new Uint8Array(array, byteOffset);\n  } else {\n    array = new Uint8Array(array, byteOffset, length);\n  }\n\n  if (Buffer.TYPED_ARRAY_SUPPORT) {\n    // Return an augmented `Uint8Array` instance, for best performance\n    that = array;\n    that.__proto__ = Buffer.prototype;\n  } else {\n    // Fallback: Return an object instance of the Buffer class\n    that = fromArrayLike(that, array);\n  }\n  return that;\n}\n\nfunction fromObject(that, obj) {\n  if (Buffer.isBuffer(obj)) {\n    var len = checked(obj.length) | 0;\n    that = createBuffer(that, len);\n\n    if (that.length === 0) {\n      return that;\n    }\n\n    obj.copy(that, 0, 0, len);\n    return that;\n  }\n\n  if (obj) {\n    if (typeof ArrayBuffer !== 'undefined' && obj.buffer instanceof ArrayBuffer || 'length' in obj) {\n      if (typeof obj.length !== 'number' || isnan(obj.length)) {\n        return createBuffer(that, 0);\n      }\n      return fromArrayLike(that, obj);\n    }\n\n    if (obj.type === 'Buffer' && isArray(obj.data)) {\n      return fromArrayLike(that, obj.data);\n    }\n  }\n\n  throw new TypeError('First argument must be a string, Buffer, ArrayBuffer, Array, or array-like object.');\n}\n\nfunction checked(length) {\n  // Note: cannot use `length < kMaxLength()` here because that fails when\n  // length is NaN (which is otherwise coerced to zero.)\n  if (length >= kMaxLength()) {\n    throw new RangeError('Attempt to allocate Buffer larger than maximum ' + 'size: 0x' + kMaxLength().toString(16) + ' bytes');\n  }\n  return length | 0;\n}\n\nfunction SlowBuffer(length) {\n  if (+length != length) {\n    // eslint-disable-line eqeqeq\n    length = 0;\n  }\n  return Buffer.alloc(+length);\n}\n\nBuffer.isBuffer = function isBuffer(b) {\n  return !!(b != null && b._isBuffer);\n};\n\nBuffer.compare = function compare(a, b) {\n  if (!Buffer.isBuffer(a) || !Buffer.isBuffer(b)) {\n    throw new TypeError('Arguments must be Buffers');\n  }\n\n  if (a === b) return 0;\n\n  var x = a.length;\n  var y = b.length;\n\n  for (var i = 0, len = Math.min(x, y); i < len; ++i) {\n    if (a[i] !== b[i]) {\n      x = a[i];\n      y = b[i];\n      break;\n    }\n  }\n\n  if (x < y) return -1;\n  if (y < x) return 1;\n  return 0;\n};\n\nBuffer.isEncoding = function isEncoding(encoding) {\n  switch (String(encoding).toLowerCase()) {\n    case 'hex':\n    case 'utf8':\n    case 'utf-8':\n    case 'ascii':\n    case 'latin1':\n    case 'binary':\n    case 'base64':\n    case 'ucs2':\n    case 'ucs-2':\n    case 'utf16le':\n    case 'utf-16le':\n      return true;\n    default:\n      return false;\n  }\n};\n\nBuffer.concat = function concat(list, length) {\n  if (!isArray(list)) {\n    throw new TypeError('\"list\" argument must be an Array of Buffers');\n  }\n\n  if (list.length === 0) {\n    return Buffer.alloc(0);\n  }\n\n  var i;\n  if (length === undefined) {\n    length = 0;\n    for (i = 0; i < list.length; ++i) {\n      length += list[i].length;\n    }\n  }\n\n  var buffer = Buffer.allocUnsafe(length);\n  var pos = 0;\n  for (i = 0; i < list.length; ++i) {\n    var buf = list[i];\n    if (!Buffer.isBuffer(buf)) {\n      throw new TypeError('\"list\" argument must be an Array of Buffers');\n    }\n    buf.copy(buffer, pos);\n    pos += buf.length;\n  }\n  return buffer;\n};\n\nfunction byteLength(string, encoding) {\n  if (Buffer.isBuffer(string)) {\n    return string.length;\n  }\n  if (typeof ArrayBuffer !== 'undefined' && typeof ArrayBuffer.isView === 'function' && (ArrayBuffer.isView(string) || string instanceof ArrayBuffer)) {\n    return string.byteLength;\n  }\n  if (typeof string !== 'string') {\n    string = '' + string;\n  }\n\n  var len = string.length;\n  if (len === 0) return 0;\n\n  // Use a for loop to avoid recursion\n  var loweredCase = false;\n  for (;;) {\n    switch (encoding) {\n      case 'ascii':\n      case 'latin1':\n      case 'binary':\n        return len;\n      case 'utf8':\n      case 'utf-8':\n      case undefined:\n        return utf8ToBytes(string).length;\n      case 'ucs2':\n      case 'ucs-2':\n      case 'utf16le':\n      case 'utf-16le':\n        return len * 2;\n      case 'hex':\n        return len >>> 1;\n      case 'base64':\n        return base64ToBytes(string).length;\n      default:\n        if (loweredCase) return utf8ToBytes(string).length; // assume utf8\n        encoding = ('' + encoding).toLowerCase();\n        loweredCase = true;\n    }\n  }\n}\nBuffer.byteLength = byteLength;\n\nfunction slowToString(encoding, start, end) {\n  var loweredCase = false;\n\n  // No need to verify that \"this.length <= MAX_UINT32\" since it's a read-only\n  // property of a typed array.\n\n  // This behaves neither like String nor Uint8Array in that we set start/end\n  // to their upper/lower bounds if the value passed is out of range.\n  // undefined is handled specially as per ECMA-262 6th Edition,\n  // Section 13.3.3.7 Runtime Semantics: KeyedBindingInitialization.\n  if (start === undefined || start < 0) {\n    start = 0;\n  }\n  // Return early if start > this.length. Done here to prevent potential uint32\n  // coercion fail below.\n  if (start > this.length) {\n    return '';\n  }\n\n  if (end === undefined || end > this.length) {\n    end = this.length;\n  }\n\n  if (end <= 0) {\n    return '';\n  }\n\n  // Force coersion to uint32. This will also coerce falsey/NaN values to 0.\n  end >>>= 0;\n  start >>>= 0;\n\n  if (end <= start) {\n    return '';\n  }\n\n  if (!encoding) encoding = 'utf8';\n\n  while (true) {\n    switch (encoding) {\n      case 'hex':\n        return hexSlice(this, start, end);\n\n      case 'utf8':\n      case 'utf-8':\n        return utf8Slice(this, start, end);\n\n      case 'ascii':\n        return asciiSlice(this, start, end);\n\n      case 'latin1':\n      case 'binary':\n        return latin1Slice(this, start, end);\n\n      case 'base64':\n        return base64Slice(this, start, end);\n\n      case 'ucs2':\n      case 'ucs-2':\n      case 'utf16le':\n      case 'utf-16le':\n        return utf16leSlice(this, start, end);\n\n      default:\n        if (loweredCase) throw new TypeError('Unknown encoding: ' + encoding);\n        encoding = (encoding + '').toLowerCase();\n        loweredCase = true;\n    }\n  }\n}\n\n// The property is used by `Buffer.isBuffer` and `is-buffer` (in Safari 5-7) to detect\n// Buffer instances.\nBuffer.prototype._isBuffer = true;\n\nfunction swap(b, n, m) {\n  var i = b[n];\n  b[n] = b[m];\n  b[m] = i;\n}\n\nBuffer.prototype.swap16 = function swap16() {\n  var len = this.length;\n  if (len % 2 !== 0) {\n    throw new RangeError('Buffer size must be a multiple of 16-bits');\n  }\n  for (var i = 0; i < len; i += 2) {\n    swap(this, i, i + 1);\n  }\n  return this;\n};\n\nBuffer.prototype.swap32 = function swap32() {\n  var len = this.length;\n  if (len % 4 !== 0) {\n    throw new RangeError('Buffer size must be a multiple of 32-bits');\n  }\n  for (var i = 0; i < len; i += 4) {\n    swap(this, i, i + 3);\n    swap(this, i + 1, i + 2);\n  }\n  return this;\n};\n\nBuffer.prototype.swap64 = function swap64() {\n  var len = this.length;\n  if (len % 8 !== 0) {\n    throw new RangeError('Buffer size must be a multiple of 64-bits');\n  }\n  for (var i = 0; i < len; i += 8) {\n    swap(this, i, i + 7);\n    swap(this, i + 1, i + 6);\n    swap(this, i + 2, i + 5);\n    swap(this, i + 3, i + 4);\n  }\n  return this;\n};\n\nBuffer.prototype.toString = function toString() {\n  var length = this.length | 0;\n  if (length === 0) return '';\n  if (arguments.length === 0) return utf8Slice(this, 0, length);\n  return slowToString.apply(this, arguments);\n};\n\nBuffer.prototype.equals = function equals(b) {\n  if (!Buffer.isBuffer(b)) throw new TypeError('Argument must be a Buffer');\n  if (this === b) return true;\n  return Buffer.compare(this, b) === 0;\n};\n\nBuffer.prototype.inspect = function inspect() {\n  var str = '';\n  var max = exports.INSPECT_MAX_BYTES;\n  if (this.length > 0) {\n    str = this.toString('hex', 0, max).match(/.{2}/g).join(' ');\n    if (this.length > max) str += ' ... ';\n  }\n  return '<Buffer ' + str + '>';\n};\n\nBuffer.prototype.compare = function compare(target, start, end, thisStart, thisEnd) {\n  if (!Buffer.isBuffer(target)) {\n    throw new TypeError('Argument must be a Buffer');\n  }\n\n  if (start === undefined) {\n    start = 0;\n  }\n  if (end === undefined) {\n    end = target ? target.length : 0;\n  }\n  if (thisStart === undefined) {\n    thisStart = 0;\n  }\n  if (thisEnd === undefined) {\n    thisEnd = this.length;\n  }\n\n  if (start < 0 || end > target.length || thisStart < 0 || thisEnd > this.length) {\n    throw new RangeError('out of range index');\n  }\n\n  if (thisStart >= thisEnd && start >= end) {\n    return 0;\n  }\n  if (thisStart >= thisEnd) {\n    return -1;\n  }\n  if (start >= end) {\n    return 1;\n  }\n\n  start >>>= 0;\n  end >>>= 0;\n  thisStart >>>= 0;\n  thisEnd >>>= 0;\n\n  if (this === target) return 0;\n\n  var x = thisEnd - thisStart;\n  var y = end - start;\n  var len = Math.min(x, y);\n\n  var thisCopy = this.slice(thisStart, thisEnd);\n  var targetCopy = target.slice(start, end);\n\n  for (var i = 0; i < len; ++i) {\n    if (thisCopy[i] !== targetCopy[i]) {\n      x = thisCopy[i];\n      y = targetCopy[i];\n      break;\n    }\n  }\n\n  if (x < y) return -1;\n  if (y < x) return 1;\n  return 0;\n};\n\n// Finds either the first index of `val` in `buffer` at offset >= `byteOffset`,\n// OR the last index of `val` in `buffer` at offset <= `byteOffset`.\n//\n// Arguments:\n// - buffer - a Buffer to search\n// - val - a string, Buffer, or number\n// - byteOffset - an index into `buffer`; will be clamped to an int32\n// - encoding - an optional encoding, relevant is val is a string\n// - dir - true for indexOf, false for lastIndexOf\nfunction bidirectionalIndexOf(buffer, val, byteOffset, encoding, dir) {\n  // Empty buffer means no match\n  if (buffer.length === 0) return -1;\n\n  // Normalize byteOffset\n  if (typeof byteOffset === 'string') {\n    encoding = byteOffset;\n    byteOffset = 0;\n  } else if (byteOffset > 0x7fffffff) {\n    byteOffset = 0x7fffffff;\n  } else if (byteOffset < -0x80000000) {\n    byteOffset = -0x80000000;\n  }\n  byteOffset = +byteOffset; // Coerce to Number.\n  if (isNaN(byteOffset)) {\n    // byteOffset: it it's undefined, null, NaN, \"foo\", etc, search whole buffer\n    byteOffset = dir ? 0 : buffer.length - 1;\n  }\n\n  // Normalize byteOffset: negative offsets start from the end of the buffer\n  if (byteOffset < 0) byteOffset = buffer.length + byteOffset;\n  if (byteOffset >= buffer.length) {\n    if (dir) return -1;else byteOffset = buffer.length - 1;\n  } else if (byteOffset < 0) {\n    if (dir) byteOffset = 0;else return -1;\n  }\n\n  // Normalize val\n  if (typeof val === 'string') {\n    val = Buffer.from(val, encoding);\n  }\n\n  // Finally, search either indexOf (if dir is true) or lastIndexOf\n  if (Buffer.isBuffer(val)) {\n    // Special case: looking for empty string/buffer always fails\n    if (val.length === 0) {\n      return -1;\n    }\n    return arrayIndexOf(buffer, val, byteOffset, encoding, dir);\n  } else if (typeof val === 'number') {\n    val = val & 0xFF; // Search for a byte value [0-255]\n    if (Buffer.TYPED_ARRAY_SUPPORT && typeof Uint8Array.prototype.indexOf === 'function') {\n      if (dir) {\n        return Uint8Array.prototype.indexOf.call(buffer, val, byteOffset);\n      } else {\n        return Uint8Array.prototype.lastIndexOf.call(buffer, val, byteOffset);\n      }\n    }\n    return arrayIndexOf(buffer, [val], byteOffset, encoding, dir);\n  }\n\n  throw new TypeError('val must be string, number or Buffer');\n}\n\nfunction arrayIndexOf(arr, val, byteOffset, encoding, dir) {\n  var indexSize = 1;\n  var arrLength = arr.length;\n  var valLength = val.length;\n\n  if (encoding !== undefined) {\n    encoding = String(encoding).toLowerCase();\n    if (encoding === 'ucs2' || encoding === 'ucs-2' || encoding === 'utf16le' || encoding === 'utf-16le') {\n      if (arr.length < 2 || val.length < 2) {\n        return -1;\n      }\n      indexSize = 2;\n      arrLength /= 2;\n      valLength /= 2;\n      byteOffset /= 2;\n    }\n  }\n\n  function read(buf, i) {\n    if (indexSize === 1) {\n      return buf[i];\n    } else {\n      return buf.readUInt16BE(i * indexSize);\n    }\n  }\n\n  var i;\n  if (dir) {\n    var foundIndex = -1;\n    for (i = byteOffset; i < arrLength; i++) {\n      if (read(arr, i) === read(val, foundIndex === -1 ? 0 : i - foundIndex)) {\n        if (foundIndex === -1) foundIndex = i;\n        if (i - foundIndex + 1 === valLength) return foundIndex * indexSize;\n      } else {\n        if (foundIndex !== -1) i -= i - foundIndex;\n        foundIndex = -1;\n      }\n    }\n  } else {\n    if (byteOffset + valLength > arrLength) byteOffset = arrLength - valLength;\n    for (i = byteOffset; i >= 0; i--) {\n      var found = true;\n      for (var j = 0; j < valLength; j++) {\n        if (read(arr, i + j) !== read(val, j)) {\n          found = false;\n          break;\n        }\n      }\n      if (found) return i;\n    }\n  }\n\n  return -1;\n}\n\nBuffer.prototype.includes = function includes(val, byteOffset, encoding) {\n  return this.indexOf(val, byteOffset, encoding) !== -1;\n};\n\nBuffer.prototype.indexOf = function indexOf(val, byteOffset, encoding) {\n  return bidirectionalIndexOf(this, val, byteOffset, encoding, true);\n};\n\nBuffer.prototype.lastIndexOf = function lastIndexOf(val, byteOffset, encoding) {\n  return bidirectionalIndexOf(this, val, byteOffset, encoding, false);\n};\n\nfunction hexWrite(buf, string, offset, length) {\n  offset = Number(offset) || 0;\n  var remaining = buf.length - offset;\n  if (!length) {\n    length = remaining;\n  } else {\n    length = Number(length);\n    if (length > remaining) {\n      length = remaining;\n    }\n  }\n\n  // must be an even number of digits\n  var strLen = string.length;\n  if (strLen % 2 !== 0) throw new TypeError('Invalid hex string');\n\n  if (length > strLen / 2) {\n    length = strLen / 2;\n  }\n  for (var i = 0; i < length; ++i) {\n    var parsed = parseInt(string.substr(i * 2, 2), 16);\n    if (isNaN(parsed)) return i;\n    buf[offset + i] = parsed;\n  }\n  return i;\n}\n\nfunction utf8Write(buf, string, offset, length) {\n  return blitBuffer(utf8ToBytes(string, buf.length - offset), buf, offset, length);\n}\n\nfunction asciiWrite(buf, string, offset, length) {\n  return blitBuffer(asciiToBytes(string), buf, offset, length);\n}\n\nfunction latin1Write(buf, string, offset, length) {\n  return asciiWrite(buf, string, offset, length);\n}\n\nfunction base64Write(buf, string, offset, length) {\n  return blitBuffer(base64ToBytes(string), buf, offset, length);\n}\n\nfunction ucs2Write(buf, string, offset, length) {\n  return blitBuffer(utf16leToBytes(string, buf.length - offset), buf, offset, length);\n}\n\nBuffer.prototype.write = function write(string, offset, length, encoding) {\n  // Buffer#write(string)\n  if (offset === undefined) {\n    encoding = 'utf8';\n    length = this.length;\n    offset = 0;\n    // Buffer#write(string, encoding)\n  } else if (length === undefined && typeof offset === 'string') {\n    encoding = offset;\n    length = this.length;\n    offset = 0;\n    // Buffer#write(string, offset[, length][, encoding])\n  } else if (isFinite(offset)) {\n    offset = offset | 0;\n    if (isFinite(length)) {\n      length = length | 0;\n      if (encoding === undefined) encoding = 'utf8';\n    } else {\n      encoding = length;\n      length = undefined;\n    }\n    // legacy write(string, encoding, offset, length) - remove in v0.13\n  } else {\n    throw new Error('Buffer.write(string, encoding, offset[, length]) is no longer supported');\n  }\n\n  var remaining = this.length - offset;\n  if (length === undefined || length > remaining) length = remaining;\n\n  if (string.length > 0 && (length < 0 || offset < 0) || offset > this.length) {\n    throw new RangeError('Attempt to write outside buffer bounds');\n  }\n\n  if (!encoding) encoding = 'utf8';\n\n  var loweredCase = false;\n  for (;;) {\n    switch (encoding) {\n      case 'hex':\n        return hexWrite(this, string, offset, length);\n\n      case 'utf8':\n      case 'utf-8':\n        return utf8Write(this, string, offset, length);\n\n      case 'ascii':\n        return asciiWrite(this, string, offset, length);\n\n      case 'latin1':\n      case 'binary':\n        return latin1Write(this, string, offset, length);\n\n      case 'base64':\n        // Warning: maxLength not taken into account in base64Write\n        return base64Write(this, string, offset, length);\n\n      case 'ucs2':\n      case 'ucs-2':\n      case 'utf16le':\n      case 'utf-16le':\n        return ucs2Write(this, string, offset, length);\n\n      default:\n        if (loweredCase) throw new TypeError('Unknown encoding: ' + encoding);\n        encoding = ('' + encoding).toLowerCase();\n        loweredCase = true;\n    }\n  }\n};\n\nBuffer.prototype.toJSON = function toJSON() {\n  return {\n    type: 'Buffer',\n    data: Array.prototype.slice.call(this._arr || this, 0)\n  };\n};\n\nfunction base64Slice(buf, start, end) {\n  if (start === 0 && end === buf.length) {\n    return base64.fromByteArray(buf);\n  } else {\n    return base64.fromByteArray(buf.slice(start, end));\n  }\n}\n\nfunction utf8Slice(buf, start, end) {\n  end = Math.min(buf.length, end);\n  var res = [];\n\n  var i = start;\n  while (i < end) {\n    var firstByte = buf[i];\n    var codePoint = null;\n    var bytesPerSequence = firstByte > 0xEF ? 4 : firstByte > 0xDF ? 3 : firstByte > 0xBF ? 2 : 1;\n\n    if (i + bytesPerSequence <= end) {\n      var secondByte, thirdByte, fourthByte, tempCodePoint;\n\n      switch (bytesPerSequence) {\n        case 1:\n          if (firstByte < 0x80) {\n            codePoint = firstByte;\n          }\n          break;\n        case 2:\n          secondByte = buf[i + 1];\n          if ((secondByte & 0xC0) === 0x80) {\n            tempCodePoint = (firstByte & 0x1F) << 0x6 | secondByte & 0x3F;\n            if (tempCodePoint > 0x7F) {\n              codePoint = tempCodePoint;\n            }\n          }\n          break;\n        case 3:\n          secondByte = buf[i + 1];\n          thirdByte = buf[i + 2];\n          if ((secondByte & 0xC0) === 0x80 && (thirdByte & 0xC0) === 0x80) {\n            tempCodePoint = (firstByte & 0xF) << 0xC | (secondByte & 0x3F) << 0x6 | thirdByte & 0x3F;\n            if (tempCodePoint > 0x7FF && (tempCodePoint < 0xD800 || tempCodePoint > 0xDFFF)) {\n              codePoint = tempCodePoint;\n            }\n          }\n          break;\n        case 4:\n          secondByte = buf[i + 1];\n          thirdByte = buf[i + 2];\n          fourthByte = buf[i + 3];\n          if ((secondByte & 0xC0) === 0x80 && (thirdByte & 0xC0) === 0x80 && (fourthByte & 0xC0) === 0x80) {\n            tempCodePoint = (firstByte & 0xF) << 0x12 | (secondByte & 0x3F) << 0xC | (thirdByte & 0x3F) << 0x6 | fourthByte & 0x3F;\n            if (tempCodePoint > 0xFFFF && tempCodePoint < 0x110000) {\n              codePoint = tempCodePoint;\n            }\n          }\n      }\n    }\n\n    if (codePoint === null) {\n      // we did not generate a valid codePoint so insert a\n      // replacement char (U+FFFD) and advance only 1 byte\n      codePoint = 0xFFFD;\n      bytesPerSequence = 1;\n    } else if (codePoint > 0xFFFF) {\n      // encode to utf16 (surrogate pair dance)\n      codePoint -= 0x10000;\n      res.push(codePoint >>> 10 & 0x3FF | 0xD800);\n      codePoint = 0xDC00 | codePoint & 0x3FF;\n    }\n\n    res.push(codePoint);\n    i += bytesPerSequence;\n  }\n\n  return decodeCodePointsArray(res);\n}\n\n// Based on http://stackoverflow.com/a/22747272/680742, the browser with\n// the lowest limit is Chrome, with 0x10000 args.\n// We go 1 magnitude less, for safety\nvar MAX_ARGUMENTS_LENGTH = 0x1000;\n\nfunction decodeCodePointsArray(codePoints) {\n  var len = codePoints.length;\n  if (len <= MAX_ARGUMENTS_LENGTH) {\n    return String.fromCharCode.apply(String, codePoints); // avoid extra slice()\n  }\n\n  // Decode in chunks to avoid \"call stack size exceeded\".\n  var res = '';\n  var i = 0;\n  while (i < len) {\n    res += String.fromCharCode.apply(String, codePoints.slice(i, i += MAX_ARGUMENTS_LENGTH));\n  }\n  return res;\n}\n\nfunction asciiSlice(buf, start, end) {\n  var ret = '';\n  end = Math.min(buf.length, end);\n\n  for (var i = start; i < end; ++i) {\n    ret += String.fromCharCode(buf[i] & 0x7F);\n  }\n  return ret;\n}\n\nfunction latin1Slice(buf, start, end) {\n  var ret = '';\n  end = Math.min(buf.length, end);\n\n  for (var i = start; i < end; ++i) {\n    ret += String.fromCharCode(buf[i]);\n  }\n  return ret;\n}\n\nfunction hexSlice(buf, start, end) {\n  var len = buf.length;\n\n  if (!start || start < 0) start = 0;\n  if (!end || end < 0 || end > len) end = len;\n\n  var out = '';\n  for (var i = start; i < end; ++i) {\n    out += toHex(buf[i]);\n  }\n  return out;\n}\n\nfunction utf16leSlice(buf, start, end) {\n  var bytes = buf.slice(start, end);\n  var res = '';\n  for (var i = 0; i < bytes.length; i += 2) {\n    res += String.fromCharCode(bytes[i] + bytes[i + 1] * 256);\n  }\n  return res;\n}\n\nBuffer.prototype.slice = function slice(start, end) {\n  var len = this.length;\n  start = ~~start;\n  end = end === undefined ? len : ~~end;\n\n  if (start < 0) {\n    start += len;\n    if (start < 0) start = 0;\n  } else if (start > len) {\n    start = len;\n  }\n\n  if (end < 0) {\n    end += len;\n    if (end < 0) end = 0;\n  } else if (end > len) {\n    end = len;\n  }\n\n  if (end < start) end = start;\n\n  var newBuf;\n  if (Buffer.TYPED_ARRAY_SUPPORT) {\n    newBuf = this.subarray(start, end);\n    newBuf.__proto__ = Buffer.prototype;\n  } else {\n    var sliceLen = end - start;\n    newBuf = new Buffer(sliceLen, undefined);\n    for (var i = 0; i < sliceLen; ++i) {\n      newBuf[i] = this[i + start];\n    }\n  }\n\n  return newBuf;\n};\n\n/*\n * Need to make sure that buffer isn't trying to write out of bounds.\n */\nfunction checkOffset(offset, ext, length) {\n  if (offset % 1 !== 0 || offset < 0) throw new RangeError('offset is not uint');\n  if (offset + ext > length) throw new RangeError('Trying to access beyond buffer length');\n}\n\nBuffer.prototype.readUIntLE = function readUIntLE(offset, byteLength, noAssert) {\n  offset = offset | 0;\n  byteLength = byteLength | 0;\n  if (!noAssert) checkOffset(offset, byteLength, this.length);\n\n  var val = this[offset];\n  var mul = 1;\n  var i = 0;\n  while (++i < byteLength && (mul *= 0x100)) {\n    val += this[offset + i] * mul;\n  }\n\n  return val;\n};\n\nBuffer.prototype.readUIntBE = function readUIntBE(offset, byteLength, noAssert) {\n  offset = offset | 0;\n  byteLength = byteLength | 0;\n  if (!noAssert) {\n    checkOffset(offset, byteLength, this.length);\n  }\n\n  var val = this[offset + --byteLength];\n  var mul = 1;\n  while (byteLength > 0 && (mul *= 0x100)) {\n    val += this[offset + --byteLength] * mul;\n  }\n\n  return val;\n};\n\nBuffer.prototype.readUInt8 = function readUInt8(offset, noAssert) {\n  if (!noAssert) checkOffset(offset, 1, this.length);\n  return this[offset];\n};\n\nBuffer.prototype.readUInt16LE = function readUInt16LE(offset, noAssert) {\n  if (!noAssert) checkOffset(offset, 2, this.length);\n  return this[offset] | this[offset + 1] << 8;\n};\n\nBuffer.prototype.readUInt16BE = function readUInt16BE(offset, noAssert) {\n  if (!noAssert) checkOffset(offset, 2, this.length);\n  return this[offset] << 8 | this[offset + 1];\n};\n\nBuffer.prototype.readUInt32LE = function readUInt32LE(offset, noAssert) {\n  if (!noAssert) checkOffset(offset, 4, this.length);\n\n  return (this[offset] | this[offset + 1] << 8 | this[offset + 2] << 16) + this[offset + 3] * 0x1000000;\n};\n\nBuffer.prototype.readUInt32BE = function readUInt32BE(offset, noAssert) {\n  if (!noAssert) checkOffset(offset, 4, this.length);\n\n  return this[offset] * 0x1000000 + (this[offset + 1] << 16 | this[offset + 2] << 8 | this[offset + 3]);\n};\n\nBuffer.prototype.readIntLE = function readIntLE(offset, byteLength, noAssert) {\n  offset = offset | 0;\n  byteLength = byteLength | 0;\n  if (!noAssert) checkOffset(offset, byteLength, this.length);\n\n  var val = this[offset];\n  var mul = 1;\n  var i = 0;\n  while (++i < byteLength && (mul *= 0x100)) {\n    val += this[offset + i] * mul;\n  }\n  mul *= 0x80;\n\n  if (val >= mul) val -= Math.pow(2, 8 * byteLength);\n\n  return val;\n};\n\nBuffer.prototype.readIntBE = function readIntBE(offset, byteLength, noAssert) {\n  offset = offset | 0;\n  byteLength = byteLength | 0;\n  if (!noAssert) checkOffset(offset, byteLength, this.length);\n\n  var i = byteLength;\n  var mul = 1;\n  var val = this[offset + --i];\n  while (i > 0 && (mul *= 0x100)) {\n    val += this[offset + --i] * mul;\n  }\n  mul *= 0x80;\n\n  if (val >= mul) val -= Math.pow(2, 8 * byteLength);\n\n  return val;\n};\n\nBuffer.prototype.readInt8 = function readInt8(offset, noAssert) {\n  if (!noAssert) checkOffset(offset, 1, this.length);\n  if (!(this[offset] & 0x80)) return this[offset];\n  return (0xff - this[offset] + 1) * -1;\n};\n\nBuffer.prototype.readInt16LE = function readInt16LE(offset, noAssert) {\n  if (!noAssert) checkOffset(offset, 2, this.length);\n  var val = this[offset] | this[offset + 1] << 8;\n  return val & 0x8000 ? val | 0xFFFF0000 : val;\n};\n\nBuffer.prototype.readInt16BE = function readInt16BE(offset, noAssert) {\n  if (!noAssert) checkOffset(offset, 2, this.length);\n  var val = this[offset + 1] | this[offset] << 8;\n  return val & 0x8000 ? val | 0xFFFF0000 : val;\n};\n\nBuffer.prototype.readInt32LE = function readInt32LE(offset, noAssert) {\n  if (!noAssert) checkOffset(offset, 4, this.length);\n\n  return this[offset] | this[offset + 1] << 8 | this[offset + 2] << 16 | this[offset + 3] << 24;\n};\n\nBuffer.prototype.readInt32BE = function readInt32BE(offset, noAssert) {\n  if (!noAssert) checkOffset(offset, 4, this.length);\n\n  return this[offset] << 24 | this[offset + 1] << 16 | this[offset + 2] << 8 | this[offset + 3];\n};\n\nBuffer.prototype.readFloatLE = function readFloatLE(offset, noAssert) {\n  if (!noAssert) checkOffset(offset, 4, this.length);\n  return ieee754.read(this, offset, true, 23, 4);\n};\n\nBuffer.prototype.readFloatBE = function readFloatBE(offset, noAssert) {\n  if (!noAssert) checkOffset(offset, 4, this.length);\n  return ieee754.read(this, offset, false, 23, 4);\n};\n\nBuffer.prototype.readDoubleLE = function readDoubleLE(offset, noAssert) {\n  if (!noAssert) checkOffset(offset, 8, this.length);\n  return ieee754.read(this, offset, true, 52, 8);\n};\n\nBuffer.prototype.readDoubleBE = function readDoubleBE(offset, noAssert) {\n  if (!noAssert) checkOffset(offset, 8, this.length);\n  return ieee754.read(this, offset, false, 52, 8);\n};\n\nfunction checkInt(buf, value, offset, ext, max, min) {\n  if (!Buffer.isBuffer(buf)) throw new TypeError('\"buffer\" argument must be a Buffer instance');\n  if (value > max || value < min) throw new RangeError('\"value\" argument is out of bounds');\n  if (offset + ext > buf.length) throw new RangeError('Index out of range');\n}\n\nBuffer.prototype.writeUIntLE = function writeUIntLE(value, offset, byteLength, noAssert) {\n  value = +value;\n  offset = offset | 0;\n  byteLength = byteLength | 0;\n  if (!noAssert) {\n    var maxBytes = Math.pow(2, 8 * byteLength) - 1;\n    checkInt(this, value, offset, byteLength, maxBytes, 0);\n  }\n\n  var mul = 1;\n  var i = 0;\n  this[offset] = value & 0xFF;\n  while (++i < byteLength && (mul *= 0x100)) {\n    this[offset + i] = value / mul & 0xFF;\n  }\n\n  return offset + byteLength;\n};\n\nBuffer.prototype.writeUIntBE = function writeUIntBE(value, offset, byteLength, noAssert) {\n  value = +value;\n  offset = offset | 0;\n  byteLength = byteLength | 0;\n  if (!noAssert) {\n    var maxBytes = Math.pow(2, 8 * byteLength) - 1;\n    checkInt(this, value, offset, byteLength, maxBytes, 0);\n  }\n\n  var i = byteLength - 1;\n  var mul = 1;\n  this[offset + i] = value & 0xFF;\n  while (--i >= 0 && (mul *= 0x100)) {\n    this[offset + i] = value / mul & 0xFF;\n  }\n\n  return offset + byteLength;\n};\n\nBuffer.prototype.writeUInt8 = function writeUInt8(value, offset, noAssert) {\n  value = +value;\n  offset = offset | 0;\n  if (!noAssert) checkInt(this, value, offset, 1, 0xff, 0);\n  if (!Buffer.TYPED_ARRAY_SUPPORT) value = Math.floor(value);\n  this[offset] = value & 0xff;\n  return offset + 1;\n};\n\nfunction objectWriteUInt16(buf, value, offset, littleEndian) {\n  if (value < 0) value = 0xffff + value + 1;\n  for (var i = 0, j = Math.min(buf.length - offset, 2); i < j; ++i) {\n    buf[offset + i] = (value & 0xff << 8 * (littleEndian ? i : 1 - i)) >>> (littleEndian ? i : 1 - i) * 8;\n  }\n}\n\nBuffer.prototype.writeUInt16LE = function writeUInt16LE(value, offset, noAssert) {\n  value = +value;\n  offset = offset | 0;\n  if (!noAssert) checkInt(this, value, offset, 2, 0xffff, 0);\n  if (Buffer.TYPED_ARRAY_SUPPORT) {\n    this[offset] = value & 0xff;\n    this[offset + 1] = value >>> 8;\n  } else {\n    objectWriteUInt16(this, value, offset, true);\n  }\n  return offset + 2;\n};\n\nBuffer.prototype.writeUInt16BE = function writeUInt16BE(value, offset, noAssert) {\n  value = +value;\n  offset = offset | 0;\n  if (!noAssert) checkInt(this, value, offset, 2, 0xffff, 0);\n  if (Buffer.TYPED_ARRAY_SUPPORT) {\n    this[offset] = value >>> 8;\n    this[offset + 1] = value & 0xff;\n  } else {\n    objectWriteUInt16(this, value, offset, false);\n  }\n  return offset + 2;\n};\n\nfunction objectWriteUInt32(buf, value, offset, littleEndian) {\n  if (value < 0) value = 0xffffffff + value + 1;\n  for (var i = 0, j = Math.min(buf.length - offset, 4); i < j; ++i) {\n    buf[offset + i] = value >>> (littleEndian ? i : 3 - i) * 8 & 0xff;\n  }\n}\n\nBuffer.prototype.writeUInt32LE = function writeUInt32LE(value, offset, noAssert) {\n  value = +value;\n  offset = offset | 0;\n  if (!noAssert) checkInt(this, value, offset, 4, 0xffffffff, 0);\n  if (Buffer.TYPED_ARRAY_SUPPORT) {\n    this[offset + 3] = value >>> 24;\n    this[offset + 2] = value >>> 16;\n    this[offset + 1] = value >>> 8;\n    this[offset] = value & 0xff;\n  } else {\n    objectWriteUInt32(this, value, offset, true);\n  }\n  return offset + 4;\n};\n\nBuffer.prototype.writeUInt32BE = function writeUInt32BE(value, offset, noAssert) {\n  value = +value;\n  offset = offset | 0;\n  if (!noAssert) checkInt(this, value, offset, 4, 0xffffffff, 0);\n  if (Buffer.TYPED_ARRAY_SUPPORT) {\n    this[offset] = value >>> 24;\n    this[offset + 1] = value >>> 16;\n    this[offset + 2] = value >>> 8;\n    this[offset + 3] = value & 0xff;\n  } else {\n    objectWriteUInt32(this, value, offset, false);\n  }\n  return offset + 4;\n};\n\nBuffer.prototype.writeIntLE = function writeIntLE(value, offset, byteLength, noAssert) {\n  value = +value;\n  offset = offset | 0;\n  if (!noAssert) {\n    var limit = Math.pow(2, 8 * byteLength - 1);\n\n    checkInt(this, value, offset, byteLength, limit - 1, -limit);\n  }\n\n  var i = 0;\n  var mul = 1;\n  var sub = 0;\n  this[offset] = value & 0xFF;\n  while (++i < byteLength && (mul *= 0x100)) {\n    if (value < 0 && sub === 0 && this[offset + i - 1] !== 0) {\n      sub = 1;\n    }\n    this[offset + i] = (value / mul >> 0) - sub & 0xFF;\n  }\n\n  return offset + byteLength;\n};\n\nBuffer.prototype.writeIntBE = function writeIntBE(value, offset, byteLength, noAssert) {\n  value = +value;\n  offset = offset | 0;\n  if (!noAssert) {\n    var limit = Math.pow(2, 8 * byteLength - 1);\n\n    checkInt(this, value, offset, byteLength, limit - 1, -limit);\n  }\n\n  var i = byteLength - 1;\n  var mul = 1;\n  var sub = 0;\n  this[offset + i] = value & 0xFF;\n  while (--i >= 0 && (mul *= 0x100)) {\n    if (value < 0 && sub === 0 && this[offset + i + 1] !== 0) {\n      sub = 1;\n    }\n    this[offset + i] = (value / mul >> 0) - sub & 0xFF;\n  }\n\n  return offset + byteLength;\n};\n\nBuffer.prototype.writeInt8 = function writeInt8(value, offset, noAssert) {\n  value = +value;\n  offset = offset | 0;\n  if (!noAssert) checkInt(this, value, offset, 1, 0x7f, -0x80);\n  if (!Buffer.TYPED_ARRAY_SUPPORT) value = Math.floor(value);\n  if (value < 0) value = 0xff + value + 1;\n  this[offset] = value & 0xff;\n  return offset + 1;\n};\n\nBuffer.prototype.writeInt16LE = function writeInt16LE(value, offset, noAssert) {\n  value = +value;\n  offset = offset | 0;\n  if (!noAssert) checkInt(this, value, offset, 2, 0x7fff, -0x8000);\n  if (Buffer.TYPED_ARRAY_SUPPORT) {\n    this[offset] = value & 0xff;\n    this[offset + 1] = value >>> 8;\n  } else {\n    objectWriteUInt16(this, value, offset, true);\n  }\n  return offset + 2;\n};\n\nBuffer.prototype.writeInt16BE = function writeInt16BE(value, offset, noAssert) {\n  value = +value;\n  offset = offset | 0;\n  if (!noAssert) checkInt(this, value, offset, 2, 0x7fff, -0x8000);\n  if (Buffer.TYPED_ARRAY_SUPPORT) {\n    this[offset] = value >>> 8;\n    this[offset + 1] = value & 0xff;\n  } else {\n    objectWriteUInt16(this, value, offset, false);\n  }\n  return offset + 2;\n};\n\nBuffer.prototype.writeInt32LE = function writeInt32LE(value, offset, noAssert) {\n  value = +value;\n  offset = offset | 0;\n  if (!noAssert) checkInt(this, value, offset, 4, 0x7fffffff, -0x80000000);\n  if (Buffer.TYPED_ARRAY_SUPPORT) {\n    this[offset] = value & 0xff;\n    this[offset + 1] = value >>> 8;\n    this[offset + 2] = value >>> 16;\n    this[offset + 3] = value >>> 24;\n  } else {\n    objectWriteUInt32(this, value, offset, true);\n  }\n  return offset + 4;\n};\n\nBuffer.prototype.writeInt32BE = function writeInt32BE(value, offset, noAssert) {\n  value = +value;\n  offset = offset | 0;\n  if (!noAssert) checkInt(this, value, offset, 4, 0x7fffffff, -0x80000000);\n  if (value < 0) value = 0xffffffff + value + 1;\n  if (Buffer.TYPED_ARRAY_SUPPORT) {\n    this[offset] = value >>> 24;\n    this[offset + 1] = value >>> 16;\n    this[offset + 2] = value >>> 8;\n    this[offset + 3] = value & 0xff;\n  } else {\n    objectWriteUInt32(this, value, offset, false);\n  }\n  return offset + 4;\n};\n\nfunction checkIEEE754(buf, value, offset, ext, max, min) {\n  if (offset + ext > buf.length) throw new RangeError('Index out of range');\n  if (offset < 0) throw new RangeError('Index out of range');\n}\n\nfunction writeFloat(buf, value, offset, littleEndian, noAssert) {\n  if (!noAssert) {\n    checkIEEE754(buf, value, offset, 4, 3.4028234663852886e+38, -3.4028234663852886e+38);\n  }\n  ieee754.write(buf, value, offset, littleEndian, 23, 4);\n  return offset + 4;\n}\n\nBuffer.prototype.writeFloatLE = function writeFloatLE(value, offset, noAssert) {\n  return writeFloat(this, value, offset, true, noAssert);\n};\n\nBuffer.prototype.writeFloatBE = function writeFloatBE(value, offset, noAssert) {\n  return writeFloat(this, value, offset, false, noAssert);\n};\n\nfunction writeDouble(buf, value, offset, littleEndian, noAssert) {\n  if (!noAssert) {\n    checkIEEE754(buf, value, offset, 8, 1.7976931348623157E+308, -1.7976931348623157E+308);\n  }\n  ieee754.write(buf, value, offset, littleEndian, 52, 8);\n  return offset + 8;\n}\n\nBuffer.prototype.writeDoubleLE = function writeDoubleLE(value, offset, noAssert) {\n  return writeDouble(this, value, offset, true, noAssert);\n};\n\nBuffer.prototype.writeDoubleBE = function writeDoubleBE(value, offset, noAssert) {\n  return writeDouble(this, value, offset, false, noAssert);\n};\n\n// copy(targetBuffer, targetStart=0, sourceStart=0, sourceEnd=buffer.length)\nBuffer.prototype.copy = function copy(target, targetStart, start, end) {\n  if (!start) start = 0;\n  if (!end && end !== 0) end = this.length;\n  if (targetStart >= target.length) targetStart = target.length;\n  if (!targetStart) targetStart = 0;\n  if (end > 0 && end < start) end = start;\n\n  // Copy 0 bytes; we're done\n  if (end === start) return 0;\n  if (target.length === 0 || this.length === 0) return 0;\n\n  // Fatal error conditions\n  if (targetStart < 0) {\n    throw new RangeError('targetStart out of bounds');\n  }\n  if (start < 0 || start >= this.length) throw new RangeError('sourceStart out of bounds');\n  if (end < 0) throw new RangeError('sourceEnd out of bounds');\n\n  // Are we oob?\n  if (end > this.length) end = this.length;\n  if (target.length - targetStart < end - start) {\n    end = target.length - targetStart + start;\n  }\n\n  var len = end - start;\n  var i;\n\n  if (this === target && start < targetStart && targetStart < end) {\n    // descending copy from end\n    for (i = len - 1; i >= 0; --i) {\n      target[i + targetStart] = this[i + start];\n    }\n  } else if (len < 1000 || !Buffer.TYPED_ARRAY_SUPPORT) {\n    // ascending copy from start\n    for (i = 0; i < len; ++i) {\n      target[i + targetStart] = this[i + start];\n    }\n  } else {\n    Uint8Array.prototype.set.call(target, this.subarray(start, start + len), targetStart);\n  }\n\n  return len;\n};\n\n// Usage:\n//    buffer.fill(number[, offset[, end]])\n//    buffer.fill(buffer[, offset[, end]])\n//    buffer.fill(string[, offset[, end]][, encoding])\nBuffer.prototype.fill = function fill(val, start, end, encoding) {\n  // Handle string cases:\n  if (typeof val === 'string') {\n    if (typeof start === 'string') {\n      encoding = start;\n      start = 0;\n      end = this.length;\n    } else if (typeof end === 'string') {\n      encoding = end;\n      end = this.length;\n    }\n    if (val.length === 1) {\n      var code = val.charCodeAt(0);\n      if (code < 256) {\n        val = code;\n      }\n    }\n    if (encoding !== undefined && typeof encoding !== 'string') {\n      throw new TypeError('encoding must be a string');\n    }\n    if (typeof encoding === 'string' && !Buffer.isEncoding(encoding)) {\n      throw new TypeError('Unknown encoding: ' + encoding);\n    }\n  } else if (typeof val === 'number') {\n    val = val & 255;\n  }\n\n  // Invalid ranges are not set to a default, so can range check early.\n  if (start < 0 || this.length < start || this.length < end) {\n    throw new RangeError('Out of range index');\n  }\n\n  if (end <= start) {\n    return this;\n  }\n\n  start = start >>> 0;\n  end = end === undefined ? this.length : end >>> 0;\n\n  if (!val) val = 0;\n\n  var i;\n  if (typeof val === 'number') {\n    for (i = start; i < end; ++i) {\n      this[i] = val;\n    }\n  } else {\n    var bytes = Buffer.isBuffer(val) ? val : utf8ToBytes(new Buffer(val, encoding).toString());\n    var len = bytes.length;\n    for (i = 0; i < end - start; ++i) {\n      this[i + start] = bytes[i % len];\n    }\n  }\n\n  return this;\n};\n\n// HELPER FUNCTIONS\n// ================\n\nvar INVALID_BASE64_RE = /[^+\\/0-9A-Za-z-_]/g;\n\nfunction base64clean(str) {\n  // Node strips out invalid characters like \\n and \\t from the string, base64-js does not\n  str = stringtrim(str).replace(INVALID_BASE64_RE, '');\n  // Node converts strings with length < 2 to ''\n  if (str.length < 2) return '';\n  // Node allows for non-padded base64 strings (missing trailing ===), base64-js does not\n  while (str.length % 4 !== 0) {\n    str = str + '=';\n  }\n  return str;\n}\n\nfunction stringtrim(str) {\n  if (str.trim) return str.trim();\n  return str.replace(/^\\s+|\\s+$/g, '');\n}\n\nfunction toHex(n) {\n  if (n < 16) return '0' + n.toString(16);\n  return n.toString(16);\n}\n\nfunction utf8ToBytes(string, units) {\n  units = units || Infinity;\n  var codePoint;\n  var length = string.length;\n  var leadSurrogate = null;\n  var bytes = [];\n\n  for (var i = 0; i < length; ++i) {\n    codePoint = string.charCodeAt(i);\n\n    // is surrogate component\n    if (codePoint > 0xD7FF && codePoint < 0xE000) {\n      // last char was a lead\n      if (!leadSurrogate) {\n        // no lead yet\n        if (codePoint > 0xDBFF) {\n          // unexpected trail\n          if ((units -= 3) > -1) bytes.push(0xEF, 0xBF, 0xBD);\n          continue;\n        } else if (i + 1 === length) {\n          // unpaired lead\n          if ((units -= 3) > -1) bytes.push(0xEF, 0xBF, 0xBD);\n          continue;\n        }\n\n        // valid lead\n        leadSurrogate = codePoint;\n\n        continue;\n      }\n\n      // 2 leads in a row\n      if (codePoint < 0xDC00) {\n        if ((units -= 3) > -1) bytes.push(0xEF, 0xBF, 0xBD);\n        leadSurrogate = codePoint;\n        continue;\n      }\n\n      // valid surrogate pair\n      codePoint = (leadSurrogate - 0xD800 << 10 | codePoint - 0xDC00) + 0x10000;\n    } else if (leadSurrogate) {\n      // valid bmp char, but last char was a lead\n      if ((units -= 3) > -1) bytes.push(0xEF, 0xBF, 0xBD);\n    }\n\n    leadSurrogate = null;\n\n    // encode utf8\n    if (codePoint < 0x80) {\n      if ((units -= 1) < 0) break;\n      bytes.push(codePoint);\n    } else if (codePoint < 0x800) {\n      if ((units -= 2) < 0) break;\n      bytes.push(codePoint >> 0x6 | 0xC0, codePoint & 0x3F | 0x80);\n    } else if (codePoint < 0x10000) {\n      if ((units -= 3) < 0) break;\n      bytes.push(codePoint >> 0xC | 0xE0, codePoint >> 0x6 & 0x3F | 0x80, codePoint & 0x3F | 0x80);\n    } else if (codePoint < 0x110000) {\n      if ((units -= 4) < 0) break;\n      bytes.push(codePoint >> 0x12 | 0xF0, codePoint >> 0xC & 0x3F | 0x80, codePoint >> 0x6 & 0x3F | 0x80, codePoint & 0x3F | 0x80);\n    } else {\n      throw new Error('Invalid code point');\n    }\n  }\n\n  return bytes;\n}\n\nfunction asciiToBytes(str) {\n  var byteArray = [];\n  for (var i = 0; i < str.length; ++i) {\n    // Node's code seems to be doing this and not & 0x7F..\n    byteArray.push(str.charCodeAt(i) & 0xFF);\n  }\n  return byteArray;\n}\n\nfunction utf16leToBytes(str, units) {\n  var c, hi, lo;\n  var byteArray = [];\n  for (var i = 0; i < str.length; ++i) {\n    if ((units -= 2) < 0) break;\n\n    c = str.charCodeAt(i);\n    hi = c >> 8;\n    lo = c % 256;\n    byteArray.push(lo);\n    byteArray.push(hi);\n  }\n\n  return byteArray;\n}\n\nfunction base64ToBytes(str) {\n  return base64.toByteArray(base64clean(str));\n}\n\nfunction blitBuffer(src, dst, offset, length) {\n  for (var i = 0; i < length; ++i) {\n    if (i + offset >= dst.length || i >= src.length) break;\n    dst[i + offset] = src[i];\n  }\n  return i;\n}\n\nfunction isnan(val) {\n  return val !== val; // eslint-disable-line no-self-compare\n}\n/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(320)))\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/buffer/index.js\n// module id = 120\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/buffer/index.js?");
+
+/***/ }),
+/* 121 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("/* WEBPACK VAR INJECTION */(function(Buffer) {\n\n/*\n\tMIT License http://www.opensource.org/licenses/mit-license.php\n\tAuthor Tobias Koppers @sokra\n*/\n// css base code, injected by the css-loader\nmodule.exports = function (useSourceMap) {\n\tvar list = [];\n\n\t// return the list of modules as css string\n\tlist.toString = function toString() {\n\t\treturn this.map(function (item) {\n\t\t\tvar content = cssWithMappingToString(item, useSourceMap);\n\t\t\tif (item[2]) {\n\t\t\t\treturn \"@media \" + item[2] + \"{\" + content + \"}\";\n\t\t\t} else {\n\t\t\t\treturn content;\n\t\t\t}\n\t\t}).join(\"\");\n\t};\n\n\t// import a list of modules into the list\n\tlist.i = function (modules, mediaQuery) {\n\t\tif (typeof modules === \"string\") modules = [[null, modules, \"\"]];\n\t\tvar alreadyImportedModules = {};\n\t\tfor (var i = 0; i < this.length; i++) {\n\t\t\tvar id = this[i][0];\n\t\t\tif (typeof id === \"number\") alreadyImportedModules[id] = true;\n\t\t}\n\t\tfor (i = 0; i < modules.length; i++) {\n\t\t\tvar item = modules[i];\n\t\t\t// skip already imported module\n\t\t\t// this implementation is not 100% perfect for weird media query combinations\n\t\t\t//  when a module is imported multiple times with different media queries.\n\t\t\t//  I hope this will never occur (Hey this way we have smaller bundles)\n\t\t\tif (typeof item[0] !== \"number\" || !alreadyImportedModules[item[0]]) {\n\t\t\t\tif (mediaQuery && !item[2]) {\n\t\t\t\t\titem[2] = mediaQuery;\n\t\t\t\t} else if (mediaQuery) {\n\t\t\t\t\titem[2] = \"(\" + item[2] + \") and (\" + mediaQuery + \")\";\n\t\t\t\t}\n\t\t\t\tlist.push(item);\n\t\t\t}\n\t\t}\n\t};\n\treturn list;\n};\n\nfunction cssWithMappingToString(item, useSourceMap) {\n\tvar content = item[1] || '';\n\tvar cssMapping = item[3];\n\tif (!cssMapping) {\n\t\treturn content;\n\t}\n\n\tif (useSourceMap) {\n\t\tvar sourceMapping = toComment(cssMapping);\n\t\tvar sourceURLs = cssMapping.sources.map(function (source) {\n\t\t\treturn '/*# sourceURL=' + cssMapping.sourceRoot + source + ' */';\n\t\t});\n\n\t\treturn [content].concat(sourceURLs).concat([sourceMapping]).join('\\n');\n\t}\n\n\treturn [content].join('\\n');\n}\n\n// Adapted from convert-source-map (MIT)\nfunction toComment(sourceMap) {\n\tvar base64 = new Buffer(JSON.stringify(sourceMap)).toString('base64');\n\tvar data = 'sourceMappingURL=data:application/json;charset=utf-8;base64,' + base64;\n\n\treturn '/*# ' + data + ' */';\n}\n/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(120).Buffer))\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/css-loader/lib/css-base.js\n// module id = 121\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/css-loader/lib/css-base.js?");
+
+/***/ }),
+/* 122 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nexports.read = function (buffer, offset, isLE, mLen, nBytes) {\n  var e, m;\n  var eLen = nBytes * 8 - mLen - 1;\n  var eMax = (1 << eLen) - 1;\n  var eBias = eMax >> 1;\n  var nBits = -7;\n  var i = isLE ? nBytes - 1 : 0;\n  var d = isLE ? -1 : 1;\n  var s = buffer[offset + i];\n\n  i += d;\n\n  e = s & (1 << -nBits) - 1;\n  s >>= -nBits;\n  nBits += eLen;\n  for (; nBits > 0; e = e * 256 + buffer[offset + i], i += d, nBits -= 8) {}\n\n  m = e & (1 << -nBits) - 1;\n  e >>= -nBits;\n  nBits += mLen;\n  for (; nBits > 0; m = m * 256 + buffer[offset + i], i += d, nBits -= 8) {}\n\n  if (e === 0) {\n    e = 1 - eBias;\n  } else if (e === eMax) {\n    return m ? NaN : (s ? -1 : 1) * Infinity;\n  } else {\n    m = m + Math.pow(2, mLen);\n    e = e - eBias;\n  }\n  return (s ? -1 : 1) * m * Math.pow(2, e - mLen);\n};\n\nexports.write = function (buffer, value, offset, isLE, mLen, nBytes) {\n  var e, m, c;\n  var eLen = nBytes * 8 - mLen - 1;\n  var eMax = (1 << eLen) - 1;\n  var eBias = eMax >> 1;\n  var rt = mLen === 23 ? Math.pow(2, -24) - Math.pow(2, -77) : 0;\n  var i = isLE ? 0 : nBytes - 1;\n  var d = isLE ? 1 : -1;\n  var s = value < 0 || value === 0 && 1 / value < 0 ? 1 : 0;\n\n  value = Math.abs(value);\n\n  if (isNaN(value) || value === Infinity) {\n    m = isNaN(value) ? 1 : 0;\n    e = eMax;\n  } else {\n    e = Math.floor(Math.log(value) / Math.LN2);\n    if (value * (c = Math.pow(2, -e)) < 1) {\n      e--;\n      c *= 2;\n    }\n    if (e + eBias >= 1) {\n      value += rt / c;\n    } else {\n      value += rt * Math.pow(2, 1 - eBias);\n    }\n    if (value * c >= 2) {\n      e++;\n      c /= 2;\n    }\n\n    if (e + eBias >= eMax) {\n      m = 0;\n      e = eMax;\n    } else if (e + eBias >= 1) {\n      m = (value * c - 1) * Math.pow(2, mLen);\n      e = e + eBias;\n    } else {\n      m = value * Math.pow(2, eBias - 1) * Math.pow(2, mLen);\n      e = 0;\n    }\n  }\n\n  for (; mLen >= 8; buffer[offset + i] = m & 0xff, i += d, m /= 256, mLen -= 8) {}\n\n  e = e << mLen | m;\n  eLen += mLen;\n  for (; eLen > 0; buffer[offset + i] = e & 0xff, i += d, e /= 256, eLen -= 8) {}\n\n  buffer[offset + i - d] |= s * 128;\n};\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ieee754/index.js\n// module id = 122\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ieee754/index.js?");
+
+/***/ }),
+/* 123 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar toString = {}.toString;\n\nmodule.exports = Array.isArray || function (arr) {\n  return toString.call(arr) == '[object Array]';\n};\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/isarray/index.js\n// module id = 123\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/isarray/index.js?");
+
+/***/ }),
+/* 124 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nmodule.exports = {\n  F: __webpack_require__(125),\n  T: __webpack_require__(126),\n  __: __webpack_require__(127),\n  add: __webpack_require__(27),\n  addIndex: __webpack_require__(128),\n  adjust: __webpack_require__(58),\n  all: __webpack_require__(129),\n  allPass: __webpack_require__(130),\n  always: __webpack_require__(18),\n  and: __webpack_require__(59),\n  any: __webpack_require__(60),\n  anyPass: __webpack_require__(131),\n  ap: __webpack_require__(42),\n  aperture: __webpack_require__(132),\n  append: __webpack_require__(133),\n  apply: __webpack_require__(61),\n  applySpec: __webpack_require__(134),\n  ascend: __webpack_require__(135),\n  assoc: __webpack_require__(28),\n  assocPath: __webpack_require__(62),\n  binary: __webpack_require__(136),\n  bind: __webpack_require__(63),\n  both: __webpack_require__(137),\n  call: __webpack_require__(138),\n  chain: __webpack_require__(43),\n  clamp: __webpack_require__(139),\n  clone: __webpack_require__(140),\n  comparator: __webpack_require__(141),\n  complement: __webpack_require__(142),\n  compose: __webpack_require__(44),\n  composeK: __webpack_require__(64),\n  composeP: __webpack_require__(143),\n  concat: __webpack_require__(45),\n  cond: __webpack_require__(144),\n  construct: __webpack_require__(145),\n  constructN: __webpack_require__(65),\n  contains: __webpack_require__(146),\n  converge: __webpack_require__(66),\n  countBy: __webpack_require__(147),\n  curry: __webpack_require__(29),\n  curryN: __webpack_require__(5),\n  dec: __webpack_require__(148),\n  descend: __webpack_require__(149),\n  defaultTo: __webpack_require__(67),\n  difference: __webpack_require__(68),\n  differenceWith: __webpack_require__(69),\n  dissoc: __webpack_require__(70),\n  dissocPath: __webpack_require__(150),\n  divide: __webpack_require__(151),\n  drop: __webpack_require__(71),\n  dropLast: __webpack_require__(152),\n  dropLastWhile: __webpack_require__(153),\n  dropRepeats: __webpack_require__(154),\n  dropRepeatsWith: __webpack_require__(72),\n  dropWhile: __webpack_require__(155),\n  either: __webpack_require__(156),\n  empty: __webpack_require__(73),\n  eqBy: __webpack_require__(157),\n  eqProps: __webpack_require__(158),\n  equals: __webpack_require__(10),\n  evolve: __webpack_require__(159),\n  filter: __webpack_require__(46),\n  find: __webpack_require__(160),\n  findIndex: __webpack_require__(161),\n  findLast: __webpack_require__(162),\n  findLastIndex: __webpack_require__(163),\n  flatten: __webpack_require__(164),\n  flip: __webpack_require__(30),\n  forEach: __webpack_require__(165),\n  forEachObjIndexed: __webpack_require__(166),\n  fromPairs: __webpack_require__(167),\n  groupBy: __webpack_require__(168),\n  groupWith: __webpack_require__(169),\n  gt: __webpack_require__(170),\n  gte: __webpack_require__(171),\n  has: __webpack_require__(172),\n  hasIn: __webpack_require__(173),\n  head: __webpack_require__(174),\n  identical: __webpack_require__(74),\n  identity: __webpack_require__(47),\n  ifElse: __webpack_require__(175),\n  inc: __webpack_require__(176),\n  indexBy: __webpack_require__(177),\n  indexOf: __webpack_require__(178),\n  init: __webpack_require__(179),\n  insert: __webpack_require__(180),\n  insertAll: __webpack_require__(181),\n  intersection: __webpack_require__(216),\n  intersectionWith: __webpack_require__(217),\n  intersperse: __webpack_require__(218),\n  into: __webpack_require__(219),\n  invert: __webpack_require__(220),\n  invertObj: __webpack_require__(221),\n  invoker: __webpack_require__(21),\n  is: __webpack_require__(89),\n  isArrayLike: __webpack_require__(22),\n  isEmpty: __webpack_require__(222),\n  isNil: __webpack_require__(223),\n  join: __webpack_require__(224),\n  juxt: __webpack_require__(90),\n  keys: __webpack_require__(12),\n  keysIn: __webpack_require__(225),\n  last: __webpack_require__(91),\n  lastIndexOf: __webpack_require__(226),\n  length: __webpack_require__(92),\n  lens: __webpack_require__(36),\n  lensIndex: __webpack_require__(227),\n  lensPath: __webpack_require__(228),\n  lensProp: __webpack_require__(229),\n  lift: __webpack_require__(37),\n  liftN: __webpack_require__(93),\n  lt: __webpack_require__(230),\n  lte: __webpack_require__(231),\n  map: __webpack_require__(7),\n  mapAccum: __webpack_require__(232),\n  mapAccumRight: __webpack_require__(233),\n  mapObjIndexed: __webpack_require__(234),\n  match: __webpack_require__(235),\n  mathMod: __webpack_require__(236),\n  max: __webpack_require__(19),\n  maxBy: __webpack_require__(237),\n  mean: __webpack_require__(94),\n  median: __webpack_require__(238),\n  memoize: __webpack_require__(239),\n  merge: __webpack_require__(240),\n  mergeAll: __webpack_require__(241),\n  mergeWith: __webpack_require__(242),\n  mergeWithKey: __webpack_require__(95),\n  min: __webpack_require__(243),\n  minBy: __webpack_require__(244),\n  modulo: __webpack_require__(245),\n  multiply: __webpack_require__(96),\n  nAry: __webpack_require__(38),\n  negate: __webpack_require__(246),\n  none: __webpack_require__(247),\n  not: __webpack_require__(97),\n  nth: __webpack_require__(23),\n  nthArg: __webpack_require__(248),\n  objOf: __webpack_require__(98),\n  of: __webpack_require__(249),\n  omit: __webpack_require__(250),\n  once: __webpack_require__(251),\n  or: __webpack_require__(99),\n  over: __webpack_require__(100),\n  pair: __webpack_require__(252),\n  partial: __webpack_require__(253),\n  partialRight: __webpack_require__(254),\n  partition: __webpack_require__(255),\n  path: __webpack_require__(24),\n  pathEq: __webpack_require__(256),\n  pathOr: __webpack_require__(257),\n  pathSatisfies: __webpack_require__(258),\n  pick: __webpack_require__(259),\n  pickAll: __webpack_require__(101),\n  pickBy: __webpack_require__(260),\n  pipe: __webpack_require__(102),\n  pipeK: __webpack_require__(261),\n  pipeP: __webpack_require__(103),\n  pluck: __webpack_require__(25),\n  prepend: __webpack_require__(104),\n  product: __webpack_require__(262),\n  project: __webpack_require__(263),\n  prop: __webpack_require__(52),\n  propEq: __webpack_require__(264),\n  propIs: __webpack_require__(265),\n  propOr: __webpack_require__(266),\n  propSatisfies: __webpack_require__(267),\n  props: __webpack_require__(268),\n  range: __webpack_require__(269),\n  reduce: __webpack_require__(13),\n  reduceBy: __webpack_require__(39),\n  reduceRight: __webpack_require__(105),\n  reduceWhile: __webpack_require__(270),\n  reduced: __webpack_require__(271),\n  reject: __webpack_require__(40),\n  remove: __webpack_require__(272),\n  repeat: __webpack_require__(273),\n  replace: __webpack_require__(274),\n  reverse: __webpack_require__(41),\n  scan: __webpack_require__(275),\n  sequence: __webpack_require__(106),\n  set: __webpack_require__(276),\n  slice: __webpack_require__(17),\n  sort: __webpack_require__(277),\n  sortBy: __webpack_require__(278),\n  sortWith: __webpack_require__(279),\n  split: __webpack_require__(280),\n  splitAt: __webpack_require__(281),\n  splitEvery: __webpack_require__(282),\n  splitWhen: __webpack_require__(283),\n  subtract: __webpack_require__(284),\n  sum: __webpack_require__(107),\n  symmetricDifference: __webpack_require__(285),\n  symmetricDifferenceWith: __webpack_require__(286),\n  tail: __webpack_require__(53),\n  take: __webpack_require__(108),\n  takeLast: __webpack_require__(287),\n  takeLastWhile: __webpack_require__(288),\n  takeWhile: __webpack_require__(289),\n  tap: __webpack_require__(290),\n  test: __webpack_require__(291),\n  times: __webpack_require__(109),\n  toLower: __webpack_require__(292),\n  toPairs: __webpack_require__(293),\n  toPairsIn: __webpack_require__(294),\n  toString: __webpack_require__(26),\n  toUpper: __webpack_require__(295),\n  transduce: __webpack_require__(296),\n  transpose: __webpack_require__(297),\n  traverse: __webpack_require__(298),\n  trim: __webpack_require__(299),\n  tryCatch: __webpack_require__(300),\n  type: __webpack_require__(54),\n  unapply: __webpack_require__(301),\n  unary: __webpack_require__(302),\n  uncurryN: __webpack_require__(303),\n  unfold: __webpack_require__(304),\n  union: __webpack_require__(305),\n  unionWith: __webpack_require__(306),\n  uniq: __webpack_require__(55),\n  uniqBy: __webpack_require__(110),\n  uniqWith: __webpack_require__(56),\n  unless: __webpack_require__(307),\n  unnest: __webpack_require__(308),\n  until: __webpack_require__(309),\n  update: __webpack_require__(111),\n  useWith: __webpack_require__(112),\n  values: __webpack_require__(113),\n  valuesIn: __webpack_require__(310),\n  view: __webpack_require__(311),\n  when: __webpack_require__(312),\n  where: __webpack_require__(114),\n  whereEq: __webpack_require__(313),\n  without: __webpack_require__(314),\n  xprod: __webpack_require__(315),\n  zip: __webpack_require__(316),\n  zipObj: __webpack_require__(317),\n  zipWith: __webpack_require__(318)\n};\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/index.js\n// module id = 124\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/index.js?");
+
+/***/ }),
+/* 125 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar always = __webpack_require__(18);\n\n/**\n * A function that always returns `false`. Any passed in parameters are ignored.\n *\n * @func\n * @memberOf R\n * @since v0.9.0\n * @category Function\n * @sig * -> Boolean\n * @param {*}\n * @return {Boolean}\n * @see R.always, R.T\n * @example\n *\n *      R.F(); //=> false\n */\nmodule.exports = always(false);\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/F.js\n// module id = 125\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/F.js?");
+
+/***/ }),
+/* 126 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar always = __webpack_require__(18);\n\n/**\n * A function that always returns `true`. Any passed in parameters are ignored.\n *\n * @func\n * @memberOf R\n * @since v0.9.0\n * @category Function\n * @sig * -> Boolean\n * @param {*}\n * @return {Boolean}\n * @see R.always, R.F\n * @example\n *\n *      R.T(); //=> true\n */\nmodule.exports = always(true);\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/T.js\n// module id = 126\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/T.js?");
+
+/***/ }),
+/* 127 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\n/**\n * A special placeholder value used to specify \"gaps\" within curried functions,\n * allowing partial application of any combination of arguments, regardless of\n * their positions.\n *\n * If `g` is a curried ternary function and `_` is `R.__`, the following are\n * equivalent:\n *\n *   - `g(1, 2, 3)`\n *   - `g(_, 2, 3)(1)`\n *   - `g(_, _, 3)(1)(2)`\n *   - `g(_, _, 3)(1, 2)`\n *   - `g(_, 2, _)(1, 3)`\n *   - `g(_, 2)(1)(3)`\n *   - `g(_, 2)(1, 3)`\n *   - `g(_, 2)(_, 3)(1)`\n *\n * @constant\n * @memberOf R\n * @since v0.6.0\n * @category Function\n * @example\n *\n *      var greet = R.replace('{name}', R.__, 'Hello, {name}!');\n *      greet('Alice'); //=> 'Hello, Alice!'\n */\nmodule.exports = { '@@functional/placeholder': true };\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/__.js\n// module id = 127\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/__.js?");
+
+/***/ }),
+/* 128 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _concat = __webpack_require__(9);\nvar _curry1 = __webpack_require__(1);\nvar curryN = __webpack_require__(5);\n\n/**\n * Creates a new list iteration function from an existing one by adding two new\n * parameters to its callback function: the current index, and the entire list.\n *\n * This would turn, for instance, Ramda's simple `map` function into one that\n * more closely resembles `Array.prototype.map`. Note that this will only work\n * for functions in which the iteration callback function is the first\n * parameter, and where the list is the last parameter. (This latter might be\n * unimportant if the list parameter is not used.)\n *\n * @func\n * @memberOf R\n * @since v0.15.0\n * @category Function\n * @category List\n * @sig ((a ... -> b) ... -> [a] -> *) -> (a ..., Int, [a] -> b) ... -> [a] -> *)\n * @param {Function} fn A list iteration function that does not pass index or list to its callback\n * @return {Function} An altered list iteration function that passes (item, index, list) to its callback\n * @example\n *\n *      var mapIndexed = R.addIndex(R.map);\n *      mapIndexed((val, idx) => idx + '-' + val, ['f', 'o', 'o', 'b', 'a', 'r']);\n *      //=> ['0-f', '1-o', '2-o', '3-b', '4-a', '5-r']\n */\nmodule.exports = _curry1(function addIndex(fn) {\n  return curryN(fn.length, function () {\n    var idx = 0;\n    var origFn = arguments[0];\n    var list = arguments[arguments.length - 1];\n    var args = Array.prototype.slice.call(arguments, 0);\n    args[0] = function () {\n      var result = origFn.apply(this, _concat(arguments, [idx, list]));\n      idx += 1;\n      return result;\n    };\n    return fn.apply(this, args);\n  });\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/addIndex.js\n// module id = 128\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/addIndex.js?");
+
+/***/ }),
+/* 129 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\nvar _dispatchable = __webpack_require__(3);\nvar _xall = __webpack_require__(200);\n\n/**\n * Returns `true` if all elements of the list match the predicate, `false` if\n * there are any that don't.\n *\n * Dispatches to the `all` method of the second argument, if present.\n *\n * Acts as a transducer if a transformer is given in list position.\n *\n * @func\n * @memberOf R\n * @since v0.1.0\n * @category List\n * @sig (a -> Boolean) -> [a] -> Boolean\n * @param {Function} fn The predicate function.\n * @param {Array} list The array to consider.\n * @return {Boolean} `true` if the predicate is satisfied by every element, `false`\n *         otherwise.\n * @see R.any, R.none, R.transduce\n * @example\n *\n *      var equals3 = R.equals(3);\n *      R.all(equals3)([3, 3, 3, 3]); //=> true\n *      R.all(equals3)([3, 3, 1, 3]); //=> false\n */\nmodule.exports = _curry2(_dispatchable(['all'], _xall, function all(fn, list) {\n  var idx = 0;\n  while (idx < list.length) {\n    if (!fn(list[idx])) {\n      return false;\n    }\n    idx += 1;\n  }\n  return true;\n}));\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/all.js\n// module id = 129\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/all.js?");
+
+/***/ }),
+/* 130 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry1 = __webpack_require__(1);\nvar curryN = __webpack_require__(5);\nvar max = __webpack_require__(19);\nvar pluck = __webpack_require__(25);\nvar reduce = __webpack_require__(13);\n\n/**\n * Takes a list of predicates and returns a predicate that returns true for a\n * given list of arguments if every one of the provided predicates is satisfied\n * by those arguments.\n *\n * The function returned is a curried function whose arity matches that of the\n * highest-arity predicate.\n *\n * @func\n * @memberOf R\n * @since v0.9.0\n * @category Logic\n * @sig [(*... -> Boolean)] -> (*... -> Boolean)\n * @param {Array} predicates An array of predicates to check\n * @return {Function} The combined predicate\n * @see R.anyPass\n * @example\n *\n *      var isQueen = R.propEq('rank', 'Q');\n *      var isSpade = R.propEq('suit', '♠︎');\n *      var isQueenOfSpades = R.allPass([isQueen, isSpade]);\n *\n *      isQueenOfSpades({rank: 'Q', suit: '♣︎'}); //=> false\n *      isQueenOfSpades({rank: 'Q', suit: '♠︎'}); //=> true\n */\nmodule.exports = _curry1(function allPass(preds) {\n  return curryN(reduce(max, 0, pluck('length', preds)), function () {\n    var idx = 0;\n    var len = preds.length;\n    while (idx < len) {\n      if (!preds[idx].apply(this, arguments)) {\n        return false;\n      }\n      idx += 1;\n    }\n    return true;\n  });\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/allPass.js\n// module id = 130\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/allPass.js?");
+
+/***/ }),
+/* 131 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry1 = __webpack_require__(1);\nvar curryN = __webpack_require__(5);\nvar max = __webpack_require__(19);\nvar pluck = __webpack_require__(25);\nvar reduce = __webpack_require__(13);\n\n/**\n * Takes a list of predicates and returns a predicate that returns true for a\n * given list of arguments if at least one of the provided predicates is\n * satisfied by those arguments.\n *\n * The function returned is a curried function whose arity matches that of the\n * highest-arity predicate.\n *\n * @func\n * @memberOf R\n * @since v0.9.0\n * @category Logic\n * @sig [(*... -> Boolean)] -> (*... -> Boolean)\n * @param {Array} predicates An array of predicates to check\n * @return {Function} The combined predicate\n * @see R.allPass\n * @example\n *\n *      var isClub = R.propEq('suit', '♣');\n *      var isSpade = R.propEq('suit', '♠');\n *      var isBlackCard = R.anyPass([isClub, isSpade]);\n *\n *      isBlackCard({rank: '10', suit: '♣'}); //=> true\n *      isBlackCard({rank: 'Q', suit: '♠'}); //=> true\n *      isBlackCard({rank: 'Q', suit: '♦'}); //=> false\n */\nmodule.exports = _curry1(function anyPass(preds) {\n  return curryN(reduce(max, 0, pluck('length', preds)), function () {\n    var idx = 0;\n    var len = preds.length;\n    while (idx < len) {\n      if (preds[idx].apply(this, arguments)) {\n        return true;\n      }\n      idx += 1;\n    }\n    return false;\n  });\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/anyPass.js\n// module id = 131\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/anyPass.js?");
+
+/***/ }),
+/* 132 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _aperture = __webpack_require__(183);\nvar _curry2 = __webpack_require__(0);\nvar _dispatchable = __webpack_require__(3);\nvar _xaperture = __webpack_require__(201);\n\n/**\n * Returns a new list, composed of n-tuples of consecutive elements If `n` is\n * greater than the length of the list, an empty list is returned.\n *\n * Acts as a transducer if a transformer is given in list position.\n *\n * @func\n * @memberOf R\n * @since v0.12.0\n * @category List\n * @sig Number -> [a] -> [[a]]\n * @param {Number} n The size of the tuples to create\n * @param {Array} list The list to split into `n`-length tuples\n * @return {Array} The resulting list of `n`-length tuples\n * @see R.transduce\n * @example\n *\n *      R.aperture(2, [1, 2, 3, 4, 5]); //=> [[1, 2], [2, 3], [3, 4], [4, 5]]\n *      R.aperture(3, [1, 2, 3, 4, 5]); //=> [[1, 2, 3], [2, 3, 4], [3, 4, 5]]\n *      R.aperture(7, [1, 2, 3, 4, 5]); //=> []\n */\nmodule.exports = _curry2(_dispatchable([], _xaperture, _aperture));\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/aperture.js\n// module id = 132\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/aperture.js?");
+
+/***/ }),
+/* 133 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _concat = __webpack_require__(9);\nvar _curry2 = __webpack_require__(0);\n\n/**\n * Returns a new list containing the contents of the given list, followed by\n * the given element.\n *\n * @func\n * @memberOf R\n * @since v0.1.0\n * @category List\n * @sig a -> [a] -> [a]\n * @param {*} el The element to add to the end of the new list.\n * @param {Array} list The list of elements to add a new item to.\n *        list.\n * @return {Array} A new list containing the elements of the old list followed by `el`.\n * @see R.prepend\n * @example\n *\n *      R.append('tests', ['write', 'more']); //=> ['write', 'more', 'tests']\n *      R.append('tests', []); //=> ['tests']\n *      R.append(['tests'], ['write', 'more']); //=> ['write', 'more', ['tests']]\n */\nmodule.exports = _curry2(function append(el, list) {\n  return _concat(list, [el]);\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/append.js\n// module id = 133\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/append.js?");
+
+/***/ }),
+/* 134 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry1 = __webpack_require__(1);\nvar apply = __webpack_require__(61);\nvar curryN = __webpack_require__(5);\nvar map = __webpack_require__(7);\nvar max = __webpack_require__(19);\nvar pluck = __webpack_require__(25);\nvar reduce = __webpack_require__(13);\nvar values = __webpack_require__(113);\n\n/**\n * Given a spec object recursively mapping properties to functions, creates a\n * function producing an object of the same structure, by mapping each property\n * to the result of calling its associated function with the supplied arguments.\n *\n * @func\n * @memberOf R\n * @since v0.20.0\n * @category Function\n * @sig {k: ((a, b, ..., m) -> v)} -> ((a, b, ..., m) -> {k: v})\n * @param {Object} spec an object recursively mapping properties to functions for\n *        producing the values for these properties.\n * @return {Function} A function that returns an object of the same structure\n * as `spec', with each property set to the value returned by calling its\n * associated function with the supplied arguments.\n * @see R.converge, R.juxt\n * @example\n *\n *      var getMetrics = R.applySpec({\n *                                      sum: R.add,\n *                                      nested: { mul: R.multiply }\n *                                   });\n *      getMetrics(2, 4); // => { sum: 6, nested: { mul: 8 } }\n * @symb R.applySpec({ x: f, y: { z: g } })(a, b) = { x: f(a, b), y: { z: g(a, b) } }\n */\nmodule.exports = _curry1(function applySpec(spec) {\n  spec = map(function (v) {\n    return typeof v == 'function' ? v : applySpec(v);\n  }, spec);\n  return curryN(reduce(max, 0, pluck('length', values(spec))), function () {\n    var args = arguments;\n    return map(function (f) {\n      return apply(f, args);\n    }, spec);\n  });\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/applySpec.js\n// module id = 134\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/applySpec.js?");
+
+/***/ }),
+/* 135 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry3 = __webpack_require__(2);\n\n/**\n * Makes an ascending comparator function out of a function that returns a value\n * that can be compared with `<` and `>`.\n *\n * @func\n * @memberOf R\n * @since v0.23.0\n * @category Function\n * @sig Ord b => (a -> b) -> a -> a -> Number\n * @param {Function} fn A function of arity one that returns a value that can be compared\n * @param {*} a The first item to be compared.\n * @param {*} b The second item to be compared.\n * @return {Number} `-1` if fn(a) < fn(b), `1` if fn(b) < fn(a), otherwise `0`\n * @example\n *\n *      var byAge = R.ascend(R.prop('age'));\n *      var people = [\n *        // ...\n *      ];\n *      var peopleByYoungestFirst = R.sort(byAge, people);\n */\nmodule.exports = _curry3(function ascend(fn, a, b) {\n  var aa = fn(a);\n  var bb = fn(b);\n  return aa < bb ? -1 : aa > bb ? 1 : 0;\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/ascend.js\n// module id = 135\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/ascend.js?");
+
+/***/ }),
+/* 136 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry1 = __webpack_require__(1);\nvar nAry = __webpack_require__(38);\n\n/**\n * Wraps a function of any arity (including nullary) in a function that accepts\n * exactly 2 parameters. Any extraneous parameters will not be passed to the\n * supplied function.\n *\n * @func\n * @memberOf R\n * @since v0.2.0\n * @category Function\n * @sig (* -> c) -> (a, b -> c)\n * @param {Function} fn The function to wrap.\n * @return {Function} A new function wrapping `fn`. The new function is guaranteed to be of\n *         arity 2.\n * @example\n *\n *      var takesThreeArgs = function(a, b, c) {\n *        return [a, b, c];\n *      };\n *      takesThreeArgs.length; //=> 3\n *      takesThreeArgs(1, 2, 3); //=> [1, 2, 3]\n *\n *      var takesTwoArgs = R.binary(takesThreeArgs);\n *      takesTwoArgs.length; //=> 2\n *      // Only 2 arguments are passed to the wrapped function\n *      takesTwoArgs(1, 2, 3); //=> [1, 2, undefined]\n * @symb R.binary(f)(a, b, c) = f(a, b)\n */\nmodule.exports = _curry1(function binary(fn) {\n  return nAry(2, fn);\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/binary.js\n// module id = 136\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/binary.js?");
+
+/***/ }),
+/* 137 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\nvar _isFunction = __webpack_require__(32);\nvar and = __webpack_require__(59);\nvar lift = __webpack_require__(37);\n\n/**\n * A function which calls the two provided functions and returns the `&&`\n * of the results.\n * It returns the result of the first function if it is false-y and the result\n * of the second function otherwise. Note that this is short-circuited,\n * meaning that the second function will not be invoked if the first returns a\n * false-y value.\n *\n * In addition to functions, `R.both` also accepts any fantasy-land compatible\n * applicative functor.\n *\n * @func\n * @memberOf R\n * @since v0.12.0\n * @category Logic\n * @sig (*... -> Boolean) -> (*... -> Boolean) -> (*... -> Boolean)\n * @param {Function} f A predicate\n * @param {Function} g Another predicate\n * @return {Function} a function that applies its arguments to `f` and `g` and `&&`s their outputs together.\n * @see R.and\n * @example\n *\n *      var gt10 = R.gt(R.__, 10)\n *      var lt20 = R.lt(R.__, 20)\n *      var f = R.both(gt10, lt20);\n *      f(15); //=> true\n *      f(30); //=> false\n */\nmodule.exports = _curry2(function both(f, g) {\n  return _isFunction(f) ? function _both() {\n    return f.apply(this, arguments) && g.apply(this, arguments);\n  } : lift(and)(f, g);\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/both.js\n// module id = 137\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/both.js?");
+
+/***/ }),
+/* 138 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar curry = __webpack_require__(29);\n\n/**\n * Returns the result of calling its first argument with the remaining\n * arguments. This is occasionally useful as a converging function for\n * `R.converge`: the left branch can produce a function while the right branch\n * produces a value to be passed to that function as an argument.\n *\n * @func\n * @memberOf R\n * @since v0.9.0\n * @category Function\n * @sig (*... -> a),*... -> a\n * @param {Function} fn The function to apply to the remaining arguments.\n * @param {...*} args Any number of positional arguments.\n * @return {*}\n * @see R.apply\n * @example\n *\n *      R.call(R.add, 1, 2); //=> 3\n *\n *      var indentN = R.pipe(R.times(R.always(' ')),\n *                           R.join(''),\n *                           R.replace(/^(?!$)/gm));\n *\n *      var format = R.converge(R.call, [\n *                                  R.pipe(R.prop('indent'), indentN),\n *                                  R.prop('value')\n *                              ]);\n *\n *      format({indent: 2, value: 'foo\\nbar\\nbaz\\n'}); //=> '  foo\\n  bar\\n  baz\\n'\n * @symb R.call(f, a, b) = f(a, b)\n */\nmodule.exports = curry(function call(fn) {\n  return fn.apply(this, Array.prototype.slice.call(arguments, 1));\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/call.js\n// module id = 138\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/call.js?");
+
+/***/ }),
+/* 139 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry3 = __webpack_require__(2);\n\n/**\n * Restricts a number to be within a range.\n *\n * Also works for other ordered types such as Strings and Dates.\n *\n * @func\n * @memberOf R\n * @since v0.20.0\n * @category Relation\n * @sig Ord a => a -> a -> a -> a\n * @param {Number} minimum The lower limit of the clamp (inclusive)\n * @param {Number} maximum The upper limit of the clamp (inclusive)\n * @param {Number} value Value to be clamped\n * @return {Number} Returns `minimum` when `val < minimum`, `maximum` when `val > maximum`, returns `val` otherwise\n * @example\n *\n *      R.clamp(1, 10, -5) // => 1\n *      R.clamp(1, 10, 15) // => 10\n *      R.clamp(1, 10, 4)  // => 4\n */\nmodule.exports = _curry3(function clamp(min, max, value) {\n  if (min > max) {\n    throw new Error('min must not be greater than max in clamp(min, max, value)');\n  }\n  return value < min ? min : value > max ? max : value;\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/clamp.js\n// module id = 139\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/clamp.js?");
+
+/***/ }),
+/* 140 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _clone = __webpack_require__(75);\nvar _curry1 = __webpack_require__(1);\n\n/**\n * Creates a deep copy of the value which may contain (nested) `Array`s and\n * `Object`s, `Number`s, `String`s, `Boolean`s and `Date`s. `Function`s are\n * assigned by reference rather than copied\n *\n * Dispatches to a `clone` method if present.\n *\n * @func\n * @memberOf R\n * @since v0.1.0\n * @category Object\n * @sig {*} -> {*}\n * @param {*} value The object or array to clone\n * @return {*} A deeply cloned copy of `val`\n * @example\n *\n *      var objects = [{}, {}, {}];\n *      var objectsClone = R.clone(objects);\n *      objects === objectsClone; //=> false\n *      objects[0] === objectsClone[0]; //=> false\n */\nmodule.exports = _curry1(function clone(value) {\n  return value != null && typeof value.clone === 'function' ? value.clone() : _clone(value, [], [], true);\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/clone.js\n// module id = 140\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/clone.js?");
+
+/***/ }),
+/* 141 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry1 = __webpack_require__(1);\n\n/**\n * Makes a comparator function out of a function that reports whether the first\n * element is less than the second.\n *\n * @func\n * @memberOf R\n * @since v0.1.0\n * @category Function\n * @sig (a, b -> Boolean) -> (a, b -> Number)\n * @param {Function} pred A predicate function of arity two which will return `true` if the first argument\n * is less than the second, `false` otherwise\n * @return {Function} A Function :: a -> b -> Int that returns `-1` if a < b, `1` if b < a, otherwise `0`\n * @example\n *\n *      var byAge = R.comparator((a, b) => a.age < b.age);\n *      var people = [\n *        // ...\n *      ];\n *      var peopleByIncreasingAge = R.sort(byAge, people);\n */\nmodule.exports = _curry1(function comparator(pred) {\n  return function (a, b) {\n    return pred(a, b) ? -1 : pred(b, a) ? 1 : 0;\n  };\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/comparator.js\n// module id = 141\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/comparator.js?");
+
+/***/ }),
+/* 142 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar lift = __webpack_require__(37);\nvar not = __webpack_require__(97);\n\n/**\n * Takes a function `f` and returns a function `g` such that if called with the same arguments\n * when `f` returns a \"truthy\" value, `g` returns `false` and when `f` returns a \"falsy\" value `g` returns `true`.\n *\n * `R.complement` may be applied to any functor\n *\n * @func\n * @memberOf R\n * @since v0.12.0\n * @category Logic\n * @sig (*... -> *) -> (*... -> Boolean)\n * @param {Function} f\n * @return {Function}\n * @see R.not\n * @example\n *\n *      var isNotNil = R.complement(R.isNil);\n *      isNil(null); //=> true\n *      isNotNil(null); //=> false\n *      isNil(7); //=> false\n *      isNotNil(7); //=> true\n */\nmodule.exports = lift(not);\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/complement.js\n// module id = 142\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/complement.js?");
+
+/***/ }),
+/* 143 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar pipeP = __webpack_require__(103);\nvar reverse = __webpack_require__(41);\n\n/**\n * Performs right-to-left composition of one or more Promise-returning\n * functions. The rightmost function may have any arity; the remaining\n * functions must be unary.\n *\n * @func\n * @memberOf R\n * @since v0.10.0\n * @category Function\n * @sig ((y -> Promise z), (x -> Promise y), ..., (a -> Promise b)) -> (a -> Promise z)\n * @param {...Function} functions The functions to compose\n * @return {Function}\n * @see R.pipeP\n * @example\n *\n *      var db = {\n *        users: {\n *          JOE: {\n *            name: 'Joe',\n *            followers: ['STEVE', 'SUZY']\n *          }\n *        }\n *      }\n *\n *      // We'll pretend to do a db lookup which returns a promise\n *      var lookupUser = (userId) => Promise.resolve(db.users[userId])\n *      var lookupFollowers = (user) => Promise.resolve(user.followers)\n *      lookupUser('JOE').then(lookupFollowers)\n *\n *      //  followersForUser :: String -> Promise [UserId]\n *      var followersForUser = R.composeP(lookupFollowers, lookupUser);\n *      followersForUser('JOE').then(followers => console.log('Followers:', followers))\n *      // Followers: [\"STEVE\",\"SUZY\"]\n */\nmodule.exports = function composeP() {\n  if (arguments.length === 0) {\n    throw new Error('composeP requires at least one argument');\n  }\n  return pipeP.apply(this, reverse(arguments));\n};\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/composeP.js\n// module id = 143\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/composeP.js?");
+
+/***/ }),
+/* 144 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _arity = __webpack_require__(11);\nvar _curry1 = __webpack_require__(1);\nvar map = __webpack_require__(7);\nvar max = __webpack_require__(19);\nvar reduce = __webpack_require__(13);\n\n/**\n * Returns a function, `fn`, which encapsulates `if/else, if/else, ...` logic.\n * `R.cond` takes a list of [predicate, transformer] pairs. All of the arguments\n * to `fn` are applied to each of the predicates in turn until one returns a\n * \"truthy\" value, at which point `fn` returns the result of applying its\n * arguments to the corresponding transformer. If none of the predicates\n * matches, `fn` returns undefined.\n *\n * @func\n * @memberOf R\n * @since v0.6.0\n * @category Logic\n * @sig [[(*... -> Boolean),(*... -> *)]] -> (*... -> *)\n * @param {Array} pairs A list of [predicate, transformer]\n * @return {Function}\n * @example\n *\n *      var fn = R.cond([\n *        [R.equals(0),   R.always('water freezes at 0°C')],\n *        [R.equals(100), R.always('water boils at 100°C')],\n *        [R.T,           temp => 'nothing special happens at ' + temp + '°C']\n *      ]);\n *      fn(0); //=> 'water freezes at 0°C'\n *      fn(50); //=> 'nothing special happens at 50°C'\n *      fn(100); //=> 'water boils at 100°C'\n */\nmodule.exports = _curry1(function cond(pairs) {\n  var arity = reduce(max, 0, map(function (pair) {\n    return pair[0].length;\n  }, pairs));\n  return _arity(arity, function () {\n    var idx = 0;\n    while (idx < pairs.length) {\n      if (pairs[idx][0].apply(this, arguments)) {\n        return pairs[idx][1].apply(this, arguments);\n      }\n      idx += 1;\n    }\n  });\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/cond.js\n// module id = 144\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/cond.js?");
+
+/***/ }),
+/* 145 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry1 = __webpack_require__(1);\nvar constructN = __webpack_require__(65);\n\n/**\n * Wraps a constructor function inside a curried function that can be called\n * with the same arguments and returns the same type.\n *\n * @func\n * @memberOf R\n * @since v0.1.0\n * @category Function\n * @sig (* -> {*}) -> (* -> {*})\n * @param {Function} fn The constructor function to wrap.\n * @return {Function} A wrapped, curried constructor function.\n * @example\n *\n *      // Constructor function\n *      function Animal(kind) {\n *        this.kind = kind;\n *      };\n *      Animal.prototype.sighting = function() {\n *        return \"It's a \" + this.kind + \"!\";\n *      }\n *\n *      var AnimalConstructor = R.construct(Animal)\n *\n *      // Notice we no longer need the 'new' keyword:\n *      AnimalConstructor('Pig'); //=> {\"kind\": \"Pig\", \"sighting\": function (){...}};\n *\n *      var animalTypes = [\"Lion\", \"Tiger\", \"Bear\"];\n *      var animalSighting = R.invoker(0, 'sighting');\n *      var sightNewAnimal = R.compose(animalSighting, AnimalConstructor);\n *      R.map(sightNewAnimal, animalTypes); //=> [\"It's a Lion!\", \"It's a Tiger!\", \"It's a Bear!\"]\n */\nmodule.exports = _curry1(function construct(Fn) {\n  return constructN(Fn.length, Fn);\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/construct.js\n// module id = 145\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/construct.js?");
+
+/***/ }),
+/* 146 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _contains = __webpack_require__(16);\nvar _curry2 = __webpack_require__(0);\n\n/**\n * Returns `true` if the specified value is equal, in `R.equals` terms, to at\n * least one element of the given list; `false` otherwise.\n *\n * @func\n * @memberOf R\n * @since v0.1.0\n * @category List\n * @sig a -> [a] -> Boolean\n * @param {Object} a The item to compare against.\n * @param {Array} list The array to consider.\n * @return {Boolean} `true` if an equivalent item is in the list, `false` otherwise.\n * @see R.any\n * @example\n *\n *      R.contains(3, [1, 2, 3]); //=> true\n *      R.contains(4, [1, 2, 3]); //=> false\n *      R.contains({ name: 'Fred' }, [{ name: 'Fred' }]); //=> true\n *      R.contains([42], [[42]]); //=> true\n */\nmodule.exports = _curry2(_contains);\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/contains.js\n// module id = 146\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/contains.js?");
+
+/***/ }),
+/* 147 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar reduceBy = __webpack_require__(39);\n\n/**\n * Counts the elements of a list according to how many match each value of a\n * key generated by the supplied function. Returns an object mapping the keys\n * produced by `fn` to the number of occurrences in the list. Note that all\n * keys are coerced to strings because of how JavaScript objects work.\n *\n * Acts as a transducer if a transformer is given in list position.\n *\n * @func\n * @memberOf R\n * @since v0.1.0\n * @category Relation\n * @sig (a -> String) -> [a] -> {*}\n * @param {Function} fn The function used to map values to keys.\n * @param {Array} list The list to count elements from.\n * @return {Object} An object mapping keys to number of occurrences in the list.\n * @example\n *\n *      var numbers = [1.0, 1.1, 1.2, 2.0, 3.0, 2.2];\n *      R.countBy(Math.floor)(numbers);    //=> {'1': 3, '2': 2, '3': 1}\n *\n *      var letters = ['a', 'b', 'A', 'a', 'B', 'c'];\n *      R.countBy(R.toLower)(letters);   //=> {'a': 3, 'b': 2, 'c': 1}\n */\nmodule.exports = reduceBy(function (acc, elem) {\n  return acc + 1;\n}, 0);\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/countBy.js\n// module id = 147\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/countBy.js?");
+
+/***/ }),
+/* 148 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar add = __webpack_require__(27);\n\n/**\n * Decrements its argument.\n *\n * @func\n * @memberOf R\n * @since v0.9.0\n * @category Math\n * @sig Number -> Number\n * @param {Number} n\n * @return {Number} n - 1\n * @see R.inc\n * @example\n *\n *      R.dec(42); //=> 41\n */\nmodule.exports = add(-1);\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/dec.js\n// module id = 148\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/dec.js?");
+
+/***/ }),
+/* 149 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry3 = __webpack_require__(2);\n\n/**\n * Makes a descending comparator function out of a function that returns a value\n * that can be compared with `<` and `>`.\n *\n * @func\n * @memberOf R\n * @since v0.23.0\n * @category Function\n * @sig Ord b => (a -> b) -> a -> a -> Number\n * @param {Function} fn A function of arity one that returns a value that can be compared\n * @param {*} a The first item to be compared.\n * @param {*} b The second item to be compared.\n * @return {Number} `-1` if fn(a) > fn(b), `1` if fn(b) > fn(a), otherwise `0`\n * @example\n *\n *      var byAge = R.descend(R.prop('age'));\n *      var people = [\n *        // ...\n *      ];\n *      var peopleByOldestFirst = R.sort(byAge, people);\n */\nmodule.exports = _curry3(function descend(fn, a, b) {\n  var aa = fn(a);\n  var bb = fn(b);\n  return aa > bb ? -1 : aa < bb ? 1 : 0;\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/descend.js\n// module id = 149\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/descend.js?");
+
+/***/ }),
+/* 150 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\nvar assoc = __webpack_require__(28);\nvar dissoc = __webpack_require__(70);\n\n/**\n * Makes a shallow clone of an object, omitting the property at the given path.\n * Note that this copies and flattens prototype properties onto the new object\n * as well. All non-primitive properties are copied by reference.\n *\n * @func\n * @memberOf R\n * @since v0.11.0\n * @category Object\n * @sig [String] -> {k: v} -> {k: v}\n * @param {Array} path The path to the value to omit\n * @param {Object} obj The object to clone\n * @return {Object} A new object without the property at path\n * @see R.assocPath\n * @example\n *\n *      R.dissocPath(['a', 'b', 'c'], {a: {b: {c: 42}}}); //=> {a: {b: {}}}\n */\nmodule.exports = _curry2(function dissocPath(path, obj) {\n  switch (path.length) {\n    case 0:\n      return obj;\n    case 1:\n      return dissoc(path[0], obj);\n    default:\n      var head = path[0];\n      var tail = Array.prototype.slice.call(path, 1);\n      return obj[head] == null ? obj : assoc(head, dissocPath(tail, obj[head]), obj);\n  }\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/dissocPath.js\n// module id = 150\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/dissocPath.js?");
+
+/***/ }),
+/* 151 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\n\n/**\n * Divides two numbers. Equivalent to `a / b`.\n *\n * @func\n * @memberOf R\n * @since v0.1.0\n * @category Math\n * @sig Number -> Number -> Number\n * @param {Number} a The first value.\n * @param {Number} b The second value.\n * @return {Number} The result of `a / b`.\n * @see R.multiply\n * @example\n *\n *      R.divide(71, 100); //=> 0.71\n *\n *      var half = R.divide(R.__, 2);\n *      half(42); //=> 21\n *\n *      var reciprocal = R.divide(1);\n *      reciprocal(4);   //=> 0.25\n */\nmodule.exports = _curry2(function divide(a, b) {\n  return a / b;\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/divide.js\n// module id = 151\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/divide.js?");
+
+/***/ }),
+/* 152 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\nvar _dispatchable = __webpack_require__(3);\nvar _dropLast = __webpack_require__(185);\nvar _xdropLast = __webpack_require__(204);\n\n/**\n * Returns a list containing all but the last `n` elements of the given `list`.\n *\n * @func\n * @memberOf R\n * @since v0.16.0\n * @category List\n * @sig Number -> [a] -> [a]\n * @sig Number -> String -> String\n * @param {Number} n The number of elements of `list` to skip.\n * @param {Array} list The list of elements to consider.\n * @return {Array} A copy of the list with only the first `list.length - n` elements\n * @see R.takeLast, R.drop, R.dropWhile, R.dropLastWhile\n * @example\n *\n *      R.dropLast(1, ['foo', 'bar', 'baz']); //=> ['foo', 'bar']\n *      R.dropLast(2, ['foo', 'bar', 'baz']); //=> ['foo']\n *      R.dropLast(3, ['foo', 'bar', 'baz']); //=> []\n *      R.dropLast(4, ['foo', 'bar', 'baz']); //=> []\n *      R.dropLast(3, 'ramda');               //=> 'ra'\n */\nmodule.exports = _curry2(_dispatchable([], _xdropLast, _dropLast));\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/dropLast.js\n// module id = 152\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/dropLast.js?");
+
+/***/ }),
+/* 153 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\nvar _dispatchable = __webpack_require__(3);\nvar _dropLastWhile = __webpack_require__(186);\nvar _xdropLastWhile = __webpack_require__(205);\n\n/**\n * Returns a new list excluding all the tailing elements of a given list which\n * satisfy the supplied predicate function. It passes each value from the right\n * to the supplied predicate function, skipping elements until the predicate\n * function returns a `falsy` value. The predicate function is applied to one argument:\n * *(value)*.\n *\n * @func\n * @memberOf R\n * @since v0.16.0\n * @category List\n * @sig (a -> Boolean) -> [a] -> [a]\n * @param {Function} predicate The function to be called on each element\n * @param {Array} list The collection to iterate over.\n * @return {Array} A new array without any trailing elements that return `falsy` values from the `predicate`.\n * @see R.takeLastWhile, R.addIndex, R.drop, R.dropWhile\n * @example\n *\n *      var lteThree = x => x <= 3;\n *\n *      R.dropLastWhile(lteThree, [1, 2, 3, 4, 3, 2, 1]); //=> [1, 2, 3, 4]\n */\nmodule.exports = _curry2(_dispatchable([], _xdropLastWhile, _dropLastWhile));\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/dropLastWhile.js\n// module id = 153\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/dropLastWhile.js?");
+
+/***/ }),
+/* 154 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry1 = __webpack_require__(1);\nvar _dispatchable = __webpack_require__(3);\nvar _xdropRepeatsWith = __webpack_require__(87);\nvar dropRepeatsWith = __webpack_require__(72);\nvar equals = __webpack_require__(10);\n\n/**\n * Returns a new list without any consecutively repeating elements. `R.equals`\n * is used to determine equality.\n *\n * Acts as a transducer if a transformer is given in list position.\n *\n * @func\n * @memberOf R\n * @since v0.14.0\n * @category List\n * @sig [a] -> [a]\n * @param {Array} list The array to consider.\n * @return {Array} `list` without repeating elements.\n * @see R.transduce\n * @example\n *\n *     R.dropRepeats([1, 1, 1, 2, 3, 4, 4, 2, 2]); //=> [1, 2, 3, 4, 2]\n */\nmodule.exports = _curry1(_dispatchable([], _xdropRepeatsWith(equals), dropRepeatsWith(equals)));\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/dropRepeats.js\n// module id = 154\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/dropRepeats.js?");
+
+/***/ }),
+/* 155 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\nvar _dispatchable = __webpack_require__(3);\nvar _xdropWhile = __webpack_require__(206);\n\n/**\n * Returns a new list excluding the leading elements of a given list which\n * satisfy the supplied predicate function. It passes each value to the supplied\n * predicate function, skipping elements while the predicate function returns\n * `true`. The predicate function is applied to one argument: *(value)*.\n *\n * Dispatches to the `dropWhile` method of the second argument, if present.\n *\n * Acts as a transducer if a transformer is given in list position.\n *\n * @func\n * @memberOf R\n * @since v0.9.0\n * @category List\n * @sig (a -> Boolean) -> [a] -> [a]\n * @param {Function} fn The function called per iteration.\n * @param {Array} list The collection to iterate over.\n * @return {Array} A new array.\n * @see R.takeWhile, R.transduce, R.addIndex\n * @example\n *\n *      var lteTwo = x => x <= 2;\n *\n *      R.dropWhile(lteTwo, [1, 2, 3, 4, 3, 2, 1]); //=> [3, 4, 3, 2, 1]\n */\nmodule.exports = _curry2(_dispatchable(['dropWhile'], _xdropWhile, function dropWhile(pred, list) {\n  var idx = 0;\n  var len = list.length;\n  while (idx < len && pred(list[idx])) {\n    idx += 1;\n  }\n  return Array.prototype.slice.call(list, idx);\n}));\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/dropWhile.js\n// module id = 155\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/dropWhile.js?");
+
+/***/ }),
+/* 156 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\nvar _isFunction = __webpack_require__(32);\nvar lift = __webpack_require__(37);\nvar or = __webpack_require__(99);\n\n/**\n * A function wrapping calls to the two functions in an `||` operation,\n * returning the result of the first function if it is truth-y and the result\n * of the second function otherwise. Note that this is short-circuited,\n * meaning that the second function will not be invoked if the first returns a\n * truth-y value.\n *\n * In addition to functions, `R.either` also accepts any fantasy-land compatible\n * applicative functor.\n *\n * @func\n * @memberOf R\n * @since v0.12.0\n * @category Logic\n * @sig (*... -> Boolean) -> (*... -> Boolean) -> (*... -> Boolean)\n * @param {Function} f a predicate\n * @param {Function} g another predicate\n * @return {Function} a function that applies its arguments to `f` and `g` and `||`s their outputs together.\n * @see R.or\n * @example\n *\n *      var gt10 = x => x > 10;\n *      var even = x => x % 2 === 0;\n *      var f = R.either(gt10, even);\n *      f(101); //=> true\n *      f(8); //=> true\n */\nmodule.exports = _curry2(function either(f, g) {\n  return _isFunction(f) ? function _either() {\n    return f.apply(this, arguments) || g.apply(this, arguments);\n  } : lift(or)(f, g);\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/either.js\n// module id = 156\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/either.js?");
+
+/***/ }),
+/* 157 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry3 = __webpack_require__(2);\nvar equals = __webpack_require__(10);\n\n/**\n * Takes a function and two values in its domain and returns `true` if the\n * values map to the same value in the codomain; `false` otherwise.\n *\n * @func\n * @memberOf R\n * @since v0.18.0\n * @category Relation\n * @sig (a -> b) -> a -> a -> Boolean\n * @param {Function} f\n * @param {*} x\n * @param {*} y\n * @return {Boolean}\n * @example\n *\n *      R.eqBy(Math.abs, 5, -5); //=> true\n */\nmodule.exports = _curry3(function eqBy(f, x, y) {\n  return equals(f(x), f(y));\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/eqBy.js\n// module id = 157\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/eqBy.js?");
+
+/***/ }),
+/* 158 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry3 = __webpack_require__(2);\nvar equals = __webpack_require__(10);\n\n/**\n * Reports whether two objects have the same value, in `R.equals` terms, for\n * the specified property. Useful as a curried predicate.\n *\n * @func\n * @memberOf R\n * @since v0.1.0\n * @category Object\n * @sig k -> {k: v} -> {k: v} -> Boolean\n * @param {String} prop The name of the property to compare\n * @param {Object} obj1\n * @param {Object} obj2\n * @return {Boolean}\n *\n * @example\n *\n *      var o1 = { a: 1, b: 2, c: 3, d: 4 };\n *      var o2 = { a: 10, b: 20, c: 3, d: 40 };\n *      R.eqProps('a', o1, o2); //=> false\n *      R.eqProps('c', o1, o2); //=> true\n */\nmodule.exports = _curry3(function eqProps(prop, obj1, obj2) {\n  return equals(obj1[prop], obj2[prop]);\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/eqProps.js\n// module id = 158\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/eqProps.js?");
+
+/***/ }),
+/* 159 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _typeof = typeof Symbol === \"function\" && typeof Symbol.iterator === \"symbol\" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === \"function\" && obj.constructor === Symbol && obj !== Symbol.prototype ? \"symbol\" : typeof obj; };\n\nvar _curry2 = __webpack_require__(0);\n\n/**\n * Creates a new object by recursively evolving a shallow copy of `object`,\n * according to the `transformation` functions. All non-primitive properties\n * are copied by reference.\n *\n * A `transformation` function will not be invoked if its corresponding key\n * does not exist in the evolved object.\n *\n * @func\n * @memberOf R\n * @since v0.9.0\n * @category Object\n * @sig {k: (v -> v)} -> {k: v} -> {k: v}\n * @param {Object} transformations The object specifying transformation functions to apply\n *        to the object.\n * @param {Object} object The object to be transformed.\n * @return {Object} The transformed object.\n * @example\n *\n *      var tomato  = {firstName: '  Tomato ', data: {elapsed: 100, remaining: 1400}, id:123};\n *      var transformations = {\n *        firstName: R.trim,\n *        lastName: R.trim, // Will not get invoked.\n *        data: {elapsed: R.add(1), remaining: R.add(-1)}\n *      };\n *      R.evolve(transformations, tomato); //=> {firstName: 'Tomato', data: {elapsed: 101, remaining: 1399}, id:123}\n */\nmodule.exports = _curry2(function evolve(transformations, object) {\n  var result = {};\n  var transformation, key, type;\n  for (key in object) {\n    transformation = transformations[key];\n    type = typeof transformation === 'undefined' ? 'undefined' : _typeof(transformation);\n    result[key] = type === 'function' ? transformation(object[key]) : transformation && type === 'object' ? evolve(transformation, object[key]) : object[key];\n  }\n  return result;\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/evolve.js\n// module id = 159\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/evolve.js?");
+
+/***/ }),
+/* 160 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\nvar _dispatchable = __webpack_require__(3);\nvar _xfind = __webpack_require__(208);\n\n/**\n * Returns the first element of the list which matches the predicate, or\n * `undefined` if no element matches.\n *\n * Dispatches to the `find` method of the second argument, if present.\n *\n * Acts as a transducer if a transformer is given in list position.\n *\n * @func\n * @memberOf R\n * @since v0.1.0\n * @category List\n * @sig (a -> Boolean) -> [a] -> a | undefined\n * @param {Function} fn The predicate function used to determine if the element is the\n *        desired one.\n * @param {Array} list The array to consider.\n * @return {Object} The element found, or `undefined`.\n * @see R.transduce\n * @example\n *\n *      var xs = [{a: 1}, {a: 2}, {a: 3}];\n *      R.find(R.propEq('a', 2))(xs); //=> {a: 2}\n *      R.find(R.propEq('a', 4))(xs); //=> undefined\n */\nmodule.exports = _curry2(_dispatchable(['find'], _xfind, function find(fn, list) {\n  var idx = 0;\n  var len = list.length;\n  while (idx < len) {\n    if (fn(list[idx])) {\n      return list[idx];\n    }\n    idx += 1;\n  }\n}));\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/find.js\n// module id = 160\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/find.js?");
+
+/***/ }),
+/* 161 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\nvar _dispatchable = __webpack_require__(3);\nvar _xfindIndex = __webpack_require__(209);\n\n/**\n * Returns the index of the first element of the list which matches the\n * predicate, or `-1` if no element matches.\n *\n * Acts as a transducer if a transformer is given in list position.\n *\n * @func\n * @memberOf R\n * @since v0.1.1\n * @category List\n * @sig (a -> Boolean) -> [a] -> Number\n * @param {Function} fn The predicate function used to determine if the element is the\n * desired one.\n * @param {Array} list The array to consider.\n * @return {Number} The index of the element found, or `-1`.\n * @see R.transduce\n * @example\n *\n *      var xs = [{a: 1}, {a: 2}, {a: 3}];\n *      R.findIndex(R.propEq('a', 2))(xs); //=> 1\n *      R.findIndex(R.propEq('a', 4))(xs); //=> -1\n */\nmodule.exports = _curry2(_dispatchable([], _xfindIndex, function findIndex(fn, list) {\n  var idx = 0;\n  var len = list.length;\n  while (idx < len) {\n    if (fn(list[idx])) {\n      return idx;\n    }\n    idx += 1;\n  }\n  return -1;\n}));\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/findIndex.js\n// module id = 161\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/findIndex.js?");
+
+/***/ }),
+/* 162 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\nvar _dispatchable = __webpack_require__(3);\nvar _xfindLast = __webpack_require__(210);\n\n/**\n * Returns the last element of the list which matches the predicate, or\n * `undefined` if no element matches.\n *\n * Acts as a transducer if a transformer is given in list position.\n *\n * @func\n * @memberOf R\n * @since v0.1.1\n * @category List\n * @sig (a -> Boolean) -> [a] -> a | undefined\n * @param {Function} fn The predicate function used to determine if the element is the\n * desired one.\n * @param {Array} list The array to consider.\n * @return {Object} The element found, or `undefined`.\n * @see R.transduce\n * @example\n *\n *      var xs = [{a: 1, b: 0}, {a:1, b: 1}];\n *      R.findLast(R.propEq('a', 1))(xs); //=> {a: 1, b: 1}\n *      R.findLast(R.propEq('a', 4))(xs); //=> undefined\n */\nmodule.exports = _curry2(_dispatchable([], _xfindLast, function findLast(fn, list) {\n  var idx = list.length - 1;\n  while (idx >= 0) {\n    if (fn(list[idx])) {\n      return list[idx];\n    }\n    idx -= 1;\n  }\n}));\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/findLast.js\n// module id = 162\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/findLast.js?");
+
+/***/ }),
+/* 163 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\nvar _dispatchable = __webpack_require__(3);\nvar _xfindLastIndex = __webpack_require__(211);\n\n/**\n * Returns the index of the last element of the list which matches the\n * predicate, or `-1` if no element matches.\n *\n * Acts as a transducer if a transformer is given in list position.\n *\n * @func\n * @memberOf R\n * @since v0.1.1\n * @category List\n * @sig (a -> Boolean) -> [a] -> Number\n * @param {Function} fn The predicate function used to determine if the element is the\n * desired one.\n * @param {Array} list The array to consider.\n * @return {Number} The index of the element found, or `-1`.\n * @see R.transduce\n * @example\n *\n *      var xs = [{a: 1, b: 0}, {a:1, b: 1}];\n *      R.findLastIndex(R.propEq('a', 1))(xs); //=> 1\n *      R.findLastIndex(R.propEq('a', 4))(xs); //=> -1\n */\nmodule.exports = _curry2(_dispatchable([], _xfindLastIndex, function findLastIndex(fn, list) {\n  var idx = list.length - 1;\n  while (idx >= 0) {\n    if (fn(list[idx])) {\n      return idx;\n    }\n    idx -= 1;\n  }\n  return -1;\n}));\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/findLastIndex.js\n// module id = 163\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/findLastIndex.js?");
+
+/***/ }),
+/* 164 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry1 = __webpack_require__(1);\nvar _makeFlat = __webpack_require__(85);\n\n/**\n * Returns a new list by pulling every item out of it (and all its sub-arrays)\n * and putting them in a new array, depth-first.\n *\n * @func\n * @memberOf R\n * @since v0.1.0\n * @category List\n * @sig [a] -> [b]\n * @param {Array} list The array to consider.\n * @return {Array} The flattened list.\n * @see R.unnest\n * @example\n *\n *      R.flatten([1, 2, [3, 4], 5, [6, [7, 8, [9, [10, 11], 12]]]]);\n *      //=> [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]\n */\nmodule.exports = _curry1(_makeFlat(true));\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/flatten.js\n// module id = 164\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/flatten.js?");
+
+/***/ }),
+/* 165 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _checkForMethod = __webpack_require__(20);\nvar _curry2 = __webpack_require__(0);\n\n/**\n * Iterate over an input `list`, calling a provided function `fn` for each\n * element in the list.\n *\n * `fn` receives one argument: *(value)*.\n *\n * Note: `R.forEach` does not skip deleted or unassigned indices (sparse\n * arrays), unlike the native `Array.prototype.forEach` method. For more\n * details on this behavior, see:\n * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/forEach#Description\n *\n * Also note that, unlike `Array.prototype.forEach`, Ramda's `forEach` returns\n * the original array. In some libraries this function is named `each`.\n *\n * Dispatches to the `forEach` method of the second argument, if present.\n *\n * @func\n * @memberOf R\n * @since v0.1.1\n * @category List\n * @sig (a -> *) -> [a] -> [a]\n * @param {Function} fn The function to invoke. Receives one argument, `value`.\n * @param {Array} list The list to iterate over.\n * @return {Array} The original list.\n * @see R.addIndex\n * @example\n *\n *      var printXPlusFive = x => console.log(x + 5);\n *      R.forEach(printXPlusFive, [1, 2, 3]); //=> [1, 2, 3]\n *      // logs 6\n *      // logs 7\n *      // logs 8\n * @symb R.forEach(f, [a, b, c]) = [a, b, c]\n */\nmodule.exports = _curry2(_checkForMethod('forEach', function forEach(fn, list) {\n  var len = list.length;\n  var idx = 0;\n  while (idx < len) {\n    fn(list[idx]);\n    idx += 1;\n  }\n  return list;\n}));\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/forEach.js\n// module id = 165\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/forEach.js?");
+
+/***/ }),
+/* 166 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\nvar keys = __webpack_require__(12);\n\n/**\n * Iterate over an input `object`, calling a provided function `fn` for each\n * key and value in the object.\n *\n * `fn` receives three argument: *(value, key, obj)*.\n *\n * @func\n * @memberOf R\n * @since v0.23.0\n * @category Object\n * @sig ((a, String, StrMap a) -> Any) -> StrMap a -> StrMap a\n * @param {Function} fn The function to invoke. Receives three argument, `value`, `key`, `obj`.\n * @param {Object} obj The object to iterate over.\n * @return {Object} The original object.\n * @example\n *\n *      var printKeyConcatValue = (value, key) => console.log(key + ':' + value);\n *      R.forEachObjIndexed(printKeyConcatValue, {x: 1, y: 2}); //=> {x: 1, y: 2}\n *      // logs x:1\n *      // logs y:2\n * @symb R.forEachObjIndexed(f, {x: a, y: b}) = {x: a, y: b}\n */\nmodule.exports = _curry2(function forEachObjIndexed(fn, obj) {\n  var keyList = keys(obj);\n  var idx = 0;\n  while (idx < keyList.length) {\n    var key = keyList[idx];\n    fn(obj[key], key, obj);\n    idx += 1;\n  }\n  return obj;\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/forEachObjIndexed.js\n// module id = 166\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/forEachObjIndexed.js?");
+
+/***/ }),
+/* 167 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry1 = __webpack_require__(1);\n\n/**\n * Creates a new object from a list key-value pairs. If a key appears in\n * multiple pairs, the rightmost pair is included in the object.\n *\n * @func\n * @memberOf R\n * @since v0.3.0\n * @category List\n * @sig [[k,v]] -> {k: v}\n * @param {Array} pairs An array of two-element arrays that will be the keys and values of the output object.\n * @return {Object} The object made by pairing up `keys` and `values`.\n * @see R.toPairs, R.pair\n * @example\n *\n *      R.fromPairs([['a', 1], ['b', 2], ['c', 3]]); //=> {a: 1, b: 2, c: 3}\n */\nmodule.exports = _curry1(function fromPairs(pairs) {\n  var result = {};\n  var idx = 0;\n  while (idx < pairs.length) {\n    result[pairs[idx][0]] = pairs[idx][1];\n    idx += 1;\n  }\n  return result;\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/fromPairs.js\n// module id = 167\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/fromPairs.js?");
+
+/***/ }),
+/* 168 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _checkForMethod = __webpack_require__(20);\nvar _curry2 = __webpack_require__(0);\nvar reduceBy = __webpack_require__(39);\n\n/**\n * Splits a list into sub-lists stored in an object, based on the result of\n * calling a String-returning function on each element, and grouping the\n * results according to values returned.\n *\n * Dispatches to the `groupBy` method of the second argument, if present.\n *\n * Acts as a transducer if a transformer is given in list position.\n *\n * @func\n * @memberOf R\n * @since v0.1.0\n * @category List\n * @sig (a -> String) -> [a] -> {String: [a]}\n * @param {Function} fn Function :: a -> String\n * @param {Array} list The array to group\n * @return {Object} An object with the output of `fn` for keys, mapped to arrays of elements\n *         that produced that key when passed to `fn`.\n * @see R.transduce\n * @example\n *\n *      var byGrade = R.groupBy(function(student) {\n *        var score = student.score;\n *        return score < 65 ? 'F' :\n *               score < 70 ? 'D' :\n *               score < 80 ? 'C' :\n *               score < 90 ? 'B' : 'A';\n *      });\n *      var students = [{name: 'Abby', score: 84},\n *                      {name: 'Eddy', score: 58},\n *                      // ...\n *                      {name: 'Jack', score: 69}];\n *      byGrade(students);\n *      // {\n *      //   'A': [{name: 'Dianne', score: 99}],\n *      //   'B': [{name: 'Abby', score: 84}]\n *      //   // ...,\n *      //   'F': [{name: 'Eddy', score: 58}]\n *      // }\n */\nmodule.exports = _curry2(_checkForMethod('groupBy', reduceBy(function (acc, item) {\n  if (acc == null) {\n    acc = [];\n  }\n  acc.push(item);\n  return acc;\n}, null)));\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/groupBy.js\n// module id = 168\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/groupBy.js?");
+
+/***/ }),
+/* 169 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\n\n/**\n * Takes a list and returns a list of lists where each sublist's elements are\n * all \"equal\" according to the provided equality function.\n *\n * @func\n * @memberOf R\n * @since v0.21.0\n * @category List\n * @sig ((a, a) → Boolean) → [a] → [[a]]\n * @param {Function} fn Function for determining whether two given (adjacent)\n *        elements should be in the same group\n * @param {Array} list The array to group. Also accepts a string, which will be\n *        treated as a list of characters.\n * @return {List} A list that contains sublists of equal elements,\n *         whose concatenations are equal to the original list.\n * @example\n *\n * R.groupWith(R.equals, [0, 1, 1, 2, 3, 5, 8, 13, 21])\n * //=> [[0], [1, 1], [2], [3], [5], [8], [13], [21]]\n *\n * R.groupWith((a, b) => a % 2 === b % 2, [0, 1, 1, 2, 3, 5, 8, 13, 21])\n * //=> [[0], [1, 1], [2], [3, 5], [8], [13, 21]]\n *\n * R.groupWith(R.eqBy(isVowel), 'aestiou')\n * //=> ['ae', 'st', 'iou']\n */\nmodule.exports = _curry2(function (fn, list) {\n  var res = [];\n  var idx = 0;\n  var len = list.length;\n  while (idx < len) {\n    var nextidx = idx + 1;\n    while (nextidx < len && fn(list[idx], list[nextidx])) {\n      nextidx += 1;\n    }\n    res.push(list.slice(idx, nextidx));\n    idx = nextidx;\n  }\n  return res;\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/groupWith.js\n// module id = 169\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/groupWith.js?");
+
+/***/ }),
+/* 170 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\n\n/**\n * Returns `true` if the first argument is greater than the second; `false`\n * otherwise.\n *\n * @func\n * @memberOf R\n * @since v0.1.0\n * @category Relation\n * @sig Ord a => a -> a -> Boolean\n * @param {*} a\n * @param {*} b\n * @return {Boolean}\n * @see R.lt\n * @example\n *\n *      R.gt(2, 1); //=> true\n *      R.gt(2, 2); //=> false\n *      R.gt(2, 3); //=> false\n *      R.gt('a', 'z'); //=> false\n *      R.gt('z', 'a'); //=> true\n */\nmodule.exports = _curry2(function gt(a, b) {\n  return a > b;\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/gt.js\n// module id = 170\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/gt.js?");
+
+/***/ }),
+/* 171 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\n\n/**\n * Returns `true` if the first argument is greater than or equal to the second;\n * `false` otherwise.\n *\n * @func\n * @memberOf R\n * @since v0.1.0\n * @category Relation\n * @sig Ord a => a -> a -> Boolean\n * @param {Number} a\n * @param {Number} b\n * @return {Boolean}\n * @see R.lte\n * @example\n *\n *      R.gte(2, 1); //=> true\n *      R.gte(2, 2); //=> true\n *      R.gte(2, 3); //=> false\n *      R.gte('a', 'z'); //=> false\n *      R.gte('z', 'a'); //=> true\n */\nmodule.exports = _curry2(function gte(a, b) {\n  return a >= b;\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/gte.js\n// module id = 171\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/gte.js?");
+
+/***/ }),
+/* 172 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\nvar _has = __webpack_require__(6);\n\n/**\n * Returns whether or not an object has an own property with the specified name\n *\n * @func\n * @memberOf R\n * @since v0.7.0\n * @category Object\n * @sig s -> {s: x} -> Boolean\n * @param {String} prop The name of the property to check for.\n * @param {Object} obj The object to query.\n * @return {Boolean} Whether the property exists.\n * @example\n *\n *      var hasName = R.has('name');\n *      hasName({name: 'alice'});   //=> true\n *      hasName({name: 'bob'});     //=> true\n *      hasName({});                //=> false\n *\n *      var point = {x: 0, y: 0};\n *      var pointHas = R.has(R.__, point);\n *      pointHas('x');  //=> true\n *      pointHas('y');  //=> true\n *      pointHas('z');  //=> false\n */\nmodule.exports = _curry2(_has);\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/has.js\n// module id = 172\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/has.js?");
+
+/***/ }),
+/* 173 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\n\n/**\n * Returns whether or not an object or its prototype chain has a property with\n * the specified name\n *\n * @func\n * @memberOf R\n * @since v0.7.0\n * @category Object\n * @sig s -> {s: x} -> Boolean\n * @param {String} prop The name of the property to check for.\n * @param {Object} obj The object to query.\n * @return {Boolean} Whether the property exists.\n * @example\n *\n *      function Rectangle(width, height) {\n *        this.width = width;\n *        this.height = height;\n *      }\n *      Rectangle.prototype.area = function() {\n *        return this.width * this.height;\n *      };\n *\n *      var square = new Rectangle(2, 2);\n *      R.hasIn('width', square);  //=> true\n *      R.hasIn('area', square);  //=> true\n */\nmodule.exports = _curry2(function hasIn(prop, obj) {\n  return prop in obj;\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/hasIn.js\n// module id = 173\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/hasIn.js?");
+
+/***/ }),
+/* 174 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar nth = __webpack_require__(23);\n\n/**\n * Returns the first element of the given list or string. In some libraries\n * this function is named `first`.\n *\n * @func\n * @memberOf R\n * @since v0.1.0\n * @category List\n * @sig [a] -> a | Undefined\n * @sig String -> String\n * @param {Array|String} list\n * @return {*}\n * @see R.tail, R.init, R.last\n * @example\n *\n *      R.head(['fi', 'fo', 'fum']); //=> 'fi'\n *      R.head([]); //=> undefined\n *\n *      R.head('abc'); //=> 'a'\n *      R.head(''); //=> ''\n */\nmodule.exports = nth(0);\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/head.js\n// module id = 174\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/head.js?");
+
+/***/ }),
+/* 175 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry3 = __webpack_require__(2);\nvar curryN = __webpack_require__(5);\n\n/**\n * Creates a function that will process either the `onTrue` or the `onFalse`\n * function depending upon the result of the `condition` predicate.\n *\n * @func\n * @memberOf R\n * @since v0.8.0\n * @category Logic\n * @sig (*... -> Boolean) -> (*... -> *) -> (*... -> *) -> (*... -> *)\n * @param {Function} condition A predicate function\n * @param {Function} onTrue A function to invoke when the `condition` evaluates to a truthy value.\n * @param {Function} onFalse A function to invoke when the `condition` evaluates to a falsy value.\n * @return {Function} A new unary function that will process either the `onTrue` or the `onFalse`\n *                    function depending upon the result of the `condition` predicate.\n * @see R.unless, R.when\n * @example\n *\n *      var incCount = R.ifElse(\n *        R.has('count'),\n *        R.over(R.lensProp('count'), R.inc),\n *        R.assoc('count', 1)\n *      );\n *      incCount({});           //=> { count: 1 }\n *      incCount({ count: 1 }); //=> { count: 2 }\n */\nmodule.exports = _curry3(function ifElse(condition, onTrue, onFalse) {\n  return curryN(Math.max(condition.length, onTrue.length, onFalse.length), function _ifElse() {\n    return condition.apply(this, arguments) ? onTrue.apply(this, arguments) : onFalse.apply(this, arguments);\n  });\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/ifElse.js\n// module id = 175\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/ifElse.js?");
+
+/***/ }),
+/* 176 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar add = __webpack_require__(27);\n\n/**\n * Increments its argument.\n *\n * @func\n * @memberOf R\n * @since v0.9.0\n * @category Math\n * @sig Number -> Number\n * @param {Number} n\n * @return {Number} n + 1\n * @see R.dec\n * @example\n *\n *      R.inc(42); //=> 43\n */\nmodule.exports = add(1);\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/inc.js\n// module id = 176\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/inc.js?");
+
+/***/ }),
+/* 177 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar reduceBy = __webpack_require__(39);\n\n/**\n * Given a function that generates a key, turns a list of objects into an\n * object indexing the objects by the given key. Note that if multiple\n * objects generate the same value for the indexing key only the last value\n * will be included in the generated object.\n *\n * Acts as a transducer if a transformer is given in list position.\n *\n * @func\n * @memberOf R\n * @since v0.19.0\n * @category List\n * @sig (a -> String) -> [{k: v}] -> {k: {k: v}}\n * @param {Function} fn Function :: a -> String\n * @param {Array} array The array of objects to index\n * @return {Object} An object indexing each array element by the given property.\n * @example\n *\n *      var list = [{id: 'xyz', title: 'A'}, {id: 'abc', title: 'B'}];\n *      R.indexBy(R.prop('id'), list);\n *      //=> {abc: {id: 'abc', title: 'B'}, xyz: {id: 'xyz', title: 'A'}}\n */\nmodule.exports = reduceBy(function (acc, elem) {\n  return elem;\n}, null);\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/indexBy.js\n// module id = 177\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/indexBy.js?");
+
+/***/ }),
+/* 178 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\nvar _indexOf = __webpack_require__(80);\nvar _isArray = __webpack_require__(14);\n\n/**\n * Returns the position of the first occurrence of an item in an array, or -1\n * if the item is not included in the array. `R.equals` is used to determine\n * equality.\n *\n * @func\n * @memberOf R\n * @since v0.1.0\n * @category List\n * @sig a -> [a] -> Number\n * @param {*} target The item to find.\n * @param {Array} xs The array to search in.\n * @return {Number} the index of the target, or -1 if the target is not found.\n * @see R.lastIndexOf\n * @example\n *\n *      R.indexOf(3, [1,2,3,4]); //=> 2\n *      R.indexOf(10, [1,2,3,4]); //=> -1\n */\nmodule.exports = _curry2(function indexOf(target, xs) {\n  return typeof xs.indexOf === 'function' && !_isArray(xs) ? xs.indexOf(target) : _indexOf(xs, target, 0);\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/indexOf.js\n// module id = 178\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/indexOf.js?");
+
+/***/ }),
+/* 179 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar slice = __webpack_require__(17);\n\n/**\n * Returns all but the last element of the given list or string.\n *\n * @func\n * @memberOf R\n * @since v0.9.0\n * @category List\n * @sig [a] -> [a]\n * @sig String -> String\n * @param {*} list\n * @return {*}\n * @see R.last, R.head, R.tail\n * @example\n *\n *      R.init([1, 2, 3]);  //=> [1, 2]\n *      R.init([1, 2]);     //=> [1]\n *      R.init([1]);        //=> []\n *      R.init([]);         //=> []\n *\n *      R.init('abc');  //=> 'ab'\n *      R.init('ab');   //=> 'a'\n *      R.init('a');    //=> ''\n *      R.init('');     //=> ''\n */\nmodule.exports = slice(0, -1);\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/init.js\n// module id = 179\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/init.js?");
+
+/***/ }),
+/* 180 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry3 = __webpack_require__(2);\n\n/**\n * Inserts the supplied element into the list, at index `index`. _Note that\n * this is not destructive_: it returns a copy of the list with the changes.\n * <small>No lists have been harmed in the application of this function.</small>\n *\n * @func\n * @memberOf R\n * @since v0.2.2\n * @category List\n * @sig Number -> a -> [a] -> [a]\n * @param {Number} index The position to insert the element\n * @param {*} elt The element to insert into the Array\n * @param {Array} list The list to insert into\n * @return {Array} A new Array with `elt` inserted at `index`.\n * @example\n *\n *      R.insert(2, 'x', [1,2,3,4]); //=> [1,2,'x',3,4]\n */\nmodule.exports = _curry3(function insert(idx, elt, list) {\n  idx = idx < list.length && idx >= 0 ? idx : list.length;\n  var result = Array.prototype.slice.call(list, 0);\n  result.splice(idx, 0, elt);\n  return result;\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/insert.js\n// module id = 180\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/insert.js?");
+
+/***/ }),
+/* 181 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry3 = __webpack_require__(2);\n\n/**\n * Inserts the sub-list into the list, at index `index`. _Note that this is not\n * destructive_: it returns a copy of the list with the changes.\n * <small>No lists have been harmed in the application of this function.</small>\n *\n * @func\n * @memberOf R\n * @since v0.9.0\n * @category List\n * @sig Number -> [a] -> [a] -> [a]\n * @param {Number} index The position to insert the sub-list\n * @param {Array} elts The sub-list to insert into the Array\n * @param {Array} list The list to insert the sub-list into\n * @return {Array} A new Array with `elts` inserted starting at `index`.\n * @example\n *\n *      R.insertAll(2, ['x','y','z'], [1,2,3,4]); //=> [1,2,'x','y','z',3,4]\n */\nmodule.exports = _curry3(function insertAll(idx, elts, list) {\n  idx = idx < list.length && idx >= 0 ? idx : list.length;\n  return [].concat(Array.prototype.slice.call(list, 0, idx), elts, Array.prototype.slice.call(list, idx));\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/insertAll.js\n// module id = 181\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/insertAll.js?");
+
+/***/ }),
+/* 182 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _typeof = typeof Symbol === \"function\" && typeof Symbol.iterator === \"symbol\" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === \"function\" && obj.constructor === Symbol && obj !== Symbol.prototype ? \"symbol\" : typeof obj; };\n\nvar _contains = __webpack_require__(16);\n\n// A simple Set type that honours R.equals semantics\nmodule.exports = function () {\n  function _Set() {\n    /* globals Set */\n    this._nativeSet = typeof Set === 'function' ? new Set() : null;\n    this._items = {};\n  }\n\n  // until we figure out why jsdoc chokes on this\n  // @param item The item to add to the Set\n  // @returns {boolean} true if the item did not exist prior, otherwise false\n  //\n  _Set.prototype.add = function (item) {\n    return !hasOrAdd(item, true, this);\n  };\n\n  //\n  // @param item The item to check for existence in the Set\n  // @returns {boolean} true if the item exists in the Set, otherwise false\n  //\n  _Set.prototype.has = function (item) {\n    return hasOrAdd(item, false, this);\n  };\n\n  //\n  // Combines the logic for checking whether an item is a member of the set and\n  // for adding a new item to the set.\n  //\n  // @param item       The item to check or add to the Set instance.\n  // @param shouldAdd  If true, the item will be added to the set if it doesn't\n  //                   already exist.\n  // @param set        The set instance to check or add to.\n  // @return {boolean} true if the item already existed, otherwise false.\n  //\n  function hasOrAdd(item, shouldAdd, set) {\n    var type = typeof item === 'undefined' ? 'undefined' : _typeof(item);\n    var prevSize, newSize;\n    switch (type) {\n      case 'string':\n      case 'number':\n        // distinguish between +0 and -0\n        if (item === 0 && 1 / item === -Infinity) {\n          if (set._items['-0']) {\n            return true;\n          } else {\n            if (shouldAdd) {\n              set._items['-0'] = true;\n            }\n            return false;\n          }\n        }\n        // these types can all utilise the native Set\n        if (set._nativeSet !== null) {\n          if (shouldAdd) {\n            prevSize = set._nativeSet.size;\n            set._nativeSet.add(item);\n            newSize = set._nativeSet.size;\n            return newSize === prevSize;\n          } else {\n            return set._nativeSet.has(item);\n          }\n        } else {\n          if (!(type in set._items)) {\n            if (shouldAdd) {\n              set._items[type] = {};\n              set._items[type][item] = true;\n            }\n            return false;\n          } else if (item in set._items[type]) {\n            return true;\n          } else {\n            if (shouldAdd) {\n              set._items[type][item] = true;\n            }\n            return false;\n          }\n        }\n\n      case 'boolean':\n        // set._items['boolean'] holds a two element array\n        // representing [ falseExists, trueExists ]\n        if (type in set._items) {\n          var bIdx = item ? 1 : 0;\n          if (set._items[type][bIdx]) {\n            return true;\n          } else {\n            if (shouldAdd) {\n              set._items[type][bIdx] = true;\n            }\n            return false;\n          }\n        } else {\n          if (shouldAdd) {\n            set._items[type] = item ? [false, true] : [true, false];\n          }\n          return false;\n        }\n\n      case 'function':\n        // compare functions for reference equality\n        if (set._nativeSet !== null) {\n          if (shouldAdd) {\n            prevSize = set._nativeSet.size;\n            set._nativeSet.add(item);\n            newSize = set._nativeSet.size;\n            return newSize === prevSize;\n          } else {\n            return set._nativeSet.has(item);\n          }\n        } else {\n          if (!(type in set._items)) {\n            if (shouldAdd) {\n              set._items[type] = [item];\n            }\n            return false;\n          }\n          if (!_contains(item, set._items[type])) {\n            if (shouldAdd) {\n              set._items[type].push(item);\n            }\n            return false;\n          }\n          return true;\n        }\n\n      case 'undefined':\n        if (set._items[type]) {\n          return true;\n        } else {\n          if (shouldAdd) {\n            set._items[type] = true;\n          }\n          return false;\n        }\n\n      case 'object':\n        if (item === null) {\n          if (!set._items['null']) {\n            if (shouldAdd) {\n              set._items['null'] = true;\n            }\n            return false;\n          }\n          return true;\n        }\n      /* falls through */\n      default:\n        // reduce the search size of heterogeneous sets by creating buckets\n        // for each type.\n        type = Object.prototype.toString.call(item);\n        if (!(type in set._items)) {\n          if (shouldAdd) {\n            set._items[type] = [item];\n          }\n          return false;\n        }\n        // scan through all previously applied items\n        if (!_contains(item, set._items[type])) {\n          if (shouldAdd) {\n            set._items[type].push(item);\n          }\n          return false;\n        }\n        return true;\n    }\n  }\n  return _Set;\n}();\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/internal/_Set.js\n// module id = 182\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/internal/_Set.js?");
+
+/***/ }),
+/* 183 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nmodule.exports = function _aperture(n, list) {\n  var idx = 0;\n  var limit = list.length - (n - 1);\n  var acc = new Array(limit >= 0 ? limit : 0);\n  while (idx < limit) {\n    acc[idx] = Array.prototype.slice.call(list, idx, idx + n);\n    idx += 1;\n  }\n  return acc;\n};\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/internal/_aperture.js\n// module id = 183\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/internal/_aperture.js?");
+
+/***/ }),
+/* 184 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nmodule.exports = function _arrayFromIterator(iter) {\n  var list = [];\n  var next;\n  while (!(next = iter.next()).done) {\n    list.push(next.value);\n  }\n  return list;\n};\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/internal/_arrayFromIterator.js\n// module id = 184\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/internal/_arrayFromIterator.js?");
+
+/***/ }),
+/* 185 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar take = __webpack_require__(108);\n\nmodule.exports = function dropLast(n, xs) {\n  return take(n < xs.length ? xs.length - n : 0, xs);\n};\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/internal/_dropLast.js\n// module id = 185\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/internal/_dropLast.js?");
+
+/***/ }),
+/* 186 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nmodule.exports = function dropLastWhile(pred, list) {\n  var idx = list.length - 1;\n  while (idx >= 0 && pred(list[idx])) {\n    idx -= 1;\n  }\n  return Array.prototype.slice.call(list, 0, idx + 1);\n};\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/internal/_dropLastWhile.js\n// module id = 186\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/internal/_dropLastWhile.js?");
+
+/***/ }),
+/* 187 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _typeof = typeof Symbol === \"function\" && typeof Symbol.iterator === \"symbol\" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === \"function\" && obj.constructor === Symbol && obj !== Symbol.prototype ? \"symbol\" : typeof obj; };\n\nvar _arrayFromIterator = __webpack_require__(184);\nvar _functionName = __webpack_require__(190);\nvar _has = __webpack_require__(6);\nvar identical = __webpack_require__(74);\nvar keys = __webpack_require__(12);\nvar type = __webpack_require__(54);\n\nmodule.exports = function _equals(a, b, stackA, stackB) {\n  if (identical(a, b)) {\n    return true;\n  }\n\n  if (type(a) !== type(b)) {\n    return false;\n  }\n\n  if (a == null || b == null) {\n    return false;\n  }\n\n  if (typeof a.equals === 'function' || typeof b.equals === 'function') {\n    return typeof a.equals === 'function' && a.equals(b) && typeof b.equals === 'function' && b.equals(a);\n  }\n\n  switch (type(a)) {\n    case 'Arguments':\n    case 'Array':\n    case 'Object':\n      if (typeof a.constructor === 'function' && _functionName(a.constructor) === 'Promise') {\n        return a === b;\n      }\n      break;\n    case 'Boolean':\n    case 'Number':\n    case 'String':\n      if (!((typeof a === 'undefined' ? 'undefined' : _typeof(a)) === (typeof b === 'undefined' ? 'undefined' : _typeof(b)) && identical(a.valueOf(), b.valueOf()))) {\n        return false;\n      }\n      break;\n    case 'Date':\n      if (!identical(a.valueOf(), b.valueOf())) {\n        return false;\n      }\n      break;\n    case 'Error':\n      return a.name === b.name && a.message === b.message;\n    case 'RegExp':\n      if (!(a.source === b.source && a.global === b.global && a.ignoreCase === b.ignoreCase && a.multiline === b.multiline && a.sticky === b.sticky && a.unicode === b.unicode)) {\n        return false;\n      }\n      break;\n    case 'Map':\n    case 'Set':\n      if (!_equals(_arrayFromIterator(a.entries()), _arrayFromIterator(b.entries()), stackA, stackB)) {\n        return false;\n      }\n      break;\n    case 'Int8Array':\n    case 'Uint8Array':\n    case 'Uint8ClampedArray':\n    case 'Int16Array':\n    case 'Uint16Array':\n    case 'Int32Array':\n    case 'Uint32Array':\n    case 'Float32Array':\n    case 'Float64Array':\n      break;\n    case 'ArrayBuffer':\n      break;\n    default:\n      // Values of other types are only equal if identical.\n      return false;\n  }\n\n  var keysA = keys(a);\n  if (keysA.length !== keys(b).length) {\n    return false;\n  }\n\n  var idx = stackA.length - 1;\n  while (idx >= 0) {\n    if (stackA[idx] === a) {\n      return stackB[idx] === b;\n    }\n    idx -= 1;\n  }\n\n  stackA.push(a);\n  stackB.push(b);\n  idx = keysA.length - 1;\n  while (idx >= 0) {\n    var key = keysA[idx];\n    if (!(_has(key, b) && _equals(b[key], a[key], stackA, stackB))) {\n      return false;\n    }\n    idx -= 1;\n  }\n  stackA.pop();\n  stackB.pop();\n  return true;\n};\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/internal/_equals.js\n// module id = 187\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/internal/_equals.js?");
+
+/***/ }),
+/* 188 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _forceReduced = __webpack_require__(189);\nvar _reduce = __webpack_require__(8);\nvar _xfBase = __webpack_require__(4);\nvar isArrayLike = __webpack_require__(22);\n\nmodule.exports = function () {\n  var preservingReduced = function preservingReduced(xf) {\n    return {\n      '@@transducer/init': _xfBase.init,\n      '@@transducer/result': function transducerResult(result) {\n        return xf['@@transducer/result'](result);\n      },\n      '@@transducer/step': function transducerStep(result, input) {\n        var ret = xf['@@transducer/step'](result, input);\n        return ret['@@transducer/reduced'] ? _forceReduced(ret) : ret;\n      }\n    };\n  };\n\n  return function _xcat(xf) {\n    var rxf = preservingReduced(xf);\n    return {\n      '@@transducer/init': _xfBase.init,\n      '@@transducer/result': function transducerResult(result) {\n        return rxf['@@transducer/result'](result);\n      },\n      '@@transducer/step': function transducerStep(result, input) {\n        return !isArrayLike(input) ? _reduce(rxf, result, [input]) : _reduce(rxf, result, input);\n      }\n    };\n  };\n}();\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/internal/_flatCat.js\n// module id = 188\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/internal/_flatCat.js?");
+
+/***/ }),
+/* 189 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nmodule.exports = function _forceReduced(x) {\n  return {\n    '@@transducer/value': x,\n    '@@transducer/reduced': true\n  };\n};\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/internal/_forceReduced.js\n// module id = 189\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/internal/_forceReduced.js?");
+
+/***/ }),
+/* 190 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nmodule.exports = function _functionName(f) {\n  // String(x => x) evaluates to \"x => x\", so the pattern may not match.\n  var match = String(f).match(/^function (\\w*)/);\n  return match == null ? '' : match[1];\n};\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/internal/_functionName.js\n// module id = 190\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/internal/_functionName.js?");
+
+/***/ }),
+/* 191 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nmodule.exports = function _isRegExp(x) {\n  return Object.prototype.toString.call(x) === '[object RegExp]';\n};\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/internal/_isRegExp.js\n// module id = 191\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/internal/_isRegExp.js?");
+
+/***/ }),
+/* 192 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _has = __webpack_require__(6);\n\n// Based on https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/Object/assign\nmodule.exports = function _objectAssign(target) {\n  if (target == null) {\n    throw new TypeError('Cannot convert undefined or null to object');\n  }\n\n  var output = Object(target);\n  var idx = 1;\n  var length = arguments.length;\n  while (idx < length) {\n    var source = arguments[idx];\n    if (source != null) {\n      for (var nextKey in source) {\n        if (_has(nextKey, source)) {\n          output[nextKey] = source[nextKey];\n        }\n      }\n    }\n    idx += 1;\n  }\n  return output;\n};\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/internal/_objectAssign.js\n// module id = 192\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/internal/_objectAssign.js?");
+
+/***/ }),
+/* 193 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nmodule.exports = function _of(x) {\n  return [x];\n};\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/internal/_of.js\n// module id = 193\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/internal/_of.js?");
+
+/***/ }),
+/* 194 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nmodule.exports = function _pipe(f, g) {\n  return function () {\n    return g.call(this, f.apply(this, arguments));\n  };\n};\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/internal/_pipe.js\n// module id = 194\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/internal/_pipe.js?");
+
+/***/ }),
+/* 195 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nmodule.exports = function _pipeP(f, g) {\n  return function () {\n    var ctx = this;\n    return f.apply(ctx, arguments).then(function (x) {\n      return g.call(ctx, x);\n    });\n  };\n};\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/internal/_pipeP.js\n// module id = 195\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/internal/_pipeP.js?");
+
+/***/ }),
+/* 196 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nmodule.exports = function _quote(s) {\n  var escaped = s.replace(/\\\\/g, '\\\\\\\\').replace(/[\\b]/g, '\\\\b') // \\b matches word boundary; [\\b] matches backspace\n  .replace(/\\f/g, '\\\\f').replace(/\\n/g, '\\\\n').replace(/\\r/g, '\\\\r').replace(/\\t/g, '\\\\t').replace(/\\v/g, '\\\\v').replace(/\\0/g, '\\\\0');\n\n  return '\"' + escaped.replace(/\"/g, '\\\\\"') + '\"';\n};\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/internal/_quote.js\n// module id = 196\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/internal/_quote.js?");
+
+/***/ }),
+/* 197 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _typeof = typeof Symbol === \"function\" && typeof Symbol.iterator === \"symbol\" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === \"function\" && obj.constructor === Symbol && obj !== Symbol.prototype ? \"symbol\" : typeof obj; };\n\nvar _assign = __webpack_require__(48);\nvar _identity = __webpack_require__(50);\nvar _isTransformer = __webpack_require__(51);\nvar isArrayLike = __webpack_require__(22);\nvar objOf = __webpack_require__(98);\n\nmodule.exports = function () {\n  var _stepCatArray = {\n    '@@transducer/init': Array,\n    '@@transducer/step': function transducerStep(xs, x) {\n      xs.push(x);\n      return xs;\n    },\n    '@@transducer/result': _identity\n  };\n  var _stepCatString = {\n    '@@transducer/init': String,\n    '@@transducer/step': function transducerStep(a, b) {\n      return a + b;\n    },\n    '@@transducer/result': _identity\n  };\n  var _stepCatObject = {\n    '@@transducer/init': Object,\n    '@@transducer/step': function transducerStep(result, input) {\n      return _assign(result, isArrayLike(input) ? objOf(input[0], input[1]) : input);\n    },\n    '@@transducer/result': _identity\n  };\n\n  return function _stepCat(obj) {\n    if (_isTransformer(obj)) {\n      return obj;\n    }\n    if (isArrayLike(obj)) {\n      return _stepCatArray;\n    }\n    if (typeof obj === 'string') {\n      return _stepCatString;\n    }\n    if ((typeof obj === 'undefined' ? 'undefined' : _typeof(obj)) === 'object') {\n      return _stepCatObject;\n    }\n    throw new Error('Cannot create transformer for ' + obj);\n  };\n}();\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/internal/_stepCat.js\n// module id = 197\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/internal/_stepCat.js?");
+
+/***/ }),
+/* 198 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\n/**\n * Polyfill from <https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/toISOString>.\n */\nmodule.exports = function () {\n  var pad = function pad(n) {\n    return (n < 10 ? '0' : '') + n;\n  };\n\n  return typeof Date.prototype.toISOString === 'function' ? function _toISOString(d) {\n    return d.toISOString();\n  } : function _toISOString(d) {\n    return d.getUTCFullYear() + '-' + pad(d.getUTCMonth() + 1) + '-' + pad(d.getUTCDate()) + 'T' + pad(d.getUTCHours()) + ':' + pad(d.getUTCMinutes()) + ':' + pad(d.getUTCSeconds()) + '.' + (d.getUTCMilliseconds() / 1000).toFixed(3).slice(2, 5) + 'Z';\n  };\n}();\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/internal/_toISOString.js\n// module id = 198\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/internal/_toISOString.js?");
+
+/***/ }),
+/* 199 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _typeof = typeof Symbol === \"function\" && typeof Symbol.iterator === \"symbol\" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === \"function\" && obj.constructor === Symbol && obj !== Symbol.prototype ? \"symbol\" : typeof obj; };\n\nvar _contains = __webpack_require__(16);\nvar _map = __webpack_require__(35);\nvar _quote = __webpack_require__(196);\nvar _toISOString = __webpack_require__(198);\nvar keys = __webpack_require__(12);\nvar reject = __webpack_require__(40);\n\nmodule.exports = function _toString(x, seen) {\n  var recur = function recur(y) {\n    var xs = seen.concat([x]);\n    return _contains(y, xs) ? '<Circular>' : _toString(y, xs);\n  };\n\n  //  mapPairs :: (Object, [String]) -> [String]\n  var mapPairs = function mapPairs(obj, keys) {\n    return _map(function (k) {\n      return _quote(k) + ': ' + recur(obj[k]);\n    }, keys.slice().sort());\n  };\n\n  switch (Object.prototype.toString.call(x)) {\n    case '[object Arguments]':\n      return '(function() { return arguments; }(' + _map(recur, x).join(', ') + '))';\n    case '[object Array]':\n      return '[' + _map(recur, x).concat(mapPairs(x, reject(function (k) {\n        return (/^\\d+$/.test(k)\n        );\n      }, keys(x)))).join(', ') + ']';\n    case '[object Boolean]':\n      return (typeof x === 'undefined' ? 'undefined' : _typeof(x)) === 'object' ? 'new Boolean(' + recur(x.valueOf()) + ')' : x.toString();\n    case '[object Date]':\n      return 'new Date(' + (isNaN(x.valueOf()) ? recur(NaN) : _quote(_toISOString(x))) + ')';\n    case '[object Null]':\n      return 'null';\n    case '[object Number]':\n      return (typeof x === 'undefined' ? 'undefined' : _typeof(x)) === 'object' ? 'new Number(' + recur(x.valueOf()) + ')' : 1 / x === -Infinity ? '-0' : x.toString(10);\n    case '[object String]':\n      return (typeof x === 'undefined' ? 'undefined' : _typeof(x)) === 'object' ? 'new String(' + recur(x.valueOf()) + ')' : _quote(x);\n    case '[object Undefined]':\n      return 'undefined';\n    default:\n      if (typeof x.toString === 'function') {\n        var repr = x.toString();\n        if (repr !== '[object Object]') {\n          return repr;\n        }\n      }\n      return '{' + mapPairs(x, keys(x)).join(', ') + '}';\n  }\n};\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/internal/_toString.js\n// module id = 199\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/internal/_toString.js?");
+
+/***/ }),
+/* 200 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\nvar _reduced = __webpack_require__(15);\nvar _xfBase = __webpack_require__(4);\n\nmodule.exports = function () {\n  function XAll(f, xf) {\n    this.xf = xf;\n    this.f = f;\n    this.all = true;\n  }\n  XAll.prototype['@@transducer/init'] = _xfBase.init;\n  XAll.prototype['@@transducer/result'] = function (result) {\n    if (this.all) {\n      result = this.xf['@@transducer/step'](result, true);\n    }\n    return this.xf['@@transducer/result'](result);\n  };\n  XAll.prototype['@@transducer/step'] = function (result, input) {\n    if (!this.f(input)) {\n      this.all = false;\n      result = _reduced(this.xf['@@transducer/step'](result, false));\n    }\n    return result;\n  };\n\n  return _curry2(function _xall(f, xf) {\n    return new XAll(f, xf);\n  });\n}();\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/internal/_xall.js\n// module id = 200\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/internal/_xall.js?");
+
+/***/ }),
+/* 201 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _concat = __webpack_require__(9);\nvar _curry2 = __webpack_require__(0);\nvar _xfBase = __webpack_require__(4);\n\nmodule.exports = function () {\n  function XAperture(n, xf) {\n    this.xf = xf;\n    this.pos = 0;\n    this.full = false;\n    this.acc = new Array(n);\n  }\n  XAperture.prototype['@@transducer/init'] = _xfBase.init;\n  XAperture.prototype['@@transducer/result'] = function (result) {\n    this.acc = null;\n    return this.xf['@@transducer/result'](result);\n  };\n  XAperture.prototype['@@transducer/step'] = function (result, input) {\n    this.store(input);\n    return this.full ? this.xf['@@transducer/step'](result, this.getCopy()) : result;\n  };\n  XAperture.prototype.store = function (input) {\n    this.acc[this.pos] = input;\n    this.pos += 1;\n    if (this.pos === this.acc.length) {\n      this.pos = 0;\n      this.full = true;\n    }\n  };\n  XAperture.prototype.getCopy = function () {\n    return _concat(Array.prototype.slice.call(this.acc, this.pos), Array.prototype.slice.call(this.acc, 0, this.pos));\n  };\n\n  return _curry2(function _xaperture(n, xf) {\n    return new XAperture(n, xf);\n  });\n}();\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/internal/_xaperture.js\n// module id = 201\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/internal/_xaperture.js?");
+
+/***/ }),
+/* 202 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\nvar _flatCat = __webpack_require__(188);\nvar map = __webpack_require__(7);\n\nmodule.exports = _curry2(function _xchain(f, xf) {\n  return map(f, _flatCat(xf));\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/internal/_xchain.js\n// module id = 202\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/internal/_xchain.js?");
+
+/***/ }),
+/* 203 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\nvar _xfBase = __webpack_require__(4);\n\nmodule.exports = function () {\n  function XDrop(n, xf) {\n    this.xf = xf;\n    this.n = n;\n  }\n  XDrop.prototype['@@transducer/init'] = _xfBase.init;\n  XDrop.prototype['@@transducer/result'] = _xfBase.result;\n  XDrop.prototype['@@transducer/step'] = function (result, input) {\n    if (this.n > 0) {\n      this.n -= 1;\n      return result;\n    }\n    return this.xf['@@transducer/step'](result, input);\n  };\n\n  return _curry2(function _xdrop(n, xf) {\n    return new XDrop(n, xf);\n  });\n}();\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/internal/_xdrop.js\n// module id = 203\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/internal/_xdrop.js?");
+
+/***/ }),
+/* 204 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\nvar _xfBase = __webpack_require__(4);\n\nmodule.exports = function () {\n  function XDropLast(n, xf) {\n    this.xf = xf;\n    this.pos = 0;\n    this.full = false;\n    this.acc = new Array(n);\n  }\n  XDropLast.prototype['@@transducer/init'] = _xfBase.init;\n  XDropLast.prototype['@@transducer/result'] = function (result) {\n    this.acc = null;\n    return this.xf['@@transducer/result'](result);\n  };\n  XDropLast.prototype['@@transducer/step'] = function (result, input) {\n    if (this.full) {\n      result = this.xf['@@transducer/step'](result, this.acc[this.pos]);\n    }\n    this.store(input);\n    return result;\n  };\n  XDropLast.prototype.store = function (input) {\n    this.acc[this.pos] = input;\n    this.pos += 1;\n    if (this.pos === this.acc.length) {\n      this.pos = 0;\n      this.full = true;\n    }\n  };\n\n  return _curry2(function _xdropLast(n, xf) {\n    return new XDropLast(n, xf);\n  });\n}();\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/internal/_xdropLast.js\n// module id = 204\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/internal/_xdropLast.js?");
+
+/***/ }),
+/* 205 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\nvar _reduce = __webpack_require__(8);\nvar _xfBase = __webpack_require__(4);\n\nmodule.exports = function () {\n  function XDropLastWhile(fn, xf) {\n    this.f = fn;\n    this.retained = [];\n    this.xf = xf;\n  }\n  XDropLastWhile.prototype['@@transducer/init'] = _xfBase.init;\n  XDropLastWhile.prototype['@@transducer/result'] = function (result) {\n    this.retained = null;\n    return this.xf['@@transducer/result'](result);\n  };\n  XDropLastWhile.prototype['@@transducer/step'] = function (result, input) {\n    return this.f(input) ? this.retain(result, input) : this.flush(result, input);\n  };\n  XDropLastWhile.prototype.flush = function (result, input) {\n    result = _reduce(this.xf['@@transducer/step'], result, this.retained);\n    this.retained = [];\n    return this.xf['@@transducer/step'](result, input);\n  };\n  XDropLastWhile.prototype.retain = function (result, input) {\n    this.retained.push(input);\n    return result;\n  };\n\n  return _curry2(function _xdropLastWhile(fn, xf) {\n    return new XDropLastWhile(fn, xf);\n  });\n}();\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/internal/_xdropLastWhile.js\n// module id = 205\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/internal/_xdropLastWhile.js?");
+
+/***/ }),
+/* 206 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\nvar _xfBase = __webpack_require__(4);\n\nmodule.exports = function () {\n  function XDropWhile(f, xf) {\n    this.xf = xf;\n    this.f = f;\n  }\n  XDropWhile.prototype['@@transducer/init'] = _xfBase.init;\n  XDropWhile.prototype['@@transducer/result'] = _xfBase.result;\n  XDropWhile.prototype['@@transducer/step'] = function (result, input) {\n    if (this.f) {\n      if (this.f(input)) {\n        return result;\n      }\n      this.f = null;\n    }\n    return this.xf['@@transducer/step'](result, input);\n  };\n\n  return _curry2(function _xdropWhile(f, xf) {\n    return new XDropWhile(f, xf);\n  });\n}();\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/internal/_xdropWhile.js\n// module id = 206\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/internal/_xdropWhile.js?");
+
+/***/ }),
+/* 207 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\nvar _xfBase = __webpack_require__(4);\n\nmodule.exports = function () {\n  function XFilter(f, xf) {\n    this.xf = xf;\n    this.f = f;\n  }\n  XFilter.prototype['@@transducer/init'] = _xfBase.init;\n  XFilter.prototype['@@transducer/result'] = _xfBase.result;\n  XFilter.prototype['@@transducer/step'] = function (result, input) {\n    return this.f(input) ? this.xf['@@transducer/step'](result, input) : result;\n  };\n\n  return _curry2(function _xfilter(f, xf) {\n    return new XFilter(f, xf);\n  });\n}();\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/internal/_xfilter.js\n// module id = 207\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/internal/_xfilter.js?");
+
+/***/ }),
+/* 208 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\nvar _reduced = __webpack_require__(15);\nvar _xfBase = __webpack_require__(4);\n\nmodule.exports = function () {\n  function XFind(f, xf) {\n    this.xf = xf;\n    this.f = f;\n    this.found = false;\n  }\n  XFind.prototype['@@transducer/init'] = _xfBase.init;\n  XFind.prototype['@@transducer/result'] = function (result) {\n    if (!this.found) {\n      result = this.xf['@@transducer/step'](result, void 0);\n    }\n    return this.xf['@@transducer/result'](result);\n  };\n  XFind.prototype['@@transducer/step'] = function (result, input) {\n    if (this.f(input)) {\n      this.found = true;\n      result = _reduced(this.xf['@@transducer/step'](result, input));\n    }\n    return result;\n  };\n\n  return _curry2(function _xfind(f, xf) {\n    return new XFind(f, xf);\n  });\n}();\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/internal/_xfind.js\n// module id = 208\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/internal/_xfind.js?");
+
+/***/ }),
+/* 209 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\nvar _reduced = __webpack_require__(15);\nvar _xfBase = __webpack_require__(4);\n\nmodule.exports = function () {\n  function XFindIndex(f, xf) {\n    this.xf = xf;\n    this.f = f;\n    this.idx = -1;\n    this.found = false;\n  }\n  XFindIndex.prototype['@@transducer/init'] = _xfBase.init;\n  XFindIndex.prototype['@@transducer/result'] = function (result) {\n    if (!this.found) {\n      result = this.xf['@@transducer/step'](result, -1);\n    }\n    return this.xf['@@transducer/result'](result);\n  };\n  XFindIndex.prototype['@@transducer/step'] = function (result, input) {\n    this.idx += 1;\n    if (this.f(input)) {\n      this.found = true;\n      result = _reduced(this.xf['@@transducer/step'](result, this.idx));\n    }\n    return result;\n  };\n\n  return _curry2(function _xfindIndex(f, xf) {\n    return new XFindIndex(f, xf);\n  });\n}();\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/internal/_xfindIndex.js\n// module id = 209\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/internal/_xfindIndex.js?");
+
+/***/ }),
+/* 210 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\nvar _xfBase = __webpack_require__(4);\n\nmodule.exports = function () {\n  function XFindLast(f, xf) {\n    this.xf = xf;\n    this.f = f;\n  }\n  XFindLast.prototype['@@transducer/init'] = _xfBase.init;\n  XFindLast.prototype['@@transducer/result'] = function (result) {\n    return this.xf['@@transducer/result'](this.xf['@@transducer/step'](result, this.last));\n  };\n  XFindLast.prototype['@@transducer/step'] = function (result, input) {\n    if (this.f(input)) {\n      this.last = input;\n    }\n    return result;\n  };\n\n  return _curry2(function _xfindLast(f, xf) {\n    return new XFindLast(f, xf);\n  });\n}();\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/internal/_xfindLast.js\n// module id = 210\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/internal/_xfindLast.js?");
+
+/***/ }),
+/* 211 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\nvar _xfBase = __webpack_require__(4);\n\nmodule.exports = function () {\n  function XFindLastIndex(f, xf) {\n    this.xf = xf;\n    this.f = f;\n    this.idx = -1;\n    this.lastIdx = -1;\n  }\n  XFindLastIndex.prototype['@@transducer/init'] = _xfBase.init;\n  XFindLastIndex.prototype['@@transducer/result'] = function (result) {\n    return this.xf['@@transducer/result'](this.xf['@@transducer/step'](result, this.lastIdx));\n  };\n  XFindLastIndex.prototype['@@transducer/step'] = function (result, input) {\n    this.idx += 1;\n    if (this.f(input)) {\n      this.lastIdx = this.idx;\n    }\n    return result;\n  };\n\n  return _curry2(function _xfindLastIndex(f, xf) {\n    return new XFindLastIndex(f, xf);\n  });\n}();\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/internal/_xfindLastIndex.js\n// module id = 211\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/internal/_xfindLastIndex.js?");
+
+/***/ }),
+/* 212 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\nvar _xfBase = __webpack_require__(4);\n\nmodule.exports = function () {\n  function XMap(f, xf) {\n    this.xf = xf;\n    this.f = f;\n  }\n  XMap.prototype['@@transducer/init'] = _xfBase.init;\n  XMap.prototype['@@transducer/result'] = _xfBase.result;\n  XMap.prototype['@@transducer/step'] = function (result, input) {\n    return this.xf['@@transducer/step'](result, this.f(input));\n  };\n\n  return _curry2(function _xmap(f, xf) {\n    return new XMap(f, xf);\n  });\n}();\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/internal/_xmap.js\n// module id = 212\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/internal/_xmap.js?");
+
+/***/ }),
+/* 213 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curryN = __webpack_require__(31);\nvar _has = __webpack_require__(6);\nvar _xfBase = __webpack_require__(4);\n\nmodule.exports = function () {\n  function XReduceBy(valueFn, valueAcc, keyFn, xf) {\n    this.valueFn = valueFn;\n    this.valueAcc = valueAcc;\n    this.keyFn = keyFn;\n    this.xf = xf;\n    this.inputs = {};\n  }\n  XReduceBy.prototype['@@transducer/init'] = _xfBase.init;\n  XReduceBy.prototype['@@transducer/result'] = function (result) {\n    var key;\n    for (key in this.inputs) {\n      if (_has(key, this.inputs)) {\n        result = this.xf['@@transducer/step'](result, this.inputs[key]);\n        if (result['@@transducer/reduced']) {\n          result = result['@@transducer/value'];\n          break;\n        }\n      }\n    }\n    this.inputs = null;\n    return this.xf['@@transducer/result'](result);\n  };\n  XReduceBy.prototype['@@transducer/step'] = function (result, input) {\n    var key = this.keyFn(input);\n    this.inputs[key] = this.inputs[key] || [key, this.valueAcc];\n    this.inputs[key][1] = this.valueFn(this.inputs[key][1], input);\n    return result;\n  };\n\n  return _curryN(4, [], function _xreduceBy(valueFn, valueAcc, keyFn, xf) {\n    return new XReduceBy(valueFn, valueAcc, keyFn, xf);\n  });\n}();\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/internal/_xreduceBy.js\n// module id = 213\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/internal/_xreduceBy.js?");
+
+/***/ }),
+/* 214 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\nvar _reduced = __webpack_require__(15);\nvar _xfBase = __webpack_require__(4);\n\nmodule.exports = function () {\n  function XTake(n, xf) {\n    this.xf = xf;\n    this.n = n;\n    this.i = 0;\n  }\n  XTake.prototype['@@transducer/init'] = _xfBase.init;\n  XTake.prototype['@@transducer/result'] = _xfBase.result;\n  XTake.prototype['@@transducer/step'] = function (result, input) {\n    this.i += 1;\n    var ret = this.n === 0 ? result : this.xf['@@transducer/step'](result, input);\n    return this.i >= this.n ? _reduced(ret) : ret;\n  };\n\n  return _curry2(function _xtake(n, xf) {\n    return new XTake(n, xf);\n  });\n}();\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/internal/_xtake.js\n// module id = 214\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/internal/_xtake.js?");
+
+/***/ }),
+/* 215 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\nvar _reduced = __webpack_require__(15);\nvar _xfBase = __webpack_require__(4);\n\nmodule.exports = function () {\n  function XTakeWhile(f, xf) {\n    this.xf = xf;\n    this.f = f;\n  }\n  XTakeWhile.prototype['@@transducer/init'] = _xfBase.init;\n  XTakeWhile.prototype['@@transducer/result'] = _xfBase.result;\n  XTakeWhile.prototype['@@transducer/step'] = function (result, input) {\n    return this.f(input) ? this.xf['@@transducer/step'](result, input) : _reduced(result);\n  };\n\n  return _curry2(function _xtakeWhile(f, xf) {\n    return new XTakeWhile(f, xf);\n  });\n}();\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/internal/_xtakeWhile.js\n// module id = 215\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/internal/_xtakeWhile.js?");
+
+/***/ }),
+/* 216 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _contains = __webpack_require__(16);\nvar _curry2 = __webpack_require__(0);\nvar _filter = __webpack_require__(79);\nvar flip = __webpack_require__(30);\nvar uniq = __webpack_require__(55);\n\n/**\n * Combines two lists into a set (i.e. no duplicates) composed of those\n * elements common to both lists.\n *\n * @func\n * @memberOf R\n * @since v0.1.0\n * @category Relation\n * @sig [*] -> [*] -> [*]\n * @param {Array} list1 The first list.\n * @param {Array} list2 The second list.\n * @return {Array} The list of elements found in both `list1` and `list2`.\n * @see R.intersectionWith\n * @example\n *\n *      R.intersection([1,2,3,4], [7,6,5,4,3]); //=> [4, 3]\n */\nmodule.exports = _curry2(function intersection(list1, list2) {\n  var lookupList, filteredList;\n  if (list1.length > list2.length) {\n    lookupList = list1;\n    filteredList = list2;\n  } else {\n    lookupList = list2;\n    filteredList = list1;\n  }\n  return uniq(_filter(flip(_contains)(lookupList), filteredList));\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/intersection.js\n// module id = 216\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/intersection.js?");
+
+/***/ }),
+/* 217 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _containsWith = __webpack_require__(49);\nvar _curry3 = __webpack_require__(2);\nvar uniqWith = __webpack_require__(56);\n\n/**\n * Combines two lists into a set (i.e. no duplicates) composed of those\n * elements common to both lists. Duplication is determined according to the\n * value returned by applying the supplied predicate to two list elements.\n *\n * @func\n * @memberOf R\n * @since v0.1.0\n * @category Relation\n * @sig ((a, a) -> Boolean) -> [a] -> [a] -> [a]\n * @param {Function} pred A predicate function that determines whether\n *        the two supplied elements are equal.\n * @param {Array} list1 One list of items to compare\n * @param {Array} list2 A second list of items to compare\n * @return {Array} A new list containing those elements common to both lists.\n * @see R.intersection\n * @example\n *\n *      var buffaloSpringfield = [\n *        {id: 824, name: 'Richie Furay'},\n *        {id: 956, name: 'Dewey Martin'},\n *        {id: 313, name: 'Bruce Palmer'},\n *        {id: 456, name: 'Stephen Stills'},\n *        {id: 177, name: 'Neil Young'}\n *      ];\n *      var csny = [\n *        {id: 204, name: 'David Crosby'},\n *        {id: 456, name: 'Stephen Stills'},\n *        {id: 539, name: 'Graham Nash'},\n *        {id: 177, name: 'Neil Young'}\n *      ];\n *\n *      R.intersectionWith(R.eqBy(R.prop('id')), buffaloSpringfield, csny);\n *      //=> [{id: 456, name: 'Stephen Stills'}, {id: 177, name: 'Neil Young'}]\n */\nmodule.exports = _curry3(function intersectionWith(pred, list1, list2) {\n  var lookupList, filteredList;\n  if (list1.length > list2.length) {\n    lookupList = list1;\n    filteredList = list2;\n  } else {\n    lookupList = list2;\n    filteredList = list1;\n  }\n  var results = [];\n  var idx = 0;\n  while (idx < filteredList.length) {\n    if (_containsWith(pred, filteredList[idx], lookupList)) {\n      results[results.length] = filteredList[idx];\n    }\n    idx += 1;\n  }\n  return uniqWith(pred, results);\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/intersectionWith.js\n// module id = 217\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/intersectionWith.js?");
+
+/***/ }),
+/* 218 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _checkForMethod = __webpack_require__(20);\nvar _curry2 = __webpack_require__(0);\n\n/**\n * Creates a new list with the separator interposed between elements.\n *\n * Dispatches to the `intersperse` method of the second argument, if present.\n *\n * @func\n * @memberOf R\n * @since v0.14.0\n * @category List\n * @sig a -> [a] -> [a]\n * @param {*} separator The element to add to the list.\n * @param {Array} list The list to be interposed.\n * @return {Array} The new list.\n * @example\n *\n *      R.intersperse('n', ['ba', 'a', 'a']); //=> ['ba', 'n', 'a', 'n', 'a']\n */\nmodule.exports = _curry2(_checkForMethod('intersperse', function intersperse(separator, list) {\n  var out = [];\n  var idx = 0;\n  var length = list.length;\n  while (idx < length) {\n    if (idx === length - 1) {\n      out.push(list[idx]);\n    } else {\n      out.push(list[idx], separator);\n    }\n    idx += 1;\n  }\n  return out;\n}));\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/intersperse.js\n// module id = 218\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/intersperse.js?");
+
+/***/ }),
+/* 219 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _clone = __webpack_require__(75);\nvar _curry3 = __webpack_require__(2);\nvar _isTransformer = __webpack_require__(51);\nvar _reduce = __webpack_require__(8);\nvar _stepCat = __webpack_require__(197);\n\n/**\n * Transforms the items of the list with the transducer and appends the\n * transformed items to the accumulator using an appropriate iterator function\n * based on the accumulator type.\n *\n * The accumulator can be an array, string, object or a transformer. Iterated\n * items will be appended to arrays and concatenated to strings. Objects will\n * be merged directly or 2-item arrays will be merged as key, value pairs.\n *\n * The accumulator can also be a transformer object that provides a 2-arity\n * reducing iterator function, step, 0-arity initial value function, init, and\n * 1-arity result extraction function result. The step function is used as the\n * iterator function in reduce. The result function is used to convert the\n * final accumulator into the return type and in most cases is R.identity. The\n * init function is used to provide the initial accumulator.\n *\n * The iteration is performed with R.reduce after initializing the transducer.\n *\n * @func\n * @memberOf R\n * @since v0.12.0\n * @category List\n * @sig a -> (b -> b) -> [c] -> a\n * @param {*} acc The initial accumulator value.\n * @param {Function} xf The transducer function. Receives a transformer and returns a transformer.\n * @param {Array} list The list to iterate over.\n * @return {*} The final, accumulated value.\n * @example\n *\n *      var numbers = [1, 2, 3, 4];\n *      var transducer = R.compose(R.map(R.add(1)), R.take(2));\n *\n *      R.into([], transducer, numbers); //=> [2, 3]\n *\n *      var intoArray = R.into([]);\n *      intoArray(transducer, numbers); //=> [2, 3]\n */\nmodule.exports = _curry3(function into(acc, xf, list) {\n  return _isTransformer(acc) ? _reduce(xf(acc), acc['@@transducer/init'](), list) : _reduce(xf(_stepCat(acc)), _clone(acc, [], [], false), list);\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/into.js\n// module id = 219\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/into.js?");
+
+/***/ }),
+/* 220 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry1 = __webpack_require__(1);\nvar _has = __webpack_require__(6);\nvar keys = __webpack_require__(12);\n\n/**\n * Same as R.invertObj, however this accounts for objects with duplicate values\n * by putting the values into an array.\n *\n * @func\n * @memberOf R\n * @since v0.9.0\n * @category Object\n * @sig {s: x} -> {x: [ s, ... ]}\n * @param {Object} obj The object or array to invert\n * @return {Object} out A new object with keys\n * in an array.\n * @example\n *\n *      var raceResultsByFirstName = {\n *        first: 'alice',\n *        second: 'jake',\n *        third: 'alice',\n *      };\n *      R.invert(raceResultsByFirstName);\n *      //=> { 'alice': ['first', 'third'], 'jake':['second'] }\n */\nmodule.exports = _curry1(function invert(obj) {\n  var props = keys(obj);\n  var len = props.length;\n  var idx = 0;\n  var out = {};\n\n  while (idx < len) {\n    var key = props[idx];\n    var val = obj[key];\n    var list = _has(val, out) ? out[val] : out[val] = [];\n    list[list.length] = key;\n    idx += 1;\n  }\n  return out;\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/invert.js\n// module id = 220\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/invert.js?");
+
+/***/ }),
+/* 221 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry1 = __webpack_require__(1);\nvar keys = __webpack_require__(12);\n\n/**\n * Returns a new object with the keys of the given object as values, and the\n * values of the given object, which are coerced to strings, as keys. Note\n * that the last key found is preferred when handling the same value.\n *\n * @func\n * @memberOf R\n * @since v0.9.0\n * @category Object\n * @sig {s: x} -> {x: s}\n * @param {Object} obj The object or array to invert\n * @return {Object} out A new object\n * @example\n *\n *      var raceResults = {\n *        first: 'alice',\n *        second: 'jake'\n *      };\n *      R.invertObj(raceResults);\n *      //=> { 'alice': 'first', 'jake':'second' }\n *\n *      // Alternatively:\n *      var raceResults = ['alice', 'jake'];\n *      R.invertObj(raceResults);\n *      //=> { 'alice': '0', 'jake':'1' }\n */\nmodule.exports = _curry1(function invertObj(obj) {\n  var props = keys(obj);\n  var len = props.length;\n  var idx = 0;\n  var out = {};\n\n  while (idx < len) {\n    var key = props[idx];\n    out[obj[key]] = key;\n    idx += 1;\n  }\n  return out;\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/invertObj.js\n// module id = 221\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/invertObj.js?");
+
+/***/ }),
+/* 222 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry1 = __webpack_require__(1);\nvar empty = __webpack_require__(73);\nvar equals = __webpack_require__(10);\n\n/**\n * Returns `true` if the given value is its type's empty value; `false`\n * otherwise.\n *\n * @func\n * @memberOf R\n * @since v0.1.0\n * @category Logic\n * @sig a -> Boolean\n * @param {*} x\n * @return {Boolean}\n * @see R.empty\n * @example\n *\n *      R.isEmpty([1, 2, 3]);   //=> false\n *      R.isEmpty([]);          //=> true\n *      R.isEmpty('');          //=> true\n *      R.isEmpty(null);        //=> false\n *      R.isEmpty({});          //=> true\n *      R.isEmpty({length: 0}); //=> false\n */\nmodule.exports = _curry1(function isEmpty(x) {\n  return x != null && equals(x, empty(x));\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/isEmpty.js\n// module id = 222\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/isEmpty.js?");
+
+/***/ }),
+/* 223 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry1 = __webpack_require__(1);\n\n/**\n * Checks if the input value is `null` or `undefined`.\n *\n * @func\n * @memberOf R\n * @since v0.9.0\n * @category Type\n * @sig * -> Boolean\n * @param {*} x The value to test.\n * @return {Boolean} `true` if `x` is `undefined` or `null`, otherwise `false`.\n * @example\n *\n *      R.isNil(null); //=> true\n *      R.isNil(undefined); //=> true\n *      R.isNil(0); //=> false\n *      R.isNil([]); //=> false\n */\nmodule.exports = _curry1(function isNil(x) {\n  return x == null;\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/isNil.js\n// module id = 223\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/isNil.js?");
+
+/***/ }),
+/* 224 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar invoker = __webpack_require__(21);\n\n/**\n * Returns a string made by inserting the `separator` between each element and\n * concatenating all the elements into a single string.\n *\n * @func\n * @memberOf R\n * @since v0.1.0\n * @category List\n * @sig String -> [a] -> String\n * @param {Number|String} separator The string used to separate the elements.\n * @param {Array} xs The elements to join into a string.\n * @return {String} str The string made by concatenating `xs` with `separator`.\n * @see R.split\n * @example\n *\n *      var spacer = R.join(' ');\n *      spacer(['a', 2, 3.4]);   //=> 'a 2 3.4'\n *      R.join('|', [1, 2, 3]);    //=> '1|2|3'\n */\nmodule.exports = invoker(1, 'join');\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/join.js\n// module id = 224\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/join.js?");
+
+/***/ }),
+/* 225 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry1 = __webpack_require__(1);\n\n/**\n * Returns a list containing the names of all the properties of the supplied\n * object, including prototype properties.\n * Note that the order of the output array is not guaranteed to be consistent\n * across different JS platforms.\n *\n * @func\n * @memberOf R\n * @since v0.2.0\n * @category Object\n * @sig {k: v} -> [k]\n * @param {Object} obj The object to extract properties from\n * @return {Array} An array of the object's own and prototype properties.\n * @example\n *\n *      var F = function() { this.x = 'X'; };\n *      F.prototype.y = 'Y';\n *      var f = new F();\n *      R.keysIn(f); //=> ['x', 'y']\n */\nmodule.exports = _curry1(function keysIn(obj) {\n  var prop;\n  var ks = [];\n  for (prop in obj) {\n    ks[ks.length] = prop;\n  }\n  return ks;\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/keysIn.js\n// module id = 225\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/keysIn.js?");
+
+/***/ }),
+/* 226 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\nvar _isArray = __webpack_require__(14);\nvar equals = __webpack_require__(10);\n\n/**\n * Returns the position of the last occurrence of an item in an array, or -1 if\n * the item is not included in the array. `R.equals` is used to determine\n * equality.\n *\n * @func\n * @memberOf R\n * @since v0.1.0\n * @category List\n * @sig a -> [a] -> Number\n * @param {*} target The item to find.\n * @param {Array} xs The array to search in.\n * @return {Number} the index of the target, or -1 if the target is not found.\n * @see R.indexOf\n * @example\n *\n *      R.lastIndexOf(3, [-1,3,3,0,1,2,3,4]); //=> 6\n *      R.lastIndexOf(10, [1,2,3,4]); //=> -1\n */\nmodule.exports = _curry2(function lastIndexOf(target, xs) {\n  if (typeof xs.lastIndexOf === 'function' && !_isArray(xs)) {\n    return xs.lastIndexOf(target);\n  } else {\n    var idx = xs.length - 1;\n    while (idx >= 0) {\n      if (equals(xs[idx], target)) {\n        return idx;\n      }\n      idx -= 1;\n    }\n    return -1;\n  }\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/lastIndexOf.js\n// module id = 226\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/lastIndexOf.js?");
+
+/***/ }),
+/* 227 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry1 = __webpack_require__(1);\nvar lens = __webpack_require__(36);\nvar nth = __webpack_require__(23);\nvar update = __webpack_require__(111);\n\n/**\n * Returns a lens whose focus is the specified index.\n *\n * @func\n * @memberOf R\n * @since v0.14.0\n * @category Object\n * @typedefn Lens s a = Functor f => (a -> f a) -> s -> f s\n * @sig Number -> Lens s a\n * @param {Number} n\n * @return {Lens}\n * @see R.view, R.set, R.over\n * @example\n *\n *      var headLens = R.lensIndex(0);\n *\n *      R.view(headLens, ['a', 'b', 'c']);            //=> 'a'\n *      R.set(headLens, 'x', ['a', 'b', 'c']);        //=> ['x', 'b', 'c']\n *      R.over(headLens, R.toUpper, ['a', 'b', 'c']); //=> ['A', 'b', 'c']\n */\nmodule.exports = _curry1(function lensIndex(n) {\n  return lens(nth(n), update(n));\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/lensIndex.js\n// module id = 227\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/lensIndex.js?");
+
+/***/ }),
+/* 228 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry1 = __webpack_require__(1);\nvar assocPath = __webpack_require__(62);\nvar lens = __webpack_require__(36);\nvar path = __webpack_require__(24);\n\n/**\n * Returns a lens whose focus is the specified path.\n *\n * @func\n * @memberOf R\n * @since v0.19.0\n * @category Object\n * @typedefn Idx = String | Int\n * @typedefn Lens s a = Functor f => (a -> f a) -> s -> f s\n * @sig [Idx] -> Lens s a\n * @param {Array} path The path to use.\n * @return {Lens}\n * @see R.view, R.set, R.over\n * @example\n *\n *      var xHeadYLens = R.lensPath(['x', 0, 'y']);\n *\n *      R.view(xHeadYLens, {x: [{y: 2, z: 3}, {y: 4, z: 5}]});\n *      //=> 2\n *      R.set(xHeadYLens, 1, {x: [{y: 2, z: 3}, {y: 4, z: 5}]});\n *      //=> {x: [{y: 1, z: 3}, {y: 4, z: 5}]}\n *      R.over(xHeadYLens, R.negate, {x: [{y: 2, z: 3}, {y: 4, z: 5}]});\n *      //=> {x: [{y: -2, z: 3}, {y: 4, z: 5}]}\n */\nmodule.exports = _curry1(function lensPath(p) {\n  return lens(path(p), assocPath(p));\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/lensPath.js\n// module id = 228\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/lensPath.js?");
+
+/***/ }),
+/* 229 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry1 = __webpack_require__(1);\nvar assoc = __webpack_require__(28);\nvar lens = __webpack_require__(36);\nvar prop = __webpack_require__(52);\n\n/**\n * Returns a lens whose focus is the specified property.\n *\n * @func\n * @memberOf R\n * @since v0.14.0\n * @category Object\n * @typedefn Lens s a = Functor f => (a -> f a) -> s -> f s\n * @sig String -> Lens s a\n * @param {String} k\n * @return {Lens}\n * @see R.view, R.set, R.over\n * @example\n *\n *      var xLens = R.lensProp('x');\n *\n *      R.view(xLens, {x: 1, y: 2});            //=> 1\n *      R.set(xLens, 4, {x: 1, y: 2});          //=> {x: 4, y: 2}\n *      R.over(xLens, R.negate, {x: 1, y: 2});  //=> {x: -1, y: 2}\n */\nmodule.exports = _curry1(function lensProp(k) {\n  return lens(prop(k), assoc(k));\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/lensProp.js\n// module id = 229\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/lensProp.js?");
+
+/***/ }),
+/* 230 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\n\n/**\n * Returns `true` if the first argument is less than the second; `false`\n * otherwise.\n *\n * @func\n * @memberOf R\n * @since v0.1.0\n * @category Relation\n * @sig Ord a => a -> a -> Boolean\n * @param {*} a\n * @param {*} b\n * @return {Boolean}\n * @see R.gt\n * @example\n *\n *      R.lt(2, 1); //=> false\n *      R.lt(2, 2); //=> false\n *      R.lt(2, 3); //=> true\n *      R.lt('a', 'z'); //=> true\n *      R.lt('z', 'a'); //=> false\n */\nmodule.exports = _curry2(function lt(a, b) {\n  return a < b;\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/lt.js\n// module id = 230\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/lt.js?");
+
+/***/ }),
+/* 231 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\n\n/**\n * Returns `true` if the first argument is less than or equal to the second;\n * `false` otherwise.\n *\n * @func\n * @memberOf R\n * @since v0.1.0\n * @category Relation\n * @sig Ord a => a -> a -> Boolean\n * @param {Number} a\n * @param {Number} b\n * @return {Boolean}\n * @see R.gte\n * @example\n *\n *      R.lte(2, 1); //=> false\n *      R.lte(2, 2); //=> true\n *      R.lte(2, 3); //=> true\n *      R.lte('a', 'z'); //=> true\n *      R.lte('z', 'a'); //=> false\n */\nmodule.exports = _curry2(function lte(a, b) {\n  return a <= b;\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/lte.js\n// module id = 231\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/lte.js?");
+
+/***/ }),
+/* 232 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry3 = __webpack_require__(2);\n\n/**\n * The mapAccum function behaves like a combination of map and reduce; it\n * applies a function to each element of a list, passing an accumulating\n * parameter from left to right, and returning a final value of this\n * accumulator together with the new list.\n *\n * The iterator function receives two arguments, *acc* and *value*, and should\n * return a tuple *[acc, value]*.\n *\n * @func\n * @memberOf R\n * @since v0.10.0\n * @category List\n * @sig (acc -> x -> (acc, y)) -> acc -> [x] -> (acc, [y])\n * @param {Function} fn The function to be called on every element of the input `list`.\n * @param {*} acc The accumulator value.\n * @param {Array} list The list to iterate over.\n * @return {*} The final, accumulated value.\n * @see R.addIndex, R.mapAccumRight\n * @example\n *\n *      var digits = ['1', '2', '3', '4'];\n *      var appender = (a, b) => [a + b, a + b];\n *\n *      R.mapAccum(appender, 0, digits); //=> ['01234', ['01', '012', '0123', '01234']]\n * @symb R.mapAccum(f, a, [b, c, d]) = [\n *   f(f(f(a, b)[0], c)[0], d)[0],\n *   [\n *     f(a, b)[1],\n *     f(f(a, b)[0], c)[1],\n *     f(f(f(a, b)[0], c)[0], d)[1]\n *   ]\n * ]\n */\nmodule.exports = _curry3(function mapAccum(fn, acc, list) {\n  var idx = 0;\n  var len = list.length;\n  var result = [];\n  var tuple = [acc];\n  while (idx < len) {\n    tuple = fn(tuple[0], list[idx]);\n    result[idx] = tuple[1];\n    idx += 1;\n  }\n  return [tuple[0], result];\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/mapAccum.js\n// module id = 232\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/mapAccum.js?");
+
+/***/ }),
+/* 233 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry3 = __webpack_require__(2);\n\n/**\n * The mapAccumRight function behaves like a combination of map and reduce; it\n * applies a function to each element of a list, passing an accumulating\n * parameter from right to left, and returning a final value of this\n * accumulator together with the new list.\n *\n * Similar to `mapAccum`, except moves through the input list from the right to\n * the left.\n *\n * The iterator function receives two arguments, *value* and *acc*, and should\n * return a tuple *[value, acc]*.\n *\n * @func\n * @memberOf R\n * @since v0.10.0\n * @category List\n * @sig (x-> acc -> (y, acc)) -> acc -> [x] -> ([y], acc)\n * @param {Function} fn The function to be called on every element of the input `list`.\n * @param {*} acc The accumulator value.\n * @param {Array} list The list to iterate over.\n * @return {*} The final, accumulated value.\n * @see R.addIndex, R.mapAccum\n * @example\n *\n *      var digits = ['1', '2', '3', '4'];\n *      var append = (a, b) => [a + b, a + b];\n *\n *      R.mapAccumRight(append, 5, digits); //=> [['12345', '2345', '345', '45'], '12345']\n * @symb R.mapAccumRight(f, a, [b, c, d]) = [\n *   [\n *     f(b, f(c, f(d, a)[0])[0])[1],\n *     f(c, f(d, a)[0])[1],\n *     f(d, a)[1],\n *   ]\n *   f(b, f(c, f(d, a)[0])[0])[0],\n * ]\n */\nmodule.exports = _curry3(function mapAccumRight(fn, acc, list) {\n  var idx = list.length - 1;\n  var result = [];\n  var tuple = [acc];\n  while (idx >= 0) {\n    tuple = fn(list[idx], tuple[0]);\n    result[idx] = tuple[1];\n    idx -= 1;\n  }\n  return [result, tuple[0]];\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/mapAccumRight.js\n// module id = 233\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/mapAccumRight.js?");
+
+/***/ }),
+/* 234 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\nvar _reduce = __webpack_require__(8);\nvar keys = __webpack_require__(12);\n\n/**\n * An Object-specific version of `map`. The function is applied to three\n * arguments: *(value, key, obj)*. If only the value is significant, use\n * `map` instead.\n *\n * @func\n * @memberOf R\n * @since v0.9.0\n * @category Object\n * @sig ((*, String, Object) -> *) -> Object -> Object\n * @param {Function} fn\n * @param {Object} obj\n * @return {Object}\n * @see R.map\n * @example\n *\n *      var values = { x: 1, y: 2, z: 3 };\n *      var prependKeyAndDouble = (num, key, obj) => key + (num * 2);\n *\n *      R.mapObjIndexed(prependKeyAndDouble, values); //=> { x: 'x2', y: 'y4', z: 'z6' }\n */\nmodule.exports = _curry2(function mapObjIndexed(fn, obj) {\n  return _reduce(function (acc, key) {\n    acc[key] = fn(obj[key], key, obj);\n    return acc;\n  }, {}, keys(obj));\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/mapObjIndexed.js\n// module id = 234\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/mapObjIndexed.js?");
+
+/***/ }),
+/* 235 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\n\n/**\n * Tests a regular expression against a String. Note that this function will\n * return an empty array when there are no matches. This differs from\n * [`String.prototype.match`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/match)\n * which returns `null` when there are no matches.\n *\n * @func\n * @memberOf R\n * @since v0.1.0\n * @category String\n * @sig RegExp -> String -> [String | Undefined]\n * @param {RegExp} rx A regular expression.\n * @param {String} str The string to match against\n * @return {Array} The list of matches or empty array.\n * @see R.test\n * @example\n *\n *      R.match(/([a-z]a)/g, 'bananas'); //=> ['ba', 'na', 'na']\n *      R.match(/a/, 'b'); //=> []\n *      R.match(/a/, null); //=> TypeError: null does not have a method named \"match\"\n */\nmodule.exports = _curry2(function match(rx, str) {\n  return str.match(rx) || [];\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/match.js\n// module id = 235\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/match.js?");
+
+/***/ }),
+/* 236 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\nvar _isInteger = __webpack_require__(82);\n\n/**\n * mathMod behaves like the modulo operator should mathematically, unlike the\n * `%` operator (and by extension, R.modulo). So while \"-17 % 5\" is -2,\n * mathMod(-17, 5) is 3. mathMod requires Integer arguments, and returns NaN\n * when the modulus is zero or negative.\n *\n * @func\n * @memberOf R\n * @since v0.3.0\n * @category Math\n * @sig Number -> Number -> Number\n * @param {Number} m The dividend.\n * @param {Number} p the modulus.\n * @return {Number} The result of `b mod a`.\n * @example\n *\n *      R.mathMod(-17, 5);  //=> 3\n *      R.mathMod(17, 5);   //=> 2\n *      R.mathMod(17, -5);  //=> NaN\n *      R.mathMod(17, 0);   //=> NaN\n *      R.mathMod(17.2, 5); //=> NaN\n *      R.mathMod(17, 5.3); //=> NaN\n *\n *      var clock = R.mathMod(R.__, 12);\n *      clock(15); //=> 3\n *      clock(24); //=> 0\n *\n *      var seventeenMod = R.mathMod(17);\n *      seventeenMod(3);  //=> 2\n *      seventeenMod(4);  //=> 1\n *      seventeenMod(10); //=> 7\n */\nmodule.exports = _curry2(function mathMod(m, p) {\n  if (!_isInteger(m)) {\n    return NaN;\n  }\n  if (!_isInteger(p) || p < 1) {\n    return NaN;\n  }\n  return (m % p + p) % p;\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/mathMod.js\n// module id = 236\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/mathMod.js?");
+
+/***/ }),
+/* 237 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry3 = __webpack_require__(2);\n\n/**\n * Takes a function and two values, and returns whichever value produces the\n * larger result when passed to the provided function.\n *\n * @func\n * @memberOf R\n * @since v0.8.0\n * @category Relation\n * @sig Ord b => (a -> b) -> a -> a -> a\n * @param {Function} f\n * @param {*} a\n * @param {*} b\n * @return {*}\n * @see R.max, R.minBy\n * @example\n *\n *      //  square :: Number -> Number\n *      var square = n => n * n;\n *\n *      R.maxBy(square, -3, 2); //=> -3\n *\n *      R.reduce(R.maxBy(square), 0, [3, -5, 4, 1, -2]); //=> -5\n *      R.reduce(R.maxBy(square), 0, []); //=> 0\n */\nmodule.exports = _curry3(function maxBy(f, a, b) {\n  return f(b) > f(a) ? b : a;\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/maxBy.js\n// module id = 237\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/maxBy.js?");
+
+/***/ }),
+/* 238 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry1 = __webpack_require__(1);\nvar mean = __webpack_require__(94);\n\n/**\n * Returns the median of the given list of numbers.\n *\n * @func\n * @memberOf R\n * @since v0.14.0\n * @category Math\n * @sig [Number] -> Number\n * @param {Array} list\n * @return {Number}\n * @example\n *\n *      R.median([2, 9, 7]); //=> 7\n *      R.median([7, 2, 10, 9]); //=> 8\n *      R.median([]); //=> NaN\n */\nmodule.exports = _curry1(function median(list) {\n  var len = list.length;\n  if (len === 0) {\n    return NaN;\n  }\n  var width = 2 - len % 2;\n  var idx = (len - width) / 2;\n  return mean(Array.prototype.slice.call(list, 0).sort(function (a, b) {\n    return a < b ? -1 : a > b ? 1 : 0;\n  }).slice(idx, idx + width));\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/median.js\n// module id = 238\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/median.js?");
+
+/***/ }),
+/* 239 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _arity = __webpack_require__(11);\nvar _curry1 = __webpack_require__(1);\nvar _has = __webpack_require__(6);\nvar toString = __webpack_require__(26);\n\n/**\n * Creates a new function that, when invoked, caches the result of calling `fn`\n * for a given argument set and returns the result. Subsequent calls to the\n * memoized `fn` with the same argument set will not result in an additional\n * call to `fn`; instead, the cached result for that set of arguments will be\n * returned.\n *\n * @func\n * @memberOf R\n * @since v0.1.0\n * @category Function\n * @sig (*... -> a) -> (*... -> a)\n * @param {Function} fn The function to memoize.\n * @return {Function} Memoized version of `fn`.\n * @example\n *\n *      var count = 0;\n *      var factorial = R.memoize(n => {\n *        count += 1;\n *        return R.product(R.range(1, n + 1));\n *      });\n *      factorial(5); //=> 120\n *      factorial(5); //=> 120\n *      factorial(5); //=> 120\n *      count; //=> 1\n */\nmodule.exports = _curry1(function memoize(fn) {\n  var cache = {};\n  return _arity(fn.length, function () {\n    var key = toString(arguments);\n    if (!_has(key, cache)) {\n      cache[key] = fn.apply(this, arguments);\n    }\n    return cache[key];\n  });\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/memoize.js\n// module id = 239\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/memoize.js?");
+
+/***/ }),
+/* 240 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _assign = __webpack_require__(48);\nvar _curry2 = __webpack_require__(0);\n\n/**\n * Create a new object with the own properties of the first object merged with\n * the own properties of the second object. If a key exists in both objects,\n * the value from the second object will be used.\n *\n * @func\n * @memberOf R\n * @since v0.1.0\n * @category Object\n * @sig {k: v} -> {k: v} -> {k: v}\n * @param {Object} l\n * @param {Object} r\n * @return {Object}\n * @see R.mergeWith, R.mergeWithKey\n * @example\n *\n *      R.merge({ 'name': 'fred', 'age': 10 }, { 'age': 40 });\n *      //=> { 'name': 'fred', 'age': 40 }\n *\n *      var resetToDefault = R.merge(R.__, {x: 0});\n *      resetToDefault({x: 5, y: 2}); //=> {x: 0, y: 2}\n * @symb R.merge({ x: 1, y: 2 }, { y: 5, z: 3 }) = { x: 1, y: 5, z: 3 }\n */\nmodule.exports = _curry2(function merge(l, r) {\n  return _assign({}, l, r);\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/merge.js\n// module id = 240\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/merge.js?");
+
+/***/ }),
+/* 241 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _assign = __webpack_require__(48);\nvar _curry1 = __webpack_require__(1);\n\n/**\n * Merges a list of objects together into one object.\n *\n * @func\n * @memberOf R\n * @since v0.10.0\n * @category List\n * @sig [{k: v}] -> {k: v}\n * @param {Array} list An array of objects\n * @return {Object} A merged object.\n * @see R.reduce\n * @example\n *\n *      R.mergeAll([{foo:1},{bar:2},{baz:3}]); //=> {foo:1,bar:2,baz:3}\n *      R.mergeAll([{foo:1},{foo:2},{bar:2}]); //=> {foo:2,bar:2}\n * @symb R.mergeAll([{ x: 1 }, { y: 2 }, { z: 3 }]) = { x: 1, y: 2, z: 3 }\n */\nmodule.exports = _curry1(function mergeAll(list) {\n  return _assign.apply(null, [{}].concat(list));\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/mergeAll.js\n// module id = 241\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/mergeAll.js?");
+
+/***/ }),
+/* 242 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry3 = __webpack_require__(2);\nvar mergeWithKey = __webpack_require__(95);\n\n/**\n * Creates a new object with the own properties of the two provided objects. If\n * a key exists in both objects, the provided function is applied to the values\n * associated with the key in each object, with the result being used as the\n * value associated with the key in the returned object. The key will be\n * excluded from the returned object if the resulting value is `undefined`.\n *\n * @func\n * @memberOf R\n * @since v0.19.0\n * @category Object\n * @sig (a -> a -> a) -> {a} -> {a} -> {a}\n * @param {Function} fn\n * @param {Object} l\n * @param {Object} r\n * @return {Object}\n * @see R.merge, R.mergeWithKey\n * @example\n *\n *      R.mergeWith(R.concat,\n *                  { a: true, values: [10, 20] },\n *                  { b: true, values: [15, 35] });\n *      //=> { a: true, b: true, values: [10, 20, 15, 35] }\n */\nmodule.exports = _curry3(function mergeWith(fn, l, r) {\n  return mergeWithKey(function (_, _l, _r) {\n    return fn(_l, _r);\n  }, l, r);\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/mergeWith.js\n// module id = 242\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/mergeWith.js?");
+
+/***/ }),
+/* 243 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\n\n/**\n * Returns the smaller of its two arguments.\n *\n * @func\n * @memberOf R\n * @since v0.1.0\n * @category Relation\n * @sig Ord a => a -> a -> a\n * @param {*} a\n * @param {*} b\n * @return {*}\n * @see R.minBy, R.max\n * @example\n *\n *      R.min(789, 123); //=> 123\n *      R.min('a', 'b'); //=> 'a'\n */\nmodule.exports = _curry2(function min(a, b) {\n  return b < a ? b : a;\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/min.js\n// module id = 243\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/min.js?");
+
+/***/ }),
+/* 244 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry3 = __webpack_require__(2);\n\n/**\n * Takes a function and two values, and returns whichever value produces the\n * smaller result when passed to the provided function.\n *\n * @func\n * @memberOf R\n * @since v0.8.0\n * @category Relation\n * @sig Ord b => (a -> b) -> a -> a -> a\n * @param {Function} f\n * @param {*} a\n * @param {*} b\n * @return {*}\n * @see R.min, R.maxBy\n * @example\n *\n *      //  square :: Number -> Number\n *      var square = n => n * n;\n *\n *      R.minBy(square, -3, 2); //=> 2\n *\n *      R.reduce(R.minBy(square), Infinity, [3, -5, 4, 1, -2]); //=> 1\n *      R.reduce(R.minBy(square), Infinity, []); //=> Infinity\n */\nmodule.exports = _curry3(function minBy(f, a, b) {\n  return f(b) < f(a) ? b : a;\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/minBy.js\n// module id = 244\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/minBy.js?");
+
+/***/ }),
+/* 245 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\n\n/**\n * Divides the first parameter by the second and returns the remainder. Note\n * that this function preserves the JavaScript-style behavior for modulo. For\n * mathematical modulo see `mathMod`.\n *\n * @func\n * @memberOf R\n * @since v0.1.1\n * @category Math\n * @sig Number -> Number -> Number\n * @param {Number} a The value to the divide.\n * @param {Number} b The pseudo-modulus\n * @return {Number} The result of `b % a`.\n * @see R.mathMod\n * @example\n *\n *      R.modulo(17, 3); //=> 2\n *      // JS behavior:\n *      R.modulo(-17, 3); //=> -2\n *      R.modulo(17, -3); //=> 2\n *\n *      var isOdd = R.modulo(R.__, 2);\n *      isOdd(42); //=> 0\n *      isOdd(21); //=> 1\n */\nmodule.exports = _curry2(function modulo(a, b) {\n  return a % b;\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/modulo.js\n// module id = 245\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/modulo.js?");
+
+/***/ }),
+/* 246 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry1 = __webpack_require__(1);\n\n/**\n * Negates its argument.\n *\n * @func\n * @memberOf R\n * @since v0.9.0\n * @category Math\n * @sig Number -> Number\n * @param {Number} n\n * @return {Number}\n * @example\n *\n *      R.negate(42); //=> -42\n */\nmodule.exports = _curry1(function negate(n) {\n  return -n;\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/negate.js\n// module id = 246\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/negate.js?");
+
+/***/ }),
+/* 247 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _complement = __webpack_require__(77);\nvar _curry2 = __webpack_require__(0);\nvar _dispatchable = __webpack_require__(3);\nvar _xany = __webpack_require__(86);\nvar any = __webpack_require__(60);\n\n/**\n * Returns `true` if no elements of the list match the predicate, `false`\n * otherwise.\n *\n * Dispatches to the `any` method of the second argument, if present.\n *\n * @func\n * @memberOf R\n * @since v0.12.0\n * @category List\n * @sig (a -> Boolean) -> [a] -> Boolean\n * @param {Function} fn The predicate function.\n * @param {Array} list The array to consider.\n * @return {Boolean} `true` if the predicate is not satisfied by every element, `false` otherwise.\n * @see R.all, R.any\n * @example\n *\n *      var isEven = n => n % 2 === 0;\n *\n *      R.none(isEven, [1, 3, 5, 7, 9, 11]); //=> true\n *      R.none(isEven, [1, 3, 5, 7, 8, 11]); //=> false\n */\nmodule.exports = _curry2(_complement(_dispatchable(['any'], _xany, any)));\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/none.js\n// module id = 247\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/none.js?");
+
+/***/ }),
+/* 248 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry1 = __webpack_require__(1);\nvar curryN = __webpack_require__(5);\nvar nth = __webpack_require__(23);\n\n/**\n * Returns a function which returns its nth argument.\n *\n * @func\n * @memberOf R\n * @since v0.9.0\n * @category Function\n * @sig Number -> *... -> *\n * @param {Number} n\n * @return {Function}\n * @example\n *\n *      R.nthArg(1)('a', 'b', 'c'); //=> 'b'\n *      R.nthArg(-1)('a', 'b', 'c'); //=> 'c'\n * @symb R.nthArg(-1)(a, b, c) = c\n * @symb R.nthArg(0)(a, b, c) = a\n * @symb R.nthArg(1)(a, b, c) = b\n */\nmodule.exports = _curry1(function nthArg(n) {\n  var arity = n < 0 ? 1 : n + 1;\n  return curryN(arity, function () {\n    return nth(n, arguments);\n  });\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/nthArg.js\n// module id = 248\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/nthArg.js?");
+
+/***/ }),
+/* 249 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry1 = __webpack_require__(1);\nvar _of = __webpack_require__(193);\n\n/**\n * Returns a singleton array containing the value provided.\n *\n * Note this `of` is different from the ES6 `of`; See\n * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/of\n *\n * @func\n * @memberOf R\n * @since v0.3.0\n * @category Function\n * @sig a -> [a]\n * @param {*} x any value\n * @return {Array} An array wrapping `x`.\n * @example\n *\n *      R.of(null); //=> [null]\n *      R.of([42]); //=> [[42]]\n */\nmodule.exports = _curry1(_of);\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/of.js\n// module id = 249\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/of.js?");
+
+/***/ }),
+/* 250 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _contains = __webpack_require__(16);\nvar _curry2 = __webpack_require__(0);\n\n/**\n * Returns a partial copy of an object omitting the keys specified.\n *\n * @func\n * @memberOf R\n * @since v0.1.0\n * @category Object\n * @sig [String] -> {String: *} -> {String: *}\n * @param {Array} names an array of String property names to omit from the new object\n * @param {Object} obj The object to copy from\n * @return {Object} A new object with properties from `names` not on it.\n * @see R.pick\n * @example\n *\n *      R.omit(['a', 'd'], {a: 1, b: 2, c: 3, d: 4}); //=> {b: 2, c: 3}\n */\nmodule.exports = _curry2(function omit(names, obj) {\n  var result = {};\n  for (var prop in obj) {\n    if (!_contains(prop, names)) {\n      result[prop] = obj[prop];\n    }\n  }\n  return result;\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/omit.js\n// module id = 250\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/omit.js?");
+
+/***/ }),
+/* 251 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _arity = __webpack_require__(11);\nvar _curry1 = __webpack_require__(1);\n\n/**\n * Accepts a function `fn` and returns a function that guards invocation of\n * `fn` such that `fn` can only ever be called once, no matter how many times\n * the returned function is invoked. The first value calculated is returned in\n * subsequent invocations.\n *\n * @func\n * @memberOf R\n * @since v0.1.0\n * @category Function\n * @sig (a... -> b) -> (a... -> b)\n * @param {Function} fn The function to wrap in a call-only-once wrapper.\n * @return {Function} The wrapped function.\n * @example\n *\n *      var addOneOnce = R.once(x => x + 1);\n *      addOneOnce(10); //=> 11\n *      addOneOnce(addOneOnce(50)); //=> 11\n */\nmodule.exports = _curry1(function once(fn) {\n  var called = false;\n  var result;\n  return _arity(fn.length, function () {\n    if (called) {\n      return result;\n    }\n    called = true;\n    result = fn.apply(this, arguments);\n    return result;\n  });\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/once.js\n// module id = 251\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/once.js?");
+
+/***/ }),
+/* 252 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\n\n/**\n * Takes two arguments, `fst` and `snd`, and returns `[fst, snd]`.\n *\n * @func\n * @memberOf R\n * @since v0.18.0\n * @category List\n * @sig a -> b -> (a,b)\n * @param {*} fst\n * @param {*} snd\n * @return {Array}\n * @see R.objOf, R.of\n * @example\n *\n *      R.pair('foo', 'bar'); //=> ['foo', 'bar']\n */\nmodule.exports = _curry2(function pair(fst, snd) {\n  return [fst, snd];\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/pair.js\n// module id = 252\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/pair.js?");
+
+/***/ }),
+/* 253 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _concat = __webpack_require__(9);\nvar _createPartialApplicator = __webpack_require__(78);\n\n/**\n * Takes a function `f` and a list of arguments, and returns a function `g`.\n * When applied, `g` returns the result of applying `f` to the arguments\n * provided initially followed by the arguments provided to `g`.\n *\n * @func\n * @memberOf R\n * @since v0.10.0\n * @category Function\n * @sig ((a, b, c, ..., n) -> x) -> [a, b, c, ...] -> ((d, e, f, ..., n) -> x)\n * @param {Function} f\n * @param {Array} args\n * @return {Function}\n * @see R.partialRight\n * @example\n *\n *      var multiply2 = (a, b) => a * b;\n *      var double = R.partial(multiply2, [2]);\n *      double(2); //=> 4\n *\n *      var greet = (salutation, title, firstName, lastName) =>\n *        salutation + ', ' + title + ' ' + firstName + ' ' + lastName + '!';\n *\n *      var sayHello = R.partial(greet, ['Hello']);\n *      var sayHelloToMs = R.partial(sayHello, ['Ms.']);\n *      sayHelloToMs('Jane', 'Jones'); //=> 'Hello, Ms. Jane Jones!'\n * @symb R.partial(f, [a, b])(c, d) = f(a, b, c, d)\n */\nmodule.exports = _createPartialApplicator(_concat);\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/partial.js\n// module id = 253\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/partial.js?");
+
+/***/ }),
+/* 254 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _concat = __webpack_require__(9);\nvar _createPartialApplicator = __webpack_require__(78);\nvar flip = __webpack_require__(30);\n\n/**\n * Takes a function `f` and a list of arguments, and returns a function `g`.\n * When applied, `g` returns the result of applying `f` to the arguments\n * provided to `g` followed by the arguments provided initially.\n *\n * @func\n * @memberOf R\n * @since v0.10.0\n * @category Function\n * @sig ((a, b, c, ..., n) -> x) -> [d, e, f, ..., n] -> ((a, b, c, ...) -> x)\n * @param {Function} f\n * @param {Array} args\n * @return {Function}\n * @see R.partial\n * @example\n *\n *      var greet = (salutation, title, firstName, lastName) =>\n *        salutation + ', ' + title + ' ' + firstName + ' ' + lastName + '!';\n *\n *      var greetMsJaneJones = R.partialRight(greet, ['Ms.', 'Jane', 'Jones']);\n *\n *      greetMsJaneJones('Hello'); //=> 'Hello, Ms. Jane Jones!'\n * @symb R.partialRight(f, [a, b])(c, d) = f(c, d, a, b)\n */\nmodule.exports = _createPartialApplicator(flip(_concat));\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/partialRight.js\n// module id = 254\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/partialRight.js?");
+
+/***/ }),
+/* 255 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar filter = __webpack_require__(46);\nvar juxt = __webpack_require__(90);\nvar reject = __webpack_require__(40);\n\n/**\n * Takes a predicate and a list or other \"filterable\" object and returns the\n * pair of filterable objects of the same type of elements which do and do not\n * satisfy, the predicate, respectively.\n *\n * @func\n * @memberOf R\n * @since v0.1.4\n * @category List\n * @sig Filterable f => (a -> Boolean) -> f a -> [f a, f a]\n * @param {Function} pred A predicate to determine which side the element belongs to.\n * @param {Array} filterable the list (or other filterable) to partition.\n * @return {Array} An array, containing first the subset of elements that satisfy the\n *         predicate, and second the subset of elements that do not satisfy.\n * @see R.filter, R.reject\n * @example\n *\n *      R.partition(R.contains('s'), ['sss', 'ttt', 'foo', 'bars']);\n *      // => [ [ 'sss', 'bars' ],  [ 'ttt', 'foo' ] ]\n *\n *      R.partition(R.contains('s'), { a: 'sss', b: 'ttt', foo: 'bars' });\n *      // => [ { a: 'sss', foo: 'bars' }, { b: 'ttt' }  ]\n */\nmodule.exports = juxt([filter, reject]);\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/partition.js\n// module id = 255\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/partition.js?");
+
+/***/ }),
+/* 256 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry3 = __webpack_require__(2);\nvar equals = __webpack_require__(10);\nvar path = __webpack_require__(24);\n\n/**\n * Determines whether a nested path on an object has a specific value, in\n * `R.equals` terms. Most likely used to filter a list.\n *\n * @func\n * @memberOf R\n * @since v0.7.0\n * @category Relation\n * @typedefn Idx = String | Int\n * @sig [Idx] -> a -> {a} -> Boolean\n * @param {Array} path The path of the nested property to use\n * @param {*} val The value to compare the nested property with\n * @param {Object} obj The object to check the nested property in\n * @return {Boolean} `true` if the value equals the nested object property,\n *         `false` otherwise.\n * @example\n *\n *      var user1 = { address: { zipCode: 90210 } };\n *      var user2 = { address: { zipCode: 55555 } };\n *      var user3 = { name: 'Bob' };\n *      var users = [ user1, user2, user3 ];\n *      var isFamous = R.pathEq(['address', 'zipCode'], 90210);\n *      R.filter(isFamous, users); //=> [ user1 ]\n */\nmodule.exports = _curry3(function pathEq(_path, val, obj) {\n  return equals(path(_path, obj), val);\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/pathEq.js\n// module id = 256\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/pathEq.js?");
+
+/***/ }),
+/* 257 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry3 = __webpack_require__(2);\nvar defaultTo = __webpack_require__(67);\nvar path = __webpack_require__(24);\n\n/**\n * If the given, non-null object has a value at the given path, returns the\n * value at that path. Otherwise returns the provided default value.\n *\n * @func\n * @memberOf R\n * @since v0.18.0\n * @category Object\n * @typedefn Idx = String | Int\n * @sig a -> [Idx] -> {a} -> a\n * @param {*} d The default value.\n * @param {Array} p The path to use.\n * @param {Object} obj The object to retrieve the nested property from.\n * @return {*} The data at `path` of the supplied object or the default value.\n * @example\n *\n *      R.pathOr('N/A', ['a', 'b'], {a: {b: 2}}); //=> 2\n *      R.pathOr('N/A', ['a', 'b'], {c: {b: 2}}); //=> \"N/A\"\n */\nmodule.exports = _curry3(function pathOr(d, p, obj) {\n  return defaultTo(d, path(p, obj));\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/pathOr.js\n// module id = 257\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/pathOr.js?");
+
+/***/ }),
+/* 258 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry3 = __webpack_require__(2);\nvar path = __webpack_require__(24);\n\n/**\n * Returns `true` if the specified object property at given path satisfies the\n * given predicate; `false` otherwise.\n *\n * @func\n * @memberOf R\n * @since v0.19.0\n * @category Logic\n * @typedefn Idx = String | Int\n * @sig (a -> Boolean) -> [Idx] -> {a} -> Boolean\n * @param {Function} pred\n * @param {Array} propPath\n * @param {*} obj\n * @return {Boolean}\n * @see R.propSatisfies, R.path\n * @example\n *\n *      R.pathSatisfies(y => y > 0, ['x', 'y'], {x: {y: 2}}); //=> true\n */\nmodule.exports = _curry3(function pathSatisfies(pred, propPath, obj) {\n  return propPath.length > 0 && pred(path(propPath, obj));\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/pathSatisfies.js\n// module id = 258\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/pathSatisfies.js?");
+
+/***/ }),
+/* 259 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\n\n/**\n * Returns a partial copy of an object containing only the keys specified. If\n * the key does not exist, the property is ignored.\n *\n * @func\n * @memberOf R\n * @since v0.1.0\n * @category Object\n * @sig [k] -> {k: v} -> {k: v}\n * @param {Array} names an array of String property names to copy onto a new object\n * @param {Object} obj The object to copy from\n * @return {Object} A new object with only properties from `names` on it.\n * @see R.omit, R.props\n * @example\n *\n *      R.pick(['a', 'd'], {a: 1, b: 2, c: 3, d: 4}); //=> {a: 1, d: 4}\n *      R.pick(['a', 'e', 'f'], {a: 1, b: 2, c: 3, d: 4}); //=> {a: 1}\n */\nmodule.exports = _curry2(function pick(names, obj) {\n  var result = {};\n  var idx = 0;\n  while (idx < names.length) {\n    if (names[idx] in obj) {\n      result[names[idx]] = obj[names[idx]];\n    }\n    idx += 1;\n  }\n  return result;\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/pick.js\n// module id = 259\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/pick.js?");
+
+/***/ }),
+/* 260 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\n\n/**\n * Returns a partial copy of an object containing only the keys that satisfy\n * the supplied predicate.\n *\n * @func\n * @memberOf R\n * @since v0.8.0\n * @category Object\n * @sig (v, k -> Boolean) -> {k: v} -> {k: v}\n * @param {Function} pred A predicate to determine whether or not a key\n *        should be included on the output object.\n * @param {Object} obj The object to copy from\n * @return {Object} A new object with only properties that satisfy `pred`\n *         on it.\n * @see R.pick, R.filter\n * @example\n *\n *      var isUpperCase = (val, key) => key.toUpperCase() === key;\n *      R.pickBy(isUpperCase, {a: 1, b: 2, A: 3, B: 4}); //=> {A: 3, B: 4}\n */\nmodule.exports = _curry2(function pickBy(test, obj) {\n  var result = {};\n  for (var prop in obj) {\n    if (test(obj[prop], prop, obj)) {\n      result[prop] = obj[prop];\n    }\n  }\n  return result;\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/pickBy.js\n// module id = 260\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/pickBy.js?");
+
+/***/ }),
+/* 261 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar composeK = __webpack_require__(64);\nvar reverse = __webpack_require__(41);\n\n/**\n * Returns the left-to-right Kleisli composition of the provided functions,\n * each of which must return a value of a type supported by [`chain`](#chain).\n *\n * `R.pipeK(f, g, h)` is equivalent to `R.pipe(R.chain(f), R.chain(g), R.chain(h))`.\n *\n * @func\n * @memberOf R\n * @since v0.16.0\n * @category Function\n * @sig Chain m => ((a -> m b), (b -> m c), ..., (y -> m z)) -> (a -> m z)\n * @param {...Function}\n * @return {Function}\n * @see R.composeK\n * @example\n *\n *      //  parseJson :: String -> Maybe *\n *      //  get :: String -> Object -> Maybe *\n *\n *      //  getStateCode :: Maybe String -> Maybe String\n *      var getStateCode = R.pipeK(\n *        parseJson,\n *        get('user'),\n *        get('address'),\n *        get('state'),\n *        R.compose(Maybe.of, R.toUpper)\n *      );\n *\n *      getStateCode('{\"user\":{\"address\":{\"state\":\"ny\"}}}');\n *      //=> Just('NY')\n *      getStateCode('[Invalid JSON]');\n *      //=> Nothing()\n * @symb R.pipeK(f, g, h)(a) = R.chain(h, R.chain(g, f(a)))\n */\nmodule.exports = function pipeK() {\n  if (arguments.length === 0) {\n    throw new Error('pipeK requires at least one argument');\n  }\n  return composeK.apply(this, reverse(arguments));\n};\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/pipeK.js\n// module id = 261\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/pipeK.js?");
+
+/***/ }),
+/* 262 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar multiply = __webpack_require__(96);\nvar reduce = __webpack_require__(13);\n\n/**\n * Multiplies together all the elements of a list.\n *\n * @func\n * @memberOf R\n * @since v0.1.0\n * @category Math\n * @sig [Number] -> Number\n * @param {Array} list An array of numbers\n * @return {Number} The product of all the numbers in the list.\n * @see R.reduce\n * @example\n *\n *      R.product([2,4,6,8,100,1]); //=> 38400\n */\nmodule.exports = reduce(multiply, 1);\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/product.js\n// module id = 262\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/product.js?");
+
+/***/ }),
+/* 263 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _map = __webpack_require__(35);\nvar identity = __webpack_require__(47);\nvar pickAll = __webpack_require__(101);\nvar useWith = __webpack_require__(112);\n\n/**\n * Reasonable analog to SQL `select` statement.\n *\n * @func\n * @memberOf R\n * @since v0.1.0\n * @category Object\n * @category Relation\n * @sig [k] -> [{k: v}] -> [{k: v}]\n * @param {Array} props The property names to project\n * @param {Array} objs The objects to query\n * @return {Array} An array of objects with just the `props` properties.\n * @example\n *\n *      var abby = {name: 'Abby', age: 7, hair: 'blond', grade: 2};\n *      var fred = {name: 'Fred', age: 12, hair: 'brown', grade: 7};\n *      var kids = [abby, fred];\n *      R.project(['name', 'grade'], kids); //=> [{name: 'Abby', grade: 2}, {name: 'Fred', grade: 7}]\n */\nmodule.exports = useWith(_map, [pickAll, identity]); // passing `identity` gives correct arity\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/project.js\n// module id = 263\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/project.js?");
+
+/***/ }),
+/* 264 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry3 = __webpack_require__(2);\nvar equals = __webpack_require__(10);\n\n/**\n * Returns `true` if the specified object property is equal, in `R.equals`\n * terms, to the given value; `false` otherwise.\n *\n * @func\n * @memberOf R\n * @since v0.1.0\n * @category Relation\n * @sig String -> a -> Object -> Boolean\n * @param {String} name\n * @param {*} val\n * @param {*} obj\n * @return {Boolean}\n * @see R.equals, R.propSatisfies\n * @example\n *\n *      var abby = {name: 'Abby', age: 7, hair: 'blond'};\n *      var fred = {name: 'Fred', age: 12, hair: 'brown'};\n *      var rusty = {name: 'Rusty', age: 10, hair: 'brown'};\n *      var alois = {name: 'Alois', age: 15, disposition: 'surly'};\n *      var kids = [abby, fred, rusty, alois];\n *      var hasBrownHair = R.propEq('hair', 'brown');\n *      R.filter(hasBrownHair, kids); //=> [fred, rusty]\n */\nmodule.exports = _curry3(function propEq(name, val, obj) {\n  return equals(val, obj[name]);\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/propEq.js\n// module id = 264\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/propEq.js?");
+
+/***/ }),
+/* 265 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry3 = __webpack_require__(2);\nvar is = __webpack_require__(89);\n\n/**\n * Returns `true` if the specified object property is of the given type;\n * `false` otherwise.\n *\n * @func\n * @memberOf R\n * @since v0.16.0\n * @category Type\n * @sig Type -> String -> Object -> Boolean\n * @param {Function} type\n * @param {String} name\n * @param {*} obj\n * @return {Boolean}\n * @see R.is, R.propSatisfies\n * @example\n *\n *      R.propIs(Number, 'x', {x: 1, y: 2});  //=> true\n *      R.propIs(Number, 'x', {x: 'foo'});    //=> false\n *      R.propIs(Number, 'x', {});            //=> false\n */\nmodule.exports = _curry3(function propIs(type, name, obj) {\n  return is(type, obj[name]);\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/propIs.js\n// module id = 265\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/propIs.js?");
+
+/***/ }),
+/* 266 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry3 = __webpack_require__(2);\nvar _has = __webpack_require__(6);\n\n/**\n * If the given, non-null object has an own property with the specified name,\n * returns the value of that property. Otherwise returns the provided default\n * value.\n *\n * @func\n * @memberOf R\n * @since v0.6.0\n * @category Object\n * @sig a -> String -> Object -> a\n * @param {*} val The default value.\n * @param {String} p The name of the property to return.\n * @param {Object} obj The object to query.\n * @return {*} The value of given property of the supplied object or the default value.\n * @example\n *\n *      var alice = {\n *        name: 'ALICE',\n *        age: 101\n *      };\n *      var favorite = R.prop('favoriteLibrary');\n *      var favoriteWithDefault = R.propOr('Ramda', 'favoriteLibrary');\n *\n *      favorite(alice);  //=> undefined\n *      favoriteWithDefault(alice);  //=> 'Ramda'\n */\nmodule.exports = _curry3(function propOr(val, p, obj) {\n  return obj != null && _has(p, obj) ? obj[p] : val;\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/propOr.js\n// module id = 266\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/propOr.js?");
+
+/***/ }),
+/* 267 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry3 = __webpack_require__(2);\n\n/**\n * Returns `true` if the specified object property satisfies the given\n * predicate; `false` otherwise.\n *\n * @func\n * @memberOf R\n * @since v0.16.0\n * @category Logic\n * @sig (a -> Boolean) -> String -> {String: a} -> Boolean\n * @param {Function} pred\n * @param {String} name\n * @param {*} obj\n * @return {Boolean}\n * @see R.propEq, R.propIs\n * @example\n *\n *      R.propSatisfies(x => x > 0, 'x', {x: 1, y: 2}); //=> true\n */\nmodule.exports = _curry3(function propSatisfies(pred, name, obj) {\n  return pred(obj[name]);\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/propSatisfies.js\n// module id = 267\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/propSatisfies.js?");
+
+/***/ }),
+/* 268 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\n\n/**\n * Acts as multiple `prop`: array of keys in, array of values out. Preserves\n * order.\n *\n * @func\n * @memberOf R\n * @since v0.1.0\n * @category Object\n * @sig [k] -> {k: v} -> [v]\n * @param {Array} ps The property names to fetch\n * @param {Object} obj The object to query\n * @return {Array} The corresponding values or partially applied function.\n * @example\n *\n *      R.props(['x', 'y'], {x: 1, y: 2}); //=> [1, 2]\n *      R.props(['c', 'a', 'b'], {b: 2, a: 1}); //=> [undefined, 1, 2]\n *\n *      var fullName = R.compose(R.join(' '), R.props(['first', 'last']));\n *      fullName({last: 'Bullet-Tooth', age: 33, first: 'Tony'}); //=> 'Tony Bullet-Tooth'\n */\nmodule.exports = _curry2(function props(ps, obj) {\n  var len = ps.length;\n  var out = [];\n  var idx = 0;\n\n  while (idx < len) {\n    out[idx] = obj[ps[idx]];\n    idx += 1;\n  }\n\n  return out;\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/props.js\n// module id = 268\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/props.js?");
+
+/***/ }),
+/* 269 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\nvar _isNumber = __webpack_require__(83);\n\n/**\n * Returns a list of numbers from `from` (inclusive) to `to` (exclusive).\n *\n * @func\n * @memberOf R\n * @since v0.1.0\n * @category List\n * @sig Number -> Number -> [Number]\n * @param {Number} from The first number in the list.\n * @param {Number} to One more than the last number in the list.\n * @return {Array} The list of numbers in tthe set `[a, b)`.\n * @example\n *\n *      R.range(1, 5);    //=> [1, 2, 3, 4]\n *      R.range(50, 53);  //=> [50, 51, 52]\n */\nmodule.exports = _curry2(function range(from, to) {\n  if (!(_isNumber(from) && _isNumber(to))) {\n    throw new TypeError('Both arguments to range must be numbers');\n  }\n  var result = [];\n  var n = from;\n  while (n < to) {\n    result.push(n);\n    n += 1;\n  }\n  return result;\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/range.js\n// module id = 269\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/range.js?");
+
+/***/ }),
+/* 270 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curryN = __webpack_require__(31);\nvar _reduce = __webpack_require__(8);\nvar _reduced = __webpack_require__(15);\n\n/**\n * Like `reduce`, `reduceWhile` returns a single item by iterating through\n * the list, successively calling the iterator function. `reduceWhile` also\n * takes a predicate that is evaluated before each step. If the predicate returns\n * `false`, it \"short-circuits\" the iteration and returns the current value\n * of the accumulator.\n *\n * @func\n * @memberOf R\n * @since v0.22.0\n * @category List\n * @sig ((a, b) -> Boolean) -> ((a, b) -> a) -> a -> [b] -> a\n * @param {Function} pred The predicate. It is passed the accumulator and the\n *        current element.\n * @param {Function} fn The iterator function. Receives two values, the\n *        accumulator and the current element.\n * @param {*} a The accumulator value.\n * @param {Array} list The list to iterate over.\n * @return {*} The final, accumulated value.\n * @see R.reduce, R.reduced\n * @example\n *\n *      var isOdd = (acc, x) => x % 2 === 1;\n *      var xs = [1, 3, 5, 60, 777, 800];\n *      R.reduceWhile(isOdd, R.add, 0, xs); //=> 9\n *\n *      var ys = [2, 4, 6]\n *      R.reduceWhile(isOdd, R.add, 111, ys); //=> 111\n */\nmodule.exports = _curryN(4, [], function _reduceWhile(pred, fn, a, list) {\n  return _reduce(function (acc, x) {\n    return pred(acc, x) ? fn(acc, x) : _reduced(acc);\n  }, a, list);\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/reduceWhile.js\n// module id = 270\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/reduceWhile.js?");
+
+/***/ }),
+/* 271 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry1 = __webpack_require__(1);\nvar _reduced = __webpack_require__(15);\n\n/**\n * Returns a value wrapped to indicate that it is the final value of the reduce\n * and transduce functions. The returned value should be considered a black\n * box: the internal structure is not guaranteed to be stable.\n *\n * Note: this optimization is unavailable to functions not explicitly listed\n * above. For instance, it is not currently supported by reduceRight.\n *\n * @func\n * @memberOf R\n * @since v0.15.0\n * @category List\n * @sig a -> *\n * @param {*} x The final value of the reduce.\n * @return {*} The wrapped value.\n * @see R.reduce, R.transduce\n * @example\n *\n *      R.reduce(\n *        R.pipe(R.add, R.when(R.gte(R.__, 10), R.reduced)),\n *        0,\n *        [1, 2, 3, 4, 5]) // 10\n */\n\nmodule.exports = _curry1(_reduced);\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/reduced.js\n// module id = 271\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/reduced.js?");
+
+/***/ }),
+/* 272 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry3 = __webpack_require__(2);\n\n/**\n * Removes the sub-list of `list` starting at index `start` and containing\n * `count` elements. _Note that this is not destructive_: it returns a copy of\n * the list with the changes.\n * <small>No lists have been harmed in the application of this function.</small>\n *\n * @func\n * @memberOf R\n * @since v0.2.2\n * @category List\n * @sig Number -> Number -> [a] -> [a]\n * @param {Number} start The position to start removing elements\n * @param {Number} count The number of elements to remove\n * @param {Array} list The list to remove from\n * @return {Array} A new Array with `count` elements from `start` removed.\n * @example\n *\n *      R.remove(2, 3, [1,2,3,4,5,6,7,8]); //=> [1,2,6,7,8]\n */\nmodule.exports = _curry3(function remove(start, count, list) {\n  var result = Array.prototype.slice.call(list, 0);\n  result.splice(start, count);\n  return result;\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/remove.js\n// module id = 272\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/remove.js?");
+
+/***/ }),
+/* 273 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\nvar always = __webpack_require__(18);\nvar times = __webpack_require__(109);\n\n/**\n * Returns a fixed list of size `n` containing a specified identical value.\n *\n * @func\n * @memberOf R\n * @since v0.1.1\n * @category List\n * @sig a -> n -> [a]\n * @param {*} value The value to repeat.\n * @param {Number} n The desired size of the output list.\n * @return {Array} A new array containing `n` `value`s.\n * @example\n *\n *      R.repeat('hi', 5); //=> ['hi', 'hi', 'hi', 'hi', 'hi']\n *\n *      var obj = {};\n *      var repeatedObjs = R.repeat(obj, 5); //=> [{}, {}, {}, {}, {}]\n *      repeatedObjs[0] === repeatedObjs[1]; //=> true\n * @symb R.repeat(a, 0) = []\n * @symb R.repeat(a, 1) = [a]\n * @symb R.repeat(a, 2) = [a, a]\n */\nmodule.exports = _curry2(function repeat(value, n) {\n  return times(always(value), n);\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/repeat.js\n// module id = 273\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/repeat.js?");
+
+/***/ }),
+/* 274 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry3 = __webpack_require__(2);\n\n/**\n * Replace a substring or regex match in a string with a replacement.\n *\n * @func\n * @memberOf R\n * @since v0.7.0\n * @category String\n * @sig RegExp|String -> String -> String -> String\n * @param {RegExp|String} pattern A regular expression or a substring to match.\n * @param {String} replacement The string to replace the matches with.\n * @param {String} str The String to do the search and replacement in.\n * @return {String} The result.\n * @example\n *\n *      R.replace('foo', 'bar', 'foo foo foo'); //=> 'bar foo foo'\n *      R.replace(/foo/, 'bar', 'foo foo foo'); //=> 'bar foo foo'\n *\n *      // Use the \"g\" (global) flag to replace all occurrences:\n *      R.replace(/foo/g, 'bar', 'foo foo foo'); //=> 'bar bar bar'\n */\nmodule.exports = _curry3(function replace(regex, replacement, str) {\n  return str.replace(regex, replacement);\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/replace.js\n// module id = 274\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/replace.js?");
+
+/***/ }),
+/* 275 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry3 = __webpack_require__(2);\n\n/**\n * Scan is similar to reduce, but returns a list of successively reduced values\n * from the left\n *\n * @func\n * @memberOf R\n * @since v0.10.0\n * @category List\n * @sig (a,b -> a) -> a -> [b] -> [a]\n * @param {Function} fn The iterator function. Receives two values, the accumulator and the\n *        current element from the array\n * @param {*} acc The accumulator value.\n * @param {Array} list The list to iterate over.\n * @return {Array} A list of all intermediately reduced values.\n * @example\n *\n *      var numbers = [1, 2, 3, 4];\n *      var factorials = R.scan(R.multiply, 1, numbers); //=> [1, 1, 2, 6, 24]\n * @symb R.scan(f, a, [b, c]) = [a, f(a, b), f(f(a, b), c)]\n */\nmodule.exports = _curry3(function scan(fn, acc, list) {\n  var idx = 0;\n  var len = list.length;\n  var result = [acc];\n  while (idx < len) {\n    acc = fn(acc, list[idx]);\n    result[idx + 1] = acc;\n    idx += 1;\n  }\n  return result;\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/scan.js\n// module id = 275\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/scan.js?");
+
+/***/ }),
+/* 276 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry3 = __webpack_require__(2);\nvar always = __webpack_require__(18);\nvar over = __webpack_require__(100);\n\n/**\n * Returns the result of \"setting\" the portion of the given data structure\n * focused by the given lens to the given value.\n *\n * @func\n * @memberOf R\n * @since v0.16.0\n * @category Object\n * @typedefn Lens s a = Functor f => (a -> f a) -> s -> f s\n * @sig Lens s a -> a -> s -> s\n * @param {Lens} lens\n * @param {*} v\n * @param {*} x\n * @return {*}\n * @see R.prop, R.lensIndex, R.lensProp\n * @example\n *\n *      var xLens = R.lensProp('x');\n *\n *      R.set(xLens, 4, {x: 1, y: 2});  //=> {x: 4, y: 2}\n *      R.set(xLens, 8, {x: 1, y: 2});  //=> {x: 8, y: 2}\n */\nmodule.exports = _curry3(function set(lens, v, x) {\n  return over(lens, always(v), x);\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/set.js\n// module id = 276\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/set.js?");
+
+/***/ }),
+/* 277 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\n\n/**\n * Returns a copy of the list, sorted according to the comparator function,\n * which should accept two values at a time and return a negative number if the\n * first value is smaller, a positive number if it's larger, and zero if they\n * are equal. Please note that this is a **copy** of the list. It does not\n * modify the original.\n *\n * @func\n * @memberOf R\n * @since v0.1.0\n * @category List\n * @sig (a,a -> Number) -> [a] -> [a]\n * @param {Function} comparator A sorting function :: a -> b -> Int\n * @param {Array} list The list to sort\n * @return {Array} a new array with its elements sorted by the comparator function.\n * @example\n *\n *      var diff = function(a, b) { return a - b; };\n *      R.sort(diff, [4,2,7,5]); //=> [2, 4, 5, 7]\n */\nmodule.exports = _curry2(function sort(comparator, list) {\n  return Array.prototype.slice.call(list, 0).sort(comparator);\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/sort.js\n// module id = 277\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/sort.js?");
+
+/***/ }),
+/* 278 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\n\n/**\n * Sorts the list according to the supplied function.\n *\n * @func\n * @memberOf R\n * @since v0.1.0\n * @category Relation\n * @sig Ord b => (a -> b) -> [a] -> [a]\n * @param {Function} fn\n * @param {Array} list The list to sort.\n * @return {Array} A new list sorted by the keys generated by `fn`.\n * @example\n *\n *      var sortByFirstItem = R.sortBy(R.prop(0));\n *      var sortByNameCaseInsensitive = R.sortBy(R.compose(R.toLower, R.prop('name')));\n *      var pairs = [[-1, 1], [-2, 2], [-3, 3]];\n *      sortByFirstItem(pairs); //=> [[-3, 3], [-2, 2], [-1, 1]]\n *      var alice = {\n *        name: 'ALICE',\n *        age: 101\n *      };\n *      var bob = {\n *        name: 'Bob',\n *        age: -10\n *      };\n *      var clara = {\n *        name: 'clara',\n *        age: 314.159\n *      };\n *      var people = [clara, bob, alice];\n *      sortByNameCaseInsensitive(people); //=> [alice, bob, clara]\n */\nmodule.exports = _curry2(function sortBy(fn, list) {\n  return Array.prototype.slice.call(list, 0).sort(function (a, b) {\n    var aa = fn(a);\n    var bb = fn(b);\n    return aa < bb ? -1 : aa > bb ? 1 : 0;\n  });\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/sortBy.js\n// module id = 278\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/sortBy.js?");
+
+/***/ }),
+/* 279 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\n\n/**\n * Sorts a list according to a list of comparators.\n *\n * @func\n * @memberOf R\n * @since v0.23.0\n * @category Relation\n * @sig [a -> a -> Number] -> [a] -> [a]\n * @param {Array} functions A list of comparator functions.\n * @param {Array} list The list to sort.\n * @return {Array} A new list sorted according to the comarator functions.\n * @example\n *\n *      var alice = {\n *        name: 'alice',\n *        age: 40\n *      };\n *      var bob = {\n *        name: 'bob',\n *        age: 30\n *      };\n *      var clara = {\n *        name: 'clara',\n *        age: 40\n *      };\n *      var people = [clara, bob, alice];\n *      var ageNameSort = R.sortWith([\n *        R.descend(R.prop('age')),\n *        R.ascend(R.prop('name'))\n *      ]);\n *      ageNameSort(people); //=> [alice, clara, bob]\n */\nmodule.exports = _curry2(function sortWith(fns, list) {\n  return Array.prototype.slice.call(list, 0).sort(function (a, b) {\n    var result = 0;\n    var i = 0;\n    while (result === 0 && i < fns.length) {\n      result = fns[i](a, b);\n      i += 1;\n    }\n    return result;\n  });\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/sortWith.js\n// module id = 279\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/sortWith.js?");
+
+/***/ }),
+/* 280 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar invoker = __webpack_require__(21);\n\n/**\n * Splits a string into an array of strings based on the given\n * separator.\n *\n * @func\n * @memberOf R\n * @since v0.1.0\n * @category String\n * @sig (String | RegExp) -> String -> [String]\n * @param {String|RegExp} sep The pattern.\n * @param {String} str The string to separate into an array.\n * @return {Array} The array of strings from `str` separated by `str`.\n * @see R.join\n * @example\n *\n *      var pathComponents = R.split('/');\n *      R.tail(pathComponents('/usr/local/bin/node')); //=> ['usr', 'local', 'bin', 'node']\n *\n *      R.split('.', 'a.b.c.xyz.d'); //=> ['a', 'b', 'c', 'xyz', 'd']\n */\nmodule.exports = invoker(1, 'split');\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/split.js\n// module id = 280\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/split.js?");
+
+/***/ }),
+/* 281 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\nvar length = __webpack_require__(92);\nvar slice = __webpack_require__(17);\n\n/**\n * Splits a given list or string at a given index.\n *\n * @func\n * @memberOf R\n * @since v0.19.0\n * @category List\n * @sig Number -> [a] -> [[a], [a]]\n * @sig Number -> String -> [String, String]\n * @param {Number} index The index where the array/string is split.\n * @param {Array|String} array The array/string to be split.\n * @return {Array}\n * @example\n *\n *      R.splitAt(1, [1, 2, 3]);          //=> [[1], [2, 3]]\n *      R.splitAt(5, 'hello world');      //=> ['hello', ' world']\n *      R.splitAt(-1, 'foobar');          //=> ['fooba', 'r']\n */\nmodule.exports = _curry2(function splitAt(index, array) {\n  return [slice(0, index, array), slice(index, length(array), array)];\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/splitAt.js\n// module id = 281\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/splitAt.js?");
+
+/***/ }),
+/* 282 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\nvar slice = __webpack_require__(17);\n\n/**\n * Splits a collection into slices of the specified length.\n *\n * @func\n * @memberOf R\n * @since v0.16.0\n * @category List\n * @sig Number -> [a] -> [[a]]\n * @sig Number -> String -> [String]\n * @param {Number} n\n * @param {Array} list\n * @return {Array}\n * @example\n *\n *      R.splitEvery(3, [1, 2, 3, 4, 5, 6, 7]); //=> [[1, 2, 3], [4, 5, 6], [7]]\n *      R.splitEvery(3, 'foobarbaz'); //=> ['foo', 'bar', 'baz']\n */\nmodule.exports = _curry2(function splitEvery(n, list) {\n  if (n <= 0) {\n    throw new Error('First argument to splitEvery must be a positive integer');\n  }\n  var result = [];\n  var idx = 0;\n  while (idx < list.length) {\n    result.push(slice(idx, idx += n, list));\n  }\n  return result;\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/splitEvery.js\n// module id = 282\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/splitEvery.js?");
+
+/***/ }),
+/* 283 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\n\n/**\n * Takes a list and a predicate and returns a pair of lists with the following properties:\n *\n *  - the result of concatenating the two output lists is equivalent to the input list;\n *  - none of the elements of the first output list satisfies the predicate; and\n *  - if the second output list is non-empty, its first element satisfies the predicate.\n *\n * @func\n * @memberOf R\n * @since v0.19.0\n * @category List\n * @sig (a -> Boolean) -> [a] -> [[a], [a]]\n * @param {Function} pred The predicate that determines where the array is split.\n * @param {Array} list The array to be split.\n * @return {Array}\n * @example\n *\n *      R.splitWhen(R.equals(2), [1, 2, 3, 1, 2, 3]);   //=> [[1], [2, 3, 1, 2, 3]]\n */\nmodule.exports = _curry2(function splitWhen(pred, list) {\n  var idx = 0;\n  var len = list.length;\n  var prefix = [];\n\n  while (idx < len && !pred(list[idx])) {\n    prefix.push(list[idx]);\n    idx += 1;\n  }\n\n  return [prefix, Array.prototype.slice.call(list, idx)];\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/splitWhen.js\n// module id = 283\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/splitWhen.js?");
+
+/***/ }),
+/* 284 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\n\n/**\n * Subtracts its second argument from its first argument.\n *\n * @func\n * @memberOf R\n * @since v0.1.0\n * @category Math\n * @sig Number -> Number -> Number\n * @param {Number} a The first value.\n * @param {Number} b The second value.\n * @return {Number} The result of `a - b`.\n * @see R.add\n * @example\n *\n *      R.subtract(10, 8); //=> 2\n *\n *      var minus5 = R.subtract(R.__, 5);\n *      minus5(17); //=> 12\n *\n *      var complementaryAngle = R.subtract(90);\n *      complementaryAngle(30); //=> 60\n *      complementaryAngle(72); //=> 18\n */\nmodule.exports = _curry2(function subtract(a, b) {\n  return Number(a) - Number(b);\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/subtract.js\n// module id = 284\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/subtract.js?");
+
+/***/ }),
+/* 285 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\nvar concat = __webpack_require__(45);\nvar difference = __webpack_require__(68);\n\n/**\n * Finds the set (i.e. no duplicates) of all elements contained in the first or\n * second list, but not both.\n *\n * @func\n * @memberOf R\n * @since v0.19.0\n * @category Relation\n * @sig [*] -> [*] -> [*]\n * @param {Array} list1 The first list.\n * @param {Array} list2 The second list.\n * @return {Array} The elements in `list1` or `list2`, but not both.\n * @see R.symmetricDifferenceWith, R.difference, R.differenceWith\n * @example\n *\n *      R.symmetricDifference([1,2,3,4], [7,6,5,4,3]); //=> [1,2,7,6,5]\n *      R.symmetricDifference([7,6,5,4,3], [1,2,3,4]); //=> [7,6,5,1,2]\n */\nmodule.exports = _curry2(function symmetricDifference(list1, list2) {\n  return concat(difference(list1, list2), difference(list2, list1));\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/symmetricDifference.js\n// module id = 285\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/symmetricDifference.js?");
+
+/***/ }),
+/* 286 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry3 = __webpack_require__(2);\nvar concat = __webpack_require__(45);\nvar differenceWith = __webpack_require__(69);\n\n/**\n * Finds the set (i.e. no duplicates) of all elements contained in the first or\n * second list, but not both. Duplication is determined according to the value\n * returned by applying the supplied predicate to two list elements.\n *\n * @func\n * @memberOf R\n * @since v0.19.0\n * @category Relation\n * @sig ((a, a) -> Boolean) -> [a] -> [a] -> [a]\n * @param {Function} pred A predicate used to test whether two items are equal.\n * @param {Array} list1 The first list.\n * @param {Array} list2 The second list.\n * @return {Array} The elements in `list1` or `list2`, but not both.\n * @see R.symmetricDifference, R.difference, R.differenceWith\n * @example\n *\n *      var eqA = R.eqBy(R.prop('a'));\n *      var l1 = [{a: 1}, {a: 2}, {a: 3}, {a: 4}];\n *      var l2 = [{a: 3}, {a: 4}, {a: 5}, {a: 6}];\n *      R.symmetricDifferenceWith(eqA, l1, l2); //=> [{a: 1}, {a: 2}, {a: 5}, {a: 6}]\n */\nmodule.exports = _curry3(function symmetricDifferenceWith(pred, list1, list2) {\n  return concat(differenceWith(pred, list1, list2), differenceWith(pred, list2, list1));\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/symmetricDifferenceWith.js\n// module id = 286\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/symmetricDifferenceWith.js?");
+
+/***/ }),
+/* 287 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\nvar drop = __webpack_require__(71);\n\n/**\n * Returns a new list containing the last `n` elements of the given list.\n * If `n > list.length`, returns a list of `list.length` elements.\n *\n * @func\n * @memberOf R\n * @since v0.16.0\n * @category List\n * @sig Number -> [a] -> [a]\n * @sig Number -> String -> String\n * @param {Number} n The number of elements to return.\n * @param {Array} xs The collection to consider.\n * @return {Array}\n * @see R.dropLast\n * @example\n *\n *      R.takeLast(1, ['foo', 'bar', 'baz']); //=> ['baz']\n *      R.takeLast(2, ['foo', 'bar', 'baz']); //=> ['bar', 'baz']\n *      R.takeLast(3, ['foo', 'bar', 'baz']); //=> ['foo', 'bar', 'baz']\n *      R.takeLast(4, ['foo', 'bar', 'baz']); //=> ['foo', 'bar', 'baz']\n *      R.takeLast(3, 'ramda');               //=> 'mda'\n */\nmodule.exports = _curry2(function takeLast(n, xs) {\n  return drop(n >= 0 ? xs.length - n : 0, xs);\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/takeLast.js\n// module id = 287\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/takeLast.js?");
+
+/***/ }),
+/* 288 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\n\n/**\n * Returns a new list containing the last `n` elements of a given list, passing\n * each value to the supplied predicate function, and terminating when the\n * predicate function returns `false`. Excludes the element that caused the\n * predicate function to fail. The predicate function is passed one argument:\n * *(value)*.\n *\n * @func\n * @memberOf R\n * @since v0.16.0\n * @category List\n * @sig (a -> Boolean) -> [a] -> [a]\n * @param {Function} fn The function called per iteration.\n * @param {Array} list The collection to iterate over.\n * @return {Array} A new array.\n * @see R.dropLastWhile, R.addIndex\n * @example\n *\n *      var isNotOne = x => x !== 1;\n *\n *      R.takeLastWhile(isNotOne, [1, 2, 3, 4]); //=> [2, 3, 4]\n */\nmodule.exports = _curry2(function takeLastWhile(fn, list) {\n  var idx = list.length - 1;\n  while (idx >= 0 && fn(list[idx])) {\n    idx -= 1;\n  }\n  return Array.prototype.slice.call(list, idx + 1);\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/takeLastWhile.js\n// module id = 288\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/takeLastWhile.js?");
+
+/***/ }),
+/* 289 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\nvar _dispatchable = __webpack_require__(3);\nvar _xtakeWhile = __webpack_require__(215);\n\n/**\n * Returns a new list containing the first `n` elements of a given list,\n * passing each value to the supplied predicate function, and terminating when\n * the predicate function returns `false`. Excludes the element that caused the\n * predicate function to fail. The predicate function is passed one argument:\n * *(value)*.\n *\n * Dispatches to the `takeWhile` method of the second argument, if present.\n *\n * Acts as a transducer if a transformer is given in list position.\n *\n * @func\n * @memberOf R\n * @since v0.1.0\n * @category List\n * @sig (a -> Boolean) -> [a] -> [a]\n * @param {Function} fn The function called per iteration.\n * @param {Array} list The collection to iterate over.\n * @return {Array} A new array.\n * @see R.dropWhile, R.transduce, R.addIndex\n * @example\n *\n *      var isNotFour = x => x !== 4;\n *\n *      R.takeWhile(isNotFour, [1, 2, 3, 4, 3, 2, 1]); //=> [1, 2, 3]\n */\nmodule.exports = _curry2(_dispatchable(['takeWhile'], _xtakeWhile, function takeWhile(fn, list) {\n  var idx = 0;\n  var len = list.length;\n  while (idx < len && fn(list[idx])) {\n    idx += 1;\n  }\n  return Array.prototype.slice.call(list, 0, idx);\n}));\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/takeWhile.js\n// module id = 289\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/takeWhile.js?");
+
+/***/ }),
+/* 290 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\n\n/**\n * Runs the given function with the supplied object, then returns the object.\n *\n * @func\n * @memberOf R\n * @since v0.1.0\n * @category Function\n * @sig (a -> *) -> a -> a\n * @param {Function} fn The function to call with `x`. The return value of `fn` will be thrown away.\n * @param {*} x\n * @return {*} `x`.\n * @example\n *\n *      var sayX = x => console.log('x is ' + x);\n *      R.tap(sayX, 100); //=> 100\n *      // logs 'x is 100'\n * @symb R.tap(f, a) = a\n */\nmodule.exports = _curry2(function tap(fn, x) {\n  fn(x);\n  return x;\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/tap.js\n// module id = 290\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/tap.js?");
+
+/***/ }),
+/* 291 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _cloneRegExp = __webpack_require__(76);\nvar _curry2 = __webpack_require__(0);\nvar _isRegExp = __webpack_require__(191);\nvar toString = __webpack_require__(26);\n\n/**\n * Determines whether a given string matches a given regular expression.\n *\n * @func\n * @memberOf R\n * @since v0.12.0\n * @category String\n * @sig RegExp -> String -> Boolean\n * @param {RegExp} pattern\n * @param {String} str\n * @return {Boolean}\n * @see R.match\n * @example\n *\n *      R.test(/^x/, 'xyz'); //=> true\n *      R.test(/^y/, 'xyz'); //=> false\n */\nmodule.exports = _curry2(function test(pattern, str) {\n  if (!_isRegExp(pattern)) {\n    throw new TypeError('‘test’ requires a value of type RegExp as its first argument; received ' + toString(pattern));\n  }\n  return _cloneRegExp(pattern).test(str);\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/test.js\n// module id = 291\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/test.js?");
+
+/***/ }),
+/* 292 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar invoker = __webpack_require__(21);\n\n/**\n * The lower case version of a string.\n *\n * @func\n * @memberOf R\n * @since v0.9.0\n * @category String\n * @sig String -> String\n * @param {String} str The string to lower case.\n * @return {String} The lower case version of `str`.\n * @see R.toUpper\n * @example\n *\n *      R.toLower('XYZ'); //=> 'xyz'\n */\nmodule.exports = invoker(0, 'toLowerCase');\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/toLower.js\n// module id = 292\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/toLower.js?");
+
+/***/ }),
+/* 293 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry1 = __webpack_require__(1);\nvar _has = __webpack_require__(6);\n\n/**\n * Converts an object into an array of key, value arrays. Only the object's\n * own properties are used.\n * Note that the order of the output array is not guaranteed to be consistent\n * across different JS platforms.\n *\n * @func\n * @memberOf R\n * @since v0.4.0\n * @category Object\n * @sig {String: *} -> [[String,*]]\n * @param {Object} obj The object to extract from\n * @return {Array} An array of key, value arrays from the object's own properties.\n * @see R.fromPairs\n * @example\n *\n *      R.toPairs({a: 1, b: 2, c: 3}); //=> [['a', 1], ['b', 2], ['c', 3]]\n */\nmodule.exports = _curry1(function toPairs(obj) {\n  var pairs = [];\n  for (var prop in obj) {\n    if (_has(prop, obj)) {\n      pairs[pairs.length] = [prop, obj[prop]];\n    }\n  }\n  return pairs;\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/toPairs.js\n// module id = 293\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/toPairs.js?");
+
+/***/ }),
+/* 294 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry1 = __webpack_require__(1);\n\n/**\n * Converts an object into an array of key, value arrays. The object's own\n * properties and prototype properties are used. Note that the order of the\n * output array is not guaranteed to be consistent across different JS\n * platforms.\n *\n * @func\n * @memberOf R\n * @since v0.4.0\n * @category Object\n * @sig {String: *} -> [[String,*]]\n * @param {Object} obj The object to extract from\n * @return {Array} An array of key, value arrays from the object's own\n *         and prototype properties.\n * @example\n *\n *      var F = function() { this.x = 'X'; };\n *      F.prototype.y = 'Y';\n *      var f = new F();\n *      R.toPairsIn(f); //=> [['x','X'], ['y','Y']]\n */\nmodule.exports = _curry1(function toPairsIn(obj) {\n  var pairs = [];\n  for (var prop in obj) {\n    pairs[pairs.length] = [prop, obj[prop]];\n  }\n  return pairs;\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/toPairsIn.js\n// module id = 294\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/toPairsIn.js?");
+
+/***/ }),
+/* 295 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar invoker = __webpack_require__(21);\n\n/**\n * The upper case version of a string.\n *\n * @func\n * @memberOf R\n * @since v0.9.0\n * @category String\n * @sig String -> String\n * @param {String} str The string to upper case.\n * @return {String} The upper case version of `str`.\n * @see R.toLower\n * @example\n *\n *      R.toUpper('abc'); //=> 'ABC'\n */\nmodule.exports = invoker(0, 'toUpperCase');\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/toUpper.js\n// module id = 295\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/toUpper.js?");
+
+/***/ }),
+/* 296 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _reduce = __webpack_require__(8);\nvar _xwrap = __webpack_require__(88);\nvar curryN = __webpack_require__(5);\n\n/**\n * Initializes a transducer using supplied iterator function. Returns a single\n * item by iterating through the list, successively calling the transformed\n * iterator function and passing it an accumulator value and the current value\n * from the array, and then passing the result to the next call.\n *\n * The iterator function receives two values: *(acc, value)*. It will be\n * wrapped as a transformer to initialize the transducer. A transformer can be\n * passed directly in place of an iterator function. In both cases, iteration\n * may be stopped early with the `R.reduced` function.\n *\n * A transducer is a function that accepts a transformer and returns a\n * transformer and can be composed directly.\n *\n * A transformer is an an object that provides a 2-arity reducing iterator\n * function, step, 0-arity initial value function, init, and 1-arity result\n * extraction function, result. The step function is used as the iterator\n * function in reduce. The result function is used to convert the final\n * accumulator into the return type and in most cases is R.identity. The init\n * function can be used to provide an initial accumulator, but is ignored by\n * transduce.\n *\n * The iteration is performed with R.reduce after initializing the transducer.\n *\n * @func\n * @memberOf R\n * @since v0.12.0\n * @category List\n * @sig (c -> c) -> (a,b -> a) -> a -> [b] -> a\n * @param {Function} xf The transducer function. Receives a transformer and returns a transformer.\n * @param {Function} fn The iterator function. Receives two values, the accumulator and the\n *        current element from the array. Wrapped as transformer, if necessary, and used to\n *        initialize the transducer\n * @param {*} acc The initial accumulator value.\n * @param {Array} list The list to iterate over.\n * @return {*} The final, accumulated value.\n * @see R.reduce, R.reduced, R.into\n * @example\n *\n *      var numbers = [1, 2, 3, 4];\n *      var transducer = R.compose(R.map(R.add(1)), R.take(2));\n *\n *      R.transduce(transducer, R.flip(R.append), [], numbers); //=> [2, 3]\n */\nmodule.exports = curryN(4, function transduce(xf, fn, acc, list) {\n  return _reduce(xf(typeof fn === 'function' ? _xwrap(fn) : fn), acc, list);\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/transduce.js\n// module id = 296\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/transduce.js?");
+
+/***/ }),
+/* 297 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry1 = __webpack_require__(1);\n\n/**\n * Transposes the rows and columns of a 2D list.\n * When passed a list of `n` lists of length `x`,\n * returns a list of `x` lists of length `n`.\n *\n *\n * @func\n * @memberOf R\n * @since v0.19.0\n * @category List\n * @sig [[a]] -> [[a]]\n * @param {Array} list A 2D list\n * @return {Array} A 2D list\n * @example\n *\n *      R.transpose([[1, 'a'], [2, 'b'], [3, 'c']]) //=> [[1, 2, 3], ['a', 'b', 'c']]\n *      R.transpose([[1, 2, 3], ['a', 'b', 'c']]) //=> [[1, 'a'], [2, 'b'], [3, 'c']]\n *\n * If some of the rows are shorter than the following rows, their elements are skipped:\n *\n *      R.transpose([[10, 11], [20], [], [30, 31, 32]]) //=> [[10, 20, 30], [11, 31], [32]]\n * @symb R.transpose([[a], [b], [c]]) = [a, b, c]\n * @symb R.transpose([[a, b], [c, d]]) = [[a, c], [b, d]]\n * @symb R.transpose([[a, b], [c]]) = [[a, c], [b]]\n */\nmodule.exports = _curry1(function transpose(outerlist) {\n  var i = 0;\n  var result = [];\n  while (i < outerlist.length) {\n    var innerlist = outerlist[i];\n    var j = 0;\n    while (j < innerlist.length) {\n      if (typeof result[j] === 'undefined') {\n        result[j] = [];\n      }\n      result[j].push(innerlist[j]);\n      j += 1;\n    }\n    i += 1;\n  }\n  return result;\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/transpose.js\n// module id = 297\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/transpose.js?");
+
+/***/ }),
+/* 298 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry3 = __webpack_require__(2);\nvar map = __webpack_require__(7);\nvar sequence = __webpack_require__(106);\n\n/**\n * Maps an [Applicative](https://github.com/fantasyland/fantasy-land#applicative)-returning\n * function over a [Traversable](https://github.com/fantasyland/fantasy-land#traversable),\n * then uses [`sequence`](#sequence) to transform the resulting Traversable of Applicative\n * into an Applicative of Traversable.\n *\n * Dispatches to the `sequence` method of the third argument, if present.\n *\n * @func\n * @memberOf R\n * @since v0.19.0\n * @category List\n * @sig (Applicative f, Traversable t) => (a -> f a) -> (a -> f b) -> t a -> f (t b)\n * @param {Function} of\n * @param {Function} f\n * @param {*} traversable\n * @return {*}\n * @see R.sequence\n * @example\n *\n *      // Returns `Nothing` if the given divisor is `0`\n *      safeDiv = n => d => d === 0 ? Nothing() : Just(n / d)\n *\n *      R.traverse(Maybe.of, safeDiv(10), [2, 4, 5]); //=> Just([5, 2.5, 2])\n *      R.traverse(Maybe.of, safeDiv(10), [2, 0, 5]); //=> Nothing\n */\nmodule.exports = _curry3(function traverse(of, f, traversable) {\n  return sequence(of, map(f, traversable));\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/traverse.js\n// module id = 298\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/traverse.js?");
+
+/***/ }),
+/* 299 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry1 = __webpack_require__(1);\n\n/**\n * Removes (strips) whitespace from both ends of the string.\n *\n * @func\n * @memberOf R\n * @since v0.6.0\n * @category String\n * @sig String -> String\n * @param {String} str The string to trim.\n * @return {String} Trimmed version of `str`.\n * @example\n *\n *      R.trim('   xyz  '); //=> 'xyz'\n *      R.map(R.trim, R.split(',', 'x, y, z')); //=> ['x', 'y', 'z']\n */\nmodule.exports = function () {\n  var ws = '\\t\\n\\x0B\\f\\r \\xA0\\u1680\\u180E\\u2000\\u2001\\u2002\\u2003' + '\\u2004\\u2005\\u2006\\u2007\\u2008\\u2009\\u200A\\u202F\\u205F\\u3000\\u2028' + '\\u2029\\uFEFF';\n  var zeroWidth = '\\u200B';\n  var hasProtoTrim = typeof String.prototype.trim === 'function';\n  if (!hasProtoTrim || ws.trim() || !zeroWidth.trim()) {\n    return _curry1(function trim(str) {\n      var beginRx = new RegExp('^[' + ws + '][' + ws + ']*');\n      var endRx = new RegExp('[' + ws + '][' + ws + ']*$');\n      return str.replace(beginRx, '').replace(endRx, '');\n    });\n  } else {\n    return _curry1(function trim(str) {\n      return str.trim();\n    });\n  }\n}();\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/trim.js\n// module id = 299\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/trim.js?");
+
+/***/ }),
+/* 300 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _arity = __webpack_require__(11);\nvar _concat = __webpack_require__(9);\nvar _curry2 = __webpack_require__(0);\n\n/**\n * `tryCatch` takes two functions, a `tryer` and a `catcher`. The returned\n * function evaluates the `tryer`; if it does not throw, it simply returns the\n * result. If the `tryer` *does* throw, the returned function evaluates the\n * `catcher` function and returns its result. Note that for effective\n * composition with this function, both the `tryer` and `catcher` functions\n * must return the same type of results.\n *\n * @func\n * @memberOf R\n * @since v0.20.0\n * @category Function\n * @sig (...x -> a) -> ((e, ...x) -> a) -> (...x -> a)\n * @param {Function} tryer The function that may throw.\n * @param {Function} catcher The function that will be evaluated if `tryer` throws.\n * @return {Function} A new function that will catch exceptions and send then to the catcher.\n * @example\n *\n *      R.tryCatch(R.prop('x'), R.F)({x: true}); //=> true\n *      R.tryCatch(R.prop('x'), R.F)(null);      //=> false\n */\nmodule.exports = _curry2(function _tryCatch(tryer, catcher) {\n  return _arity(tryer.length, function () {\n    try {\n      return tryer.apply(this, arguments);\n    } catch (e) {\n      return catcher.apply(this, _concat([e], arguments));\n    }\n  });\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/tryCatch.js\n// module id = 300\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/tryCatch.js?");
+
+/***/ }),
+/* 301 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry1 = __webpack_require__(1);\n\n/**\n * Takes a function `fn`, which takes a single array argument, and returns a\n * function which:\n *\n *   - takes any number of positional arguments;\n *   - passes these arguments to `fn` as an array; and\n *   - returns the result.\n *\n * In other words, R.unapply derives a variadic function from a function which\n * takes an array. R.unapply is the inverse of R.apply.\n *\n * @func\n * @memberOf R\n * @since v0.8.0\n * @category Function\n * @sig ([*...] -> a) -> (*... -> a)\n * @param {Function} fn\n * @return {Function}\n * @see R.apply\n * @example\n *\n *      R.unapply(JSON.stringify)(1, 2, 3); //=> '[1,2,3]'\n * @symb R.unapply(f)(a, b) = f([a, b])\n */\nmodule.exports = _curry1(function unapply(fn) {\n  return function () {\n    return fn(Array.prototype.slice.call(arguments, 0));\n  };\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/unapply.js\n// module id = 301\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/unapply.js?");
+
+/***/ }),
+/* 302 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry1 = __webpack_require__(1);\nvar nAry = __webpack_require__(38);\n\n/**\n * Wraps a function of any arity (including nullary) in a function that accepts\n * exactly 1 parameter. Any extraneous parameters will not be passed to the\n * supplied function.\n *\n * @func\n * @memberOf R\n * @since v0.2.0\n * @category Function\n * @sig (* -> b) -> (a -> b)\n * @param {Function} fn The function to wrap.\n * @return {Function} A new function wrapping `fn`. The new function is guaranteed to be of\n *         arity 1.\n * @example\n *\n *      var takesTwoArgs = function(a, b) {\n *        return [a, b];\n *      };\n *      takesTwoArgs.length; //=> 2\n *      takesTwoArgs(1, 2); //=> [1, 2]\n *\n *      var takesOneArg = R.unary(takesTwoArgs);\n *      takesOneArg.length; //=> 1\n *      // Only 1 argument is passed to the wrapped function\n *      takesOneArg(1, 2); //=> [1, undefined]\n * @symb R.unary(f)(a, b, c) = f(a)\n */\nmodule.exports = _curry1(function unary(fn) {\n  return nAry(1, fn);\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/unary.js\n// module id = 302\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/unary.js?");
+
+/***/ }),
+/* 303 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\nvar curryN = __webpack_require__(5);\n\n/**\n * Returns a function of arity `n` from a (manually) curried function.\n *\n * @func\n * @memberOf R\n * @since v0.14.0\n * @category Function\n * @sig Number -> (a -> b) -> (a -> c)\n * @param {Number} length The arity for the returned function.\n * @param {Function} fn The function to uncurry.\n * @return {Function} A new function.\n * @see R.curry\n * @example\n *\n *      var addFour = a => b => c => d => a + b + c + d;\n *\n *      var uncurriedAddFour = R.uncurryN(4, addFour);\n *      uncurriedAddFour(1, 2, 3, 4); //=> 10\n */\nmodule.exports = _curry2(function uncurryN(depth, fn) {\n  return curryN(depth, function () {\n    var currentDepth = 1;\n    var value = fn;\n    var idx = 0;\n    var endIdx;\n    while (currentDepth <= depth && typeof value === 'function') {\n      endIdx = currentDepth === depth ? arguments.length : idx + value.length;\n      value = value.apply(this, Array.prototype.slice.call(arguments, idx, endIdx));\n      currentDepth += 1;\n      idx = endIdx;\n    }\n    return value;\n  });\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/uncurryN.js\n// module id = 303\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/uncurryN.js?");
+
+/***/ }),
+/* 304 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\n\n/**\n * Builds a list from a seed value. Accepts an iterator function, which returns\n * either false to stop iteration or an array of length 2 containing the value\n * to add to the resulting list and the seed to be used in the next call to the\n * iterator function.\n *\n * The iterator function receives one argument: *(seed)*.\n *\n * @func\n * @memberOf R\n * @since v0.10.0\n * @category List\n * @sig (a -> [b]) -> * -> [b]\n * @param {Function} fn The iterator function. receives one argument, `seed`, and returns\n *        either false to quit iteration or an array of length two to proceed. The element\n *        at index 0 of this array will be added to the resulting array, and the element\n *        at index 1 will be passed to the next call to `fn`.\n * @param {*} seed The seed value.\n * @return {Array} The final list.\n * @example\n *\n *      var f = n => n > 50 ? false : [-n, n + 10];\n *      R.unfold(f, 10); //=> [-10, -20, -30, -40, -50]\n * @symb R.unfold(f, x) = [f(x)[0], f(f(x)[1])[0], f(f(f(x)[1])[1])[0], ...]\n */\nmodule.exports = _curry2(function unfold(fn, seed) {\n  var pair = fn(seed);\n  var result = [];\n  while (pair && pair.length) {\n    result[result.length] = pair[0];\n    pair = fn(pair[1]);\n  }\n  return result;\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/unfold.js\n// module id = 304\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/unfold.js?");
+
+/***/ }),
+/* 305 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _concat = __webpack_require__(9);\nvar _curry2 = __webpack_require__(0);\nvar compose = __webpack_require__(44);\nvar uniq = __webpack_require__(55);\n\n/**\n * Combines two lists into a set (i.e. no duplicates) composed of the elements\n * of each list.\n *\n * @func\n * @memberOf R\n * @since v0.1.0\n * @category Relation\n * @sig [*] -> [*] -> [*]\n * @param {Array} as The first list.\n * @param {Array} bs The second list.\n * @return {Array} The first and second lists concatenated, with\n *         duplicates removed.\n * @example\n *\n *      R.union([1, 2, 3], [2, 3, 4]); //=> [1, 2, 3, 4]\n */\nmodule.exports = _curry2(compose(uniq, _concat));\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/union.js\n// module id = 305\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/union.js?");
+
+/***/ }),
+/* 306 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _concat = __webpack_require__(9);\nvar _curry3 = __webpack_require__(2);\nvar uniqWith = __webpack_require__(56);\n\n/**\n * Combines two lists into a set (i.e. no duplicates) composed of the elements\n * of each list. Duplication is determined according to the value returned by\n * applying the supplied predicate to two list elements.\n *\n * @func\n * @memberOf R\n * @since v0.1.0\n * @category Relation\n * @sig (a -> a -> Boolean) -> [*] -> [*] -> [*]\n * @param {Function} pred A predicate used to test whether two items are equal.\n * @param {Array} list1 The first list.\n * @param {Array} list2 The second list.\n * @return {Array} The first and second lists concatenated, with\n *         duplicates removed.\n * @see R.union\n * @example\n *\n *      var l1 = [{a: 1}, {a: 2}];\n *      var l2 = [{a: 1}, {a: 4}];\n *      R.unionWith(R.eqBy(R.prop('a')), l1, l2); //=> [{a: 1}, {a: 2}, {a: 4}]\n */\nmodule.exports = _curry3(function unionWith(pred, list1, list2) {\n  return uniqWith(pred, _concat(list1, list2));\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/unionWith.js\n// module id = 306\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/unionWith.js?");
+
+/***/ }),
+/* 307 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry3 = __webpack_require__(2);\n\n/**\n * Tests the final argument by passing it to the given predicate function. If\n * the predicate is not satisfied, the function will return the result of\n * calling the `whenFalseFn` function with the same argument. If the predicate\n * is satisfied, the argument is returned as is.\n *\n * @func\n * @memberOf R\n * @since v0.18.0\n * @category Logic\n * @sig (a -> Boolean) -> (a -> a) -> a -> a\n * @param {Function} pred        A predicate function\n * @param {Function} whenFalseFn A function to invoke when the `pred` evaluates\n *                               to a falsy value.\n * @param {*}        x           An object to test with the `pred` function and\n *                               pass to `whenFalseFn` if necessary.\n * @return {*} Either `x` or the result of applying `x` to `whenFalseFn`.\n * @see R.ifElse, R.when\n * @example\n *\n *      // coerceArray :: (a|[a]) -> [a]\n *      var coerceArray = R.unless(R.isArrayLike, R.of);\n *      coerceArray([1, 2, 3]); //=> [1, 2, 3]\n *      coerceArray(1);         //=> [1]\n */\nmodule.exports = _curry3(function unless(pred, whenFalseFn, x) {\n  return pred(x) ? x : whenFalseFn(x);\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/unless.js\n// module id = 307\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/unless.js?");
+
+/***/ }),
+/* 308 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _identity = __webpack_require__(50);\nvar chain = __webpack_require__(43);\n\n/**\n * Shorthand for `R.chain(R.identity)`, which removes one level of nesting from\n * any [Chain](https://github.com/fantasyland/fantasy-land#chain).\n *\n * @func\n * @memberOf R\n * @since v0.3.0\n * @category List\n * @sig Chain c => c (c a) -> c a\n * @param {*} list\n * @return {*}\n * @see R.flatten, R.chain\n * @example\n *\n *      R.unnest([1, [2], [[3]]]); //=> [1, 2, [3]]\n *      R.unnest([[1, 2], [3, 4], [5, 6]]); //=> [1, 2, 3, 4, 5, 6]\n */\nmodule.exports = chain(_identity);\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/unnest.js\n// module id = 308\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/unnest.js?");
+
+/***/ }),
+/* 309 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry3 = __webpack_require__(2);\n\n/**\n * Takes a predicate, a transformation function, and an initial value,\n * and returns a value of the same type as the initial value.\n * It does so by applying the transformation until the predicate is satisfied,\n * at which point it returns the satisfactory value.\n *\n * @func\n * @memberOf R\n * @since v0.20.0\n * @category Logic\n * @sig (a -> Boolean) -> (a -> a) -> a -> a\n * @param {Function} pred A predicate function\n * @param {Function} fn The iterator function\n * @param {*} init Initial value\n * @return {*} Final value that satisfies predicate\n * @example\n *\n *      R.until(R.gt(R.__, 100), R.multiply(2))(1) // => 128\n */\nmodule.exports = _curry3(function until(pred, fn, init) {\n  var val = init;\n  while (!pred(val)) {\n    val = fn(val);\n  }\n  return val;\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/until.js\n// module id = 309\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/until.js?");
+
+/***/ }),
+/* 310 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry1 = __webpack_require__(1);\n\n/**\n * Returns a list of all the properties, including prototype properties, of the\n * supplied object.\n * Note that the order of the output array is not guaranteed to be consistent\n * across different JS platforms.\n *\n * @func\n * @memberOf R\n * @since v0.2.0\n * @category Object\n * @sig {k: v} -> [v]\n * @param {Object} obj The object to extract values from\n * @return {Array} An array of the values of the object's own and prototype properties.\n * @example\n *\n *      var F = function() { this.x = 'X'; };\n *      F.prototype.y = 'Y';\n *      var f = new F();\n *      R.valuesIn(f); //=> ['X', 'Y']\n */\nmodule.exports = _curry1(function valuesIn(obj) {\n  var prop;\n  var vs = [];\n  for (prop in obj) {\n    vs[vs.length] = obj[prop];\n  }\n  return vs;\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/valuesIn.js\n// module id = 310\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/valuesIn.js?");
+
+/***/ }),
+/* 311 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\n\n/**\n * Returns a \"view\" of the given data structure, determined by the given lens.\n * The lens's focus determines which portion of the data structure is visible.\n *\n * @func\n * @memberOf R\n * @since v0.16.0\n * @category Object\n * @typedefn Lens s a = Functor f => (a -> f a) -> s -> f s\n * @sig Lens s a -> s -> a\n * @param {Lens} lens\n * @param {*} x\n * @return {*}\n * @see R.prop, R.lensIndex, R.lensProp\n * @example\n *\n *      var xLens = R.lensProp('x');\n *\n *      R.view(xLens, {x: 1, y: 2});  //=> 1\n *      R.view(xLens, {x: 4, y: 2});  //=> 4\n */\nmodule.exports = function () {\n  // `Const` is a functor that effectively ignores the function given to `map`.\n  var Const = function Const(x) {\n    return { value: x, map: function map() {\n        return this;\n      } };\n  };\n\n  return _curry2(function view(lens, x) {\n    // Using `Const` effectively ignores the setter function of the `lens`,\n    // leaving the value returned by the getter function unmodified.\n    return lens(Const)(x).value;\n  });\n}();\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/view.js\n// module id = 311\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/view.js?");
+
+/***/ }),
+/* 312 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry3 = __webpack_require__(2);\n\n/**\n * Tests the final argument by passing it to the given predicate function. If\n * the predicate is satisfied, the function will return the result of calling\n * the `whenTrueFn` function with the same argument. If the predicate is not\n * satisfied, the argument is returned as is.\n *\n * @func\n * @memberOf R\n * @since v0.18.0\n * @category Logic\n * @sig (a -> Boolean) -> (a -> a) -> a -> a\n * @param {Function} pred       A predicate function\n * @param {Function} whenTrueFn A function to invoke when the `condition`\n *                              evaluates to a truthy value.\n * @param {*}        x          An object to test with the `pred` function and\n *                              pass to `whenTrueFn` if necessary.\n * @return {*} Either `x` or the result of applying `x` to `whenTrueFn`.\n * @see R.ifElse, R.unless\n * @example\n *\n *      // truncate :: String -> String\n *      var truncate = R.when(\n *        R.propSatisfies(R.gt(R.__, 10), 'length'),\n *        R.pipe(R.take(10), R.append('…'), R.join(''))\n *      );\n *      truncate('12345');         //=> '12345'\n *      truncate('0123456789ABC'); //=> '0123456789…'\n */\nmodule.exports = _curry3(function when(pred, whenTrueFn, x) {\n  return pred(x) ? whenTrueFn(x) : x;\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/when.js\n// module id = 312\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/when.js?");
+
+/***/ }),
+/* 313 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\nvar equals = __webpack_require__(10);\nvar map = __webpack_require__(7);\nvar where = __webpack_require__(114);\n\n/**\n * Takes a spec object and a test object; returns true if the test satisfies\n * the spec, false otherwise. An object satisfies the spec if, for each of the\n * spec's own properties, accessing that property of the object gives the same\n * value (in `R.equals` terms) as accessing that property of the spec.\n *\n * `whereEq` is a specialization of [`where`](#where).\n *\n * @func\n * @memberOf R\n * @since v0.14.0\n * @category Object\n * @sig {String: *} -> {String: *} -> Boolean\n * @param {Object} spec\n * @param {Object} testObj\n * @return {Boolean}\n * @see R.where\n * @example\n *\n *      // pred :: Object -> Boolean\n *      var pred = R.whereEq({a: 1, b: 2});\n *\n *      pred({a: 1});              //=> false\n *      pred({a: 1, b: 2});        //=> true\n *      pred({a: 1, b: 2, c: 3});  //=> true\n *      pred({a: 1, b: 1});        //=> false\n */\nmodule.exports = _curry2(function whereEq(spec, testObj) {\n  return where(map(equals, spec), testObj);\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/whereEq.js\n// module id = 313\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/whereEq.js?");
+
+/***/ }),
+/* 314 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _contains = __webpack_require__(16);\nvar _curry2 = __webpack_require__(0);\nvar flip = __webpack_require__(30);\nvar reject = __webpack_require__(40);\n\n/**\n * Returns a new list without values in the first argument.\n * `R.equals` is used to determine equality.\n *\n * Acts as a transducer if a transformer is given in list position.\n *\n * @func\n * @memberOf R\n * @since v0.19.0\n * @category List\n * @sig [a] -> [a] -> [a]\n * @param {Array} list1 The values to be removed from `list2`.\n * @param {Array} list2 The array to remove values from.\n * @return {Array} The new array without values in `list1`.\n * @see R.transduce\n * @example\n *\n *      R.without([1, 2], [1, 2, 1, 3, 4]); //=> [3, 4]\n */\nmodule.exports = _curry2(function (xs, list) {\n  return reject(flip(_contains)(xs), list);\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/without.js\n// module id = 314\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/without.js?");
+
+/***/ }),
+/* 315 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\n\n/**\n * Creates a new list out of the two supplied by creating each possible pair\n * from the lists.\n *\n * @func\n * @memberOf R\n * @since v0.1.0\n * @category List\n * @sig [a] -> [b] -> [[a,b]]\n * @param {Array} as The first list.\n * @param {Array} bs The second list.\n * @return {Array} The list made by combining each possible pair from\n *         `as` and `bs` into pairs (`[a, b]`).\n * @example\n *\n *      R.xprod([1, 2], ['a', 'b']); //=> [[1, 'a'], [1, 'b'], [2, 'a'], [2, 'b']]\n * @symb R.xprod([a, b], [c, d]) = [[a, c], [a, d], [b, c], [b, d]]\n */\nmodule.exports = _curry2(function xprod(a, b) {\n  // = xprodWith(prepend); (takes about 3 times as long...)\n  var idx = 0;\n  var ilen = a.length;\n  var j;\n  var jlen = b.length;\n  var result = [];\n  while (idx < ilen) {\n    j = 0;\n    while (j < jlen) {\n      result[result.length] = [a[idx], b[j]];\n      j += 1;\n    }\n    idx += 1;\n  }\n  return result;\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/xprod.js\n// module id = 315\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/xprod.js?");
+
+/***/ }),
+/* 316 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\n\n/**\n * Creates a new list out of the two supplied by pairing up equally-positioned\n * items from both lists. The returned list is truncated to the length of the\n * shorter of the two input lists.\n * Note: `zip` is equivalent to `zipWith(function(a, b) { return [a, b] })`.\n *\n * @func\n * @memberOf R\n * @since v0.1.0\n * @category List\n * @sig [a] -> [b] -> [[a,b]]\n * @param {Array} list1 The first array to consider.\n * @param {Array} list2 The second array to consider.\n * @return {Array} The list made by pairing up same-indexed elements of `list1` and `list2`.\n * @example\n *\n *      R.zip([1, 2, 3], ['a', 'b', 'c']); //=> [[1, 'a'], [2, 'b'], [3, 'c']]\n * @symb R.zip([a, b, c], [d, e, f]) = [[a, d], [b, e], [c, f]]\n */\nmodule.exports = _curry2(function zip(a, b) {\n  var rv = [];\n  var idx = 0;\n  var len = Math.min(a.length, b.length);\n  while (idx < len) {\n    rv[idx] = [a[idx], b[idx]];\n    idx += 1;\n  }\n  return rv;\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/zip.js\n// module id = 316\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/zip.js?");
+
+/***/ }),
+/* 317 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry2 = __webpack_require__(0);\n\n/**\n * Creates a new object out of a list of keys and a list of values.\n * Key/value pairing is truncated to the length of the shorter of the two lists.\n * Note: `zipObj` is equivalent to `pipe(zipWith(pair), fromPairs)`.\n *\n * @func\n * @memberOf R\n * @since v0.3.0\n * @category List\n * @sig [String] -> [*] -> {String: *}\n * @param {Array} keys The array that will be properties on the output object.\n * @param {Array} values The list of values on the output object.\n * @return {Object} The object made by pairing up same-indexed elements of `keys` and `values`.\n * @example\n *\n *      R.zipObj(['a', 'b', 'c'], [1, 2, 3]); //=> {a: 1, b: 2, c: 3}\n */\nmodule.exports = _curry2(function zipObj(keys, values) {\n  var idx = 0;\n  var len = Math.min(keys.length, values.length);\n  var out = {};\n  while (idx < len) {\n    out[keys[idx]] = values[idx];\n    idx += 1;\n  }\n  return out;\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/zipObj.js\n// module id = 317\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/zipObj.js?");
+
+/***/ }),
+/* 318 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _curry3 = __webpack_require__(2);\n\n/**\n * Creates a new list out of the two supplied by applying the function to each\n * equally-positioned pair in the lists. The returned list is truncated to the\n * length of the shorter of the two input lists.\n *\n * @function\n * @memberOf R\n * @since v0.1.0\n * @category List\n * @sig (a,b -> c) -> [a] -> [b] -> [c]\n * @param {Function} fn The function used to combine the two elements into one value.\n * @param {Array} list1 The first array to consider.\n * @param {Array} list2 The second array to consider.\n * @return {Array} The list made by combining same-indexed elements of `list1` and `list2`\n *         using `fn`.\n * @example\n *\n *      var f = (x, y) => {\n *        // ...\n *      };\n *      R.zipWith(f, [1, 2, 3], ['a', 'b', 'c']);\n *      //=> [f(1, 'a'), f(2, 'b'), f(3, 'c')]\n * @symb R.zipWith(fn, [a, b, c], [d, e, f]) = [fn(a, d), fn(b, e), fn(c, f)]\n */\nmodule.exports = _curry3(function zipWith(fn, a, b) {\n  var rv = [];\n  var idx = 0;\n  var len = Math.min(a.length, b.length);\n  while (idx < len) {\n    rv[idx] = fn(a[idx], b[idx]);\n    idx += 1;\n  }\n  return rv;\n});\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/ramda/src/zipWith.js\n// module id = 318\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/ramda/src/zipWith.js?");
+
+/***/ }),
+/* 319 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\n/**\n * When source maps are enabled, `style-loader` uses a link element with a data-uri to\n * embed the css on the page. This breaks all relative urls because now they are relative to a\n * bundle instead of the current page.\n *\n * One solution is to only use full urls, but that may be impossible.\n *\n * Instead, this function \"fixes\" the relative urls to be absolute according to the current page location.\n *\n * A rudimentary test suite is located at `test/fixUrls.js` and can be run via the `npm test` command.\n *\n */\n\nmodule.exports = function (css) {\n\t// get current location\n\tvar location = typeof window !== \"undefined\" && window.location;\n\n\tif (!location) {\n\t\tthrow new Error(\"fixUrls requires window.location\");\n\t}\n\n\t// blank or null?\n\tif (!css || typeof css !== \"string\") {\n\t\treturn css;\n\t}\n\n\tvar baseUrl = location.protocol + \"//\" + location.host;\n\tvar currentDir = baseUrl + location.pathname.replace(/\\/[^\\/]*$/, \"/\");\n\n\t// convert each url(...)\n\t/*\n This regular expression is just a way to recursively match brackets within\n a string.\n \t /url\\s*\\(  = Match on the word \"url\" with any whitespace after it and then a parens\n    (  = Start a capturing group\n      (?:  = Start a non-capturing group\n          [^)(]  = Match anything that isn't a parentheses\n          |  = OR\n          \\(  = Match a start parentheses\n              (?:  = Start another non-capturing groups\n                  [^)(]+  = Match anything that isn't a parentheses\n                  |  = OR\n                  \\(  = Match a start parentheses\n                      [^)(]*  = Match anything that isn't a parentheses\n                  \\)  = Match a end parentheses\n              )  = End Group\n              *\\) = Match anything and then a close parens\n          )  = Close non-capturing group\n          *  = Match anything\n       )  = Close capturing group\n  \\)  = Match a close parens\n \t /gi  = Get all matches, not the first.  Be case insensitive.\n  */\n\tvar fixedCss = css.replace(/url\\s*\\(((?:[^)(]|\\((?:[^)(]+|\\([^)(]*\\))*\\))*)\\)/gi, function (fullMatch, origUrl) {\n\t\t// strip quotes (if they exist)\n\t\tvar unquotedOrigUrl = origUrl.trim().replace(/^\"(.*)\"$/, function (o, $1) {\n\t\t\treturn $1;\n\t\t}).replace(/^'(.*)'$/, function (o, $1) {\n\t\t\treturn $1;\n\t\t});\n\n\t\t// already a full url? no change\n\t\tif (/^(#|data:|http:\\/\\/|https:\\/\\/|file:\\/\\/\\/)/i.test(unquotedOrigUrl)) {\n\t\t\treturn fullMatch;\n\t\t}\n\n\t\t// convert the url to a full url\n\t\tvar newUrl;\n\n\t\tif (unquotedOrigUrl.indexOf(\"//\") === 0) {\n\t\t\t//TODO: should we add protocol?\n\t\t\tnewUrl = unquotedOrigUrl;\n\t\t} else if (unquotedOrigUrl.indexOf(\"/\") === 0) {\n\t\t\t// path should be relative to the base url\n\t\t\tnewUrl = baseUrl + unquotedOrigUrl; // already starts with '/'\n\t\t} else {\n\t\t\t// path should be relative to current directory\n\t\t\tnewUrl = currentDir + unquotedOrigUrl.replace(/^\\.\\//, \"\"); // Strip leading './'\n\t\t}\n\n\t\t// send back the fixed url(...)\n\t\treturn \"url(\" + JSON.stringify(newUrl) + \")\";\n\t});\n\n\t// send back the fixed css\n\treturn fixedCss;\n};\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/style-loader/fixUrls.js\n// module id = 319\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/style-loader/fixUrls.js?");
+
+/***/ }),
+/* 320 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\n\nvar _typeof = typeof Symbol === \"function\" && typeof Symbol.iterator === \"symbol\" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === \"function\" && obj.constructor === Symbol && obj !== Symbol.prototype ? \"symbol\" : typeof obj; };\n\nvar g;\n\n// This works in non-strict mode\ng = function () {\n\treturn this;\n}();\n\ntry {\n\t// This works if eval is allowed (see CSP)\n\tg = g || Function(\"return this\")() || (1, eval)(\"this\");\n} catch (e) {\n\t// This works if the window reference is available\n\tif ((typeof window === \"undefined\" ? \"undefined\" : _typeof(window)) === \"object\") g = window;\n}\n\n// g can still be undefined, but nothing to do about it...\n// We return undefined, instead of nothing here, so it's\n// easier to handle this case. if(!global) { ...}\n\nmodule.exports = g;\n\n//////////////////\n// WEBPACK FOOTER\n// (webpack)/buildin/global.js\n// module id = 320\n// module chunks = 0\n\n//# sourceURL=webpack:///(webpack)/buildin/global.js?");
+
+/***/ }),
+/* 321 */
+/***/ (function(module, exports, __webpack_require__) {
+
+eval("exports = module.exports = __webpack_require__(121)(true);\n// imports\n\n\n// module\nexports.push([module.i, \"@charset \\\"UTF-8\\\";\\n/**\\n * util function to get font-size\\n * @param $key, $device\\n * @return $font-size\\n */\\n/**\\n * Usage\\n *\\n * .a {\\n *   @include responsive-font-size('x-small');\\n * }\\n *\\n * .a {\\n *   font-size: 11px;\\n *\\n *   @media desktop {\\n *     font-size: 12px;\\n *   }\\n * }\\n * 如果找不到 key，則會丟出 error\\n */\\n/*! normalize.css v4.1.1 | MIT License | github.com/necolas/normalize.css */\\n/**\\n * 1. Change the default font family in all browsers (opinionated).\\n * 2. Prevent adjustments of font size after orientation changes in IE and iOS.\\n */\\nhtml {\\n  font-family: sans-serif;\\n  /* 1 */\\n  -ms-text-size-adjust: 100%;\\n  /* 2 */\\n  -webkit-text-size-adjust: 100%;\\n  /* 2 */ }\\n\\n/**\\n * Remove the margin in all browsers (opinionated).\\n */\\nbody {\\n  margin: 0; }\\n\\n/* HTML5 display definitions\\n   ========================================================================== */\\n/**\\n * Add the correct display in IE 9-.\\n * 1. Add the correct display in Edge, IE, and Firefox.\\n * 2. Add the correct display in IE.\\n */\\narticle,\\naside,\\ndetails,\\nfigcaption,\\nfigure,\\nfooter,\\nheader,\\nmain,\\nmenu,\\nnav,\\nsection,\\nsummary {\\n  /* 1 */\\n  display: block; }\\n\\n/**\\n * Add the correct display in IE 9-.\\n */\\naudio,\\ncanvas,\\nprogress,\\nvideo {\\n  display: inline-block; }\\n\\n/**\\n * Add the correct display in iOS 4-7.\\n */\\naudio:not([controls]) {\\n  display: none;\\n  height: 0; }\\n\\n/**\\n * Add the correct vertical alignment in Chrome, Firefox, and Opera.\\n */\\nprogress {\\n  vertical-align: baseline; }\\n\\n/**\\n * Add the correct display in IE 10-.\\n * 1. Add the correct display in IE.\\n */\\ntemplate,\\n[hidden] {\\n  display: none; }\\n\\n/* Links\\n   ========================================================================== */\\n/**\\n * 1. Remove the gray background on active links in IE 10.\\n * 2. Remove gaps in links underline in iOS 8+ and Safari 8+.\\n */\\na {\\n  background-color: transparent;\\n  /* 1 */\\n  -webkit-text-decoration-skip: objects;\\n  /* 2 */ }\\n\\n/**\\n * Remove the outline on focused links when they are also active or hovered\\n * in all browsers (opinionated).\\n */\\na:active,\\na:hover {\\n  outline-width: 0; }\\n\\n/* Text-level semantics\\n   ========================================================================== */\\n/**\\n * 1. Remove the bottom border in Firefox 39-.\\n * 2. Add the correct text decoration in Chrome, Edge, IE, Opera, and Safari.\\n */\\nabbr[title] {\\n  border-bottom: none;\\n  /* 1 */\\n  text-decoration: underline;\\n  /* 2 */\\n  text-decoration: underline dotted;\\n  /* 2 */ }\\n\\n/**\\n * Prevent the duplicate application of `bolder` by the next rule in Safari 6.\\n */\\nb,\\nstrong {\\n  font-weight: inherit; }\\n\\n/**\\n * Add the correct font weight in Chrome, Edge, and Safari.\\n */\\nb,\\nstrong {\\n  font-weight: bolder; }\\n\\n/**\\n * Add the correct font style in Android 4.3-.\\n */\\ndfn {\\n  font-style: italic; }\\n\\n/**\\n * Correct the font size and margin on `h1` elements within `section` and\\n * `article` contexts in Chrome, Firefox, and Safari.\\n */\\nh1 {\\n  font-size: 2em;\\n  margin: 0.67em 0; }\\n\\n/**\\n * Add the correct background and color in IE 9-.\\n */\\nmark {\\n  background-color: #ff0;\\n  color: #000; }\\n\\n/**\\n * Add the correct font size in all browsers.\\n */\\nsmall {\\n  font-size: 80%; }\\n\\n/**\\n * Prevent `sub` and `sup` elements from affecting the line height in\\n * all browsers.\\n */\\nsub,\\nsup {\\n  font-size: 75%;\\n  line-height: 0;\\n  position: relative;\\n  vertical-align: baseline; }\\n\\nsub {\\n  bottom: -0.25em; }\\n\\nsup {\\n  top: -0.5em; }\\n\\n/* Embedded content\\n   ========================================================================== */\\n/**\\n * Remove the border on images inside links in IE 10-.\\n */\\nimg {\\n  border-style: none; }\\n\\n/**\\n * Hide the overflow in IE.\\n */\\nsvg:not(:root) {\\n  overflow: hidden; }\\n\\n/* Grouping content\\n   ========================================================================== */\\n/**\\n * 1. Correct the inheritance and scaling of font size in all browsers.\\n * 2. Correct the odd `em` font sizing in all browsers.\\n */\\ncode,\\nkbd,\\npre,\\nsamp {\\n  font-family: monospace, monospace;\\n  /* 1 */\\n  font-size: 1em;\\n  /* 2 */ }\\n\\n/**\\n * Add the correct margin in IE 8.\\n */\\nfigure {\\n  margin: 1em 40px; }\\n\\n/**\\n * 1. Add the correct box sizing in Firefox.\\n * 2. Show the overflow in Edge and IE.\\n */\\nhr {\\n  box-sizing: content-box;\\n  /* 1 */\\n  height: 0;\\n  /* 1 */\\n  overflow: visible;\\n  /* 2 */ }\\n\\n/* Forms\\n   ========================================================================== */\\n/**\\n * 1. Change font properties to `inherit` in all browsers (opinionated).\\n * 2. Remove the margin in Firefox and Safari.\\n */\\nbutton,\\ninput,\\nselect,\\ntextarea {\\n  font: inherit;\\n  /* 1 */\\n  margin: 0;\\n  /* 2 */ }\\n\\n/**\\n * Restore the font weight unset by the previous rule.\\n */\\noptgroup {\\n  font-weight: bold; }\\n\\n/**\\n * Show the overflow in IE.\\n * 1. Show the overflow in Edge.\\n */\\nbutton,\\ninput {\\n  /* 1 */\\n  overflow: visible; }\\n\\n/**\\n * Remove the inheritance of text transform in Edge, Firefox, and IE.\\n * 1. Remove the inheritance of text transform in Firefox.\\n */\\nbutton,\\nselect {\\n  /* 1 */\\n  text-transform: none; }\\n\\n/**\\n * 1. Prevent a WebKit bug where (2) destroys native `audio` and `video`\\n *    controls in Android 4.\\n * 2. Correct the inability to style clickable types in iOS and Safari.\\n */\\nbutton,\\nhtml [type=\\\"button\\\"],\\n[type=\\\"reset\\\"],\\n[type=\\\"submit\\\"] {\\n  -webkit-appearance: button;\\n  /* 2 */ }\\n\\n/**\\n * Remove the inner border and padding in Firefox.\\n */\\nbutton::-moz-focus-inner,\\n[type=\\\"button\\\"]::-moz-focus-inner,\\n[type=\\\"reset\\\"]::-moz-focus-inner,\\n[type=\\\"submit\\\"]::-moz-focus-inner {\\n  border-style: none;\\n  padding: 0; }\\n\\n/**\\n * Restore the focus styles unset by the previous rule.\\n */\\nbutton:-moz-focusring,\\n[type=\\\"button\\\"]:-moz-focusring,\\n[type=\\\"reset\\\"]:-moz-focusring,\\n[type=\\\"submit\\\"]:-moz-focusring {\\n  outline: 1px dotted ButtonText; }\\n\\n/**\\n * Change the border, margin, and padding in all browsers (opinionated).\\n */\\nfieldset {\\n  border: 1px solid #c0c0c0;\\n  margin: 0 2px;\\n  padding: 0.35em 0.625em 0.75em; }\\n\\n/**\\n * 1. Correct the text wrapping in Edge and IE.\\n * 2. Correct the color inheritance from `fieldset` elements in IE.\\n * 3. Remove the padding so developers are not caught out when they zero out\\n *    `fieldset` elements in all browsers.\\n */\\nlegend {\\n  box-sizing: border-box;\\n  /* 1 */\\n  color: inherit;\\n  /* 2 */\\n  display: table;\\n  /* 1 */\\n  max-width: 100%;\\n  /* 1 */\\n  padding: 0;\\n  /* 3 */\\n  white-space: normal;\\n  /* 1 */ }\\n\\n/**\\n * Remove the default vertical scrollbar in IE.\\n */\\ntextarea {\\n  overflow: auto; }\\n\\n/**\\n * 1. Add the correct box sizing in IE 10-.\\n * 2. Remove the padding in IE 10-.\\n */\\n[type=\\\"checkbox\\\"],\\n[type=\\\"radio\\\"] {\\n  box-sizing: border-box;\\n  /* 1 */\\n  padding: 0;\\n  /* 2 */ }\\n\\n/**\\n * Correct the cursor style of increment and decrement buttons in Chrome.\\n */\\n[type=\\\"number\\\"]::-webkit-inner-spin-button,\\n[type=\\\"number\\\"]::-webkit-outer-spin-button {\\n  height: auto; }\\n\\n/**\\n * 1. Correct the odd appearance in Chrome and Safari.\\n * 2. Correct the outline style in Safari.\\n */\\n[type=\\\"search\\\"] {\\n  -webkit-appearance: textfield;\\n  /* 1 */\\n  outline-offset: -2px;\\n  /* 2 */ }\\n\\n/**\\n * Remove the inner padding and cancel buttons in Chrome and Safari on OS X.\\n */\\n[type=\\\"search\\\"]::-webkit-search-cancel-button,\\n[type=\\\"search\\\"]::-webkit-search-decoration {\\n  -webkit-appearance: none; }\\n\\n/**\\n * Correct the text style of placeholders in Chrome, Edge, and Safari.\\n */\\n::-webkit-input-placeholder {\\n  color: inherit;\\n  opacity: 0.54; }\\n\\n/**\\n * 1. Correct the inability to style clickable types in iOS and Safari.\\n * 2. Change font properties to `inherit` in Safari.\\n */\\n::-webkit-file-upload-button {\\n  -webkit-appearance: button;\\n  /* 1 */\\n  font: inherit;\\n  /* 2 */ }\\n\\nhtml, body {\\n  height: 100%;\\n  font-size: calc(14px + ((100vw - 320px) / 1600) * 6);\\n  font-family: \\\"Noto Sans TC\\\", \\\"Noto Sans CJK TC\\\", \\\"PingFang TC\\\", sans-serif;\\n  background-color: #fafafa;\\n  color: #4a4a4a;\\n  -webkit-font-smoothing: antialiased; }\\n\\n* {\\n  box-sizing: border-box; }\\n\\nimg {\\n  position: relative;\\n  font-family: \\\"PingFang TC\\\";\\n  font-weight: 300;\\n  font-size: 14px;\\n  line-height: 2;\\n  text-align: center; }\\n  img:before {\\n    display: block;\\n    margin-bottom: 10px;\\n    content: \\\"\\\\62B1\\\\6B49\\\\FF0C\\\\9019\\\\5F35\\\\5716\\\\7247\\\\76EE\\\\524D\\\\5DF2\\\\79FB\\\\9664\\\\6216\\\\7121\\\\6CD5\\\\4F7F\\\\7528\\\"; }\\n  img:after {\\n    position: absolute;\\n    z-index: 20;\\n    top: 5px;\\n    left: 0;\\n    width: 100%;\\n    text-align: center;\\n    top: 50%;\\n    display: block;\\n    padding: 10px 5px;\\n    background-color: #bbb;\\n    border: 2px dotted #444;\\n    content: \\\"url\\\" \\\"(\\\" attr(src) \\\")\\\"; }\\n\\n.hero-image {\\n  width: 100vw;\\n  height: 100vh;\\n  position: relative;\\n  left: 50%;\\n  right: 50%;\\n  margin-left: -50vw;\\n  margin-right: -50vw;\\n  background-position: center;\\n  background-size: cover; }\\n\\n.full-width {\\n  width: 100vw;\\n  position: relative;\\n  left: 50%;\\n  right: 50%;\\n  margin-left: -50vw;\\n  margin-right: -50vw; }\\n\\nsvg {\\n  width: 100%;\\n  height: 100%; }\\n\\n.line {\\n  height: 100%; }\\n\\n.detail {\\n  display: block;\\n  position: absolute;\\n  padding: 3px 8px;\\n  background-color: rgba(125, 125, 125, 0.6);\\n  color: #fff;\\n  line-height: 1;\\n  border-radius: 3px;\\n  font-family: Oswald; }\\n  .detail .detail-item.jobless:before {\\n    color: #27cc95; }\\n  .detail .detail-item.salary:before {\\n    color: #39a5c8; }\\n  .detail .detail-item.hours:before {\\n    color: #3295b5; }\\n  .detail .detail-item:before {\\n    font-size: 1.2em;\\n    display: inline-block;\\n    margin-right: 4px;\\n    content: \\\"\\\\25CF\\\"; }\\n\\n.tick text {\\n  font-size: 20px;\\n  font-weight: bold;\\n  font-family: Oswald; }\\n\\n.tick line {\\n  stroke: #aaa;\\n  stroke-dasharray: 3,3; }\\n\\n.top-summary-board {\\n  width: 80%;\\n  max-width: 700px;\\n  padding: 20px;\\n  margin: 0 auto;\\n  background-color: rgba(125, 125, 125, 0.6);\\n  color: #fff;\\n  backdrop-filter: blur(2px);\\n  -webkit-backdrop-filter: blur(2px);\\n  border-radius: 3px; }\\n\\n.circle {\\n  stroke: #fff; }\\n  .circle.toggle {\\n    fill: #fff;\\n    stroke: #ff6565; }\\n\\n.container {\\n  padding: 0 15px; }\\n\\nh1, h2, h3, h4, h5, h6 {\\n  margin: 0; }\\n\\n.clearfix {\\n  zoom: 1; }\\n  .clearfix:before, .clearfix:after {\\n    content: \\\"\\\";\\n    display: table;\\n    clear: both; }\\n\\n.labor-story .chart {\\n  float: left;\\n  width: 55%;\\n  padding: 10px;\\n  height: 100vh;\\n  background-color: #fff; }\\n\\n.labor-story .story-area {\\n  float: right;\\n  height: 100vh;\\n  overflow-y: scroll;\\n  width: 45%;\\n  padding: 15px;\\n  background-color: #fff;\\n  border-left: 1px solid #aaa; }\\n\\n.text-center {\\n  text-align: center; }\\n\\n.affix {\\n  position: fixed;\\n  height: 100%;\\n  top: 0; }\\n\\n.circle {\\n  fill: #ff6565; }\\n\\n.story {\\n  margin-left: 1.5em;\\n  margin-right: 5%;\\n  background-color: #fff; }\\n  .story .story-title {\\n    font-size: 1.65em;\\n    letter-spacing: 1px;\\n    padding-left: .5em;\\n    border-left: 5px solid currentColor;\\n    line-height: 1; }\\n  .story .story-time {\\n    position: relative;\\n    font-family: Oswald;\\n    font-size: 3em;\\n    font-weight: medium;\\n    color: #213670; }\\n    .story .story-time:before {\\n      position: absolute;\\n      display: inline-block;\\n      top: 40%;\\n      left: -50px;\\n      z-index: 100;\\n      content: \\\"\\\";\\n      width: 20px;\\n      height: 20px;\\n      border-radius: 50%;\\n      background-color: #213670;\\n      border: 3px solid #fff; }\\n  .story .story-image {\\n    max-width: 100%; }\\n\\n.board-container {\\n  display: flex;\\n  justify-content: space-between; }\\n\\n.board {\\n  width: 31%;\\n  padding: 10px;\\n  background-color: #fff;\\n  box-shadow: 0 0 2px 1px rgba(100, 100, 100, 0.5); }\\n  .board .board-title {\\n    padding-bottom: .3em;\\n    border-bottom: 1px solid #343434;\\n    text-align: center;\\n    font-size: 1.25em; }\\n  .board .number {\\n    display: block;\\n    color: #213670;\\n    font-family: Oswald;\\n    font-size: 3em;\\n    text-align: center; }\\n    .board .number small {\\n      font-size: 15%; }\\n\", \"\", {\"version\":3,\"sources\":[\"/Users/kalan/code/visual-data-projects/pround-of-labor/app/styles/main.scss\",\"/Users/kalan/code/visual-data-projects/pround-of-labor/app/styles/_variables.scss\",\"/Users/kalan/code/visual-data-projects/pround-of-labor/app/styles/normalize.scss\",\"/Users/kalan/code/visual-data-projects/pround-of-labor/app/styles/base.scss\",\"/Users/kalan/code/visual-data-projects/pround-of-labor/app/styles/_hero-image.scss\",\"/Users/kalan/code/visual-data-projects/pround-of-labor/app/styles/main.scss\"],\"names\":[],\"mappings\":\"AAAA,iBAAiB;ACwBjB;;;;GAIG;AAYH;;;;;;;;;;;;;;;GAeG;ACvDH,4EAA4E;AAE5E;;;GAGG;AAEH;EACE,wBAAuB;EAAG,OAAO;EACjC,2BAA0B;EAAG,OAAO;EACpC,+BAA8B;EAAG,OAAO,EACzC;;AAED;;GAEG;AAEH;EACE,UAAS,EACV;;AAED;gFACgF;AAEhF;;;;GAIG;AAEH;;;;;;;;;;;;EAWU,OAAO;EACf,eAAc,EACf;;AAED;;GAEG;AAEH;;;;EAIE,sBAAqB,EACtB;;AAED;;GAEG;AAEH;EACE,cAAa;EACb,UAAS,EACV;;AAED;;GAEG;AAEH;EACE,yBAAwB,EACzB;;AAED;;;GAGG;AAEH;;EAEE,cAAa,EACd;;AAED;gFACgF;AAEhF;;;GAGG;AAEH;EACE,8BAA6B;EAAG,OAAO;EACvC,sCAAqC;EAAG,OAAO,EAChD;;AAED;;;GAGG;AAEH;;EAEE,iBAAgB,EACjB;;AAED;gFACgF;AAEhF;;;GAGG;AAEH;EACE,oBAAmB;EAAG,OAAO;EAC7B,2BAA0B;EAAG,OAAO;EACpC,kCAAiC;EAAG,OAAO,EAC5C;;AAED;;GAEG;AAEH;;EAEE,qBAAoB,EACrB;;AAED;;GAEG;AAEH;;EAEE,oBAAmB,EACpB;;AAED;;GAEG;AAEH;EACE,mBAAkB,EACnB;;AAED;;;GAGG;AAEH;EACE,eAAc;EACd,iBAAgB,EACjB;;AAED;;GAEG;AAEH;EACE,uBAAsB;EACtB,YAAW,EACZ;;AAED;;GAEG;AAEH;EACE,eAAc,EACf;;AAED;;;GAGG;AAEH;;EAEE,eAAc;EACd,eAAc;EACd,mBAAkB;EAClB,yBAAwB,EACzB;;AAED;EACE,gBAAe,EAChB;;AAED;EACE,YAAW,EACZ;;AAED;gFACgF;AAEhF;;GAEG;AAEH;EACE,mBAAkB,EACnB;;AAED;;GAEG;AAEH;EACE,iBAAgB,EACjB;;AAED;gFACgF;AAEhF;;;GAGG;AAEH;;;;EAIE,kCAAiC;EAAG,OAAO;EAC3C,eAAc;EAAG,OAAO,EACzB;;AAED;;GAEG;AAEH;EACE,iBAAgB,EACjB;;AAED;;;GAGG;AAEH;EACE,wBAAuB;EAAG,OAAO;EACjC,UAAS;EAAG,OAAO;EACnB,kBAAiB;EAAG,OAAO,EAC5B;;AAED;gFACgF;AAEhF;;;GAGG;AAEH;;;;EAIE,cAAa;EAAG,OAAO;EACvB,UAAS;EAAG,OAAO,EACpB;;AAED;;GAEG;AAEH;EACE,kBAAiB,EAClB;;AAED;;;GAGG;AAEH;;EACQ,OAAO;EACb,kBAAiB,EAClB;;AAED;;;GAGG;AAEH;;EACS,OAAO;EACd,qBAAoB,EACrB;;AAED;;;;GAIG;AAEH;;;;EAIE,2BAA0B;EAAG,OAAO,EACrC;;AAED;;GAEG;AAEH;;;;EAIE,mBAAkB;EAClB,WAAU,EACX;;AAED;;GAEG;AAEH;;;;EAIE,+BAA8B,EAC/B;;AAED;;GAEG;AAEH;EACE,0BAAyB;EACzB,cAAa;EACb,+BAA8B,EAC/B;;AAED;;;;;GAKG;AAEH;EACE,uBAAsB;EAAG,OAAO;EAChC,eAAc;EAAG,OAAO;EACxB,eAAc;EAAG,OAAO;EACxB,gBAAe;EAAG,OAAO;EACzB,WAAU;EAAG,OAAO;EACpB,oBAAmB;EAAG,OAAO,EAC9B;;AAED;;GAEG;AAEH;EACE,eAAc,EACf;;AAED;;;GAGG;AFzBH;;EE6BE,uBAAsB;EAAG,OAAO;EAChC,WAAU;EAAG,OAAO,EACrB;;AAED;;GAEG;AFzBH;;EE6BE,aAAY,EACb;;AAED;;;GAGG;AF3BH;EE8BE,8BAA6B;EAAG,OAAO;EACvC,qBAAoB;EAAG,OAAO,EAC/B;;AAED;;GAEG;AF3BH;;EE+BE,yBAAwB,EACzB;;AAED;;GAEG;AAEH;EACE,eAAc;EACd,cAAa,EACd;;AAED;;;GAGG;AAEH;EACE,2BAA0B;EAAG,OAAO;EACpC,cAAa;EAAG,OAAO,EACxB;;AClaD;EACE,aAAY;EACZ,qDAAoD;EACpD,2EFFsE;EEItE,0BAAyB;EACzB,eAAc;EAEd,oCAAmC,EACpC;;AAED;EACE,uBAAsB,EACvB;;AAED;EACE,mBAAkB;EAClB,2BAA0B;EAC1B,iBAAgB;EAChB,gBAAe;EACf,eAAc;EACd,mBAAkB,EAsBnB;EA5BD;IASI,eAAc;IACd,oBAAmB;IACnB,iGAAS,EAAA;EAXb;IAeI,mBAAkB;IAClB,YAAW;IACX,SAAQ;IACR,QAAO;IACP,YAAW;IACX,mBAAkB;IAClB,SAAQ;IACR,eAAc;IACd,kBAAiB;IACjB,uBAAsB;IACtB,wBAAuB;IACvB,iCAAgC,EACjC;;AC1CH;EACE,aAAY;EACZ,cAAa;EACb,mBAAkB;EAClB,UAAS;EACT,WAAU;EACV,mBAAkB;EAClB,oBAAmB;EAEnB,4BAA2B;EAC3B,uBAAsB,EACvB;;AAED;EACE,aAAY;EACZ,mBAAkB;EAClB,UAAS;EACT,WAAU;EACV,mBAAkB;EAClB,oBAAmB,EACpB;;ACdD;EACE,YAAW;EACX,aAAY,EACb;;AAED;EAAQ,aAAY,EAAK;;AAEzB;EACE,eAAc;EACd,mBAAkB;EAClB,iBAAgB;EAChB,2CAAuC;EACvC,YAAW;EACX,eAAc;EACd,mBAAkB;EAElB,oBAAmB,EAgBpB;EAzBD;IAcuB,eAAc,EAAI;EAdzC;IAesB,eAAc,EAAI;EAfxC;IAgBqB,eAA0B,EAAI;EAhBnD;IAmBM,iBAAgB;IAChB,sBAAqB;IACrB,kBAAiB;IACjB,iBAAS,EAAK;;AAKpB;EACE,gBAAe;EACf,kBAAiB;EACjB,oBAAmB,EACpB;;AAED;EACE,aAAY;EACZ,sBAAqB,EACtB;;AAED;EACE,WAAU;EACV,iBAAgB;EAChB,cAAa;EACb,eAAc;EACd,2CAAuC;EACvC,YAAW;EACX,2BAA0B;EAC1B,mCAAkC;EAClC,mBAAkB,EACnB;;AAED;EACE,aAAY,EAMb;EAPD;IAII,WAAU;IACV,gBAAe,EAChB;;AAGH;EACE,gBAAe,EAChB;;AAED;EAAoB,UAAS,EAAK;;AAElC;EACE,QAAO,EAOR;EARD;IAII,YAAW;IACX,eAAc;IACd,YAAW,EACZ;;AAEH;EAEI,YAAW;EACX,WAAU;EACV,cAAa;EACb,cAAa;EACb,uBAAsB,EACvB;;AAPH;EAUI,aAAY;EACZ,cAAa;EACb,mBAAkB;EAClB,WAAU;EACV,cAAa;EACb,uBAAsB;EACtB,4BAA2B,EAC5B;;AAGH;EACE,mBAAkB,EACnB;;AACD;EACE,gBAAe;EACf,aAAY;EACZ,OAAM,EACP;;AAED;EACE,cAAa,EACd;;AAED;EACE,mBAAkB;EAClB,iBAAgB;EAChB,uBAAsB,EAkCvB;EArCD;IAMI,kBAAiB;IACjB,oBAAmB;IACnB,mBAAkB;IAClB,oCAAmC;IACnC,eAAc,EACf;EAXH;IAcI,mBAAkB;IAClB,oBAAmB;IACnB,eAAc;IACd,oBAAmB;IACnB,eAAc,EAcf;IAhCH;MAoBM,mBAAkB;MAClB,sBAAqB;MACrB,SAAQ;MACR,YAAW;MACX,aAAY;MACZ,YAAW;MACX,YAAW;MACX,aAAY;MACZ,mBAAkB;MAClB,0BAAyB;MACzB,uBAAsB,EACvB;EA/BL;IAmCI,gBAAe,EAChB;;AAGH;EACE,cAAa;EACb,+BAA8B,EAE/B;;AACD;EACE,WAAU;EACV,cAAa;EACb,uBAAsB;EACtB,iDAAgD,EAkBjD;EAtBD;IAOI,qBAAoB;IACpB,iCAAgC;IAChC,mBAAkB;IAClB,kBAAiB,EAClB;EAXH;IAcI,eAAc;IACd,eAAc;IACd,oBAAmB;IACnB,eAAc;IACd,mBAAkB,EAGnB;IArBH;MAoBY,eAAc,EAAK\",\"file\":\"main.scss\",\"sourcesContent\":[\"@charset \\\"UTF-8\\\";\\n/**\\n * util function to get font-size\\n * @param $key, $device\\n * @return $font-size\\n */\\n/**\\n * Usage\\n *\\n * .a {\\n *   @include responsive-font-size('x-small');\\n * }\\n *\\n * .a {\\n *   font-size: 11px;\\n *\\n *   @media desktop {\\n *     font-size: 12px;\\n *   }\\n * }\\n * 如果找不到 key，則會丟出 error\\n */\\n/*! normalize.css v4.1.1 | MIT License | github.com/necolas/normalize.css */\\n/**\\n * 1. Change the default font family in all browsers (opinionated).\\n * 2. Prevent adjustments of font size after orientation changes in IE and iOS.\\n */\\nhtml {\\n  font-family: sans-serif;\\n  /* 1 */\\n  -ms-text-size-adjust: 100%;\\n  /* 2 */\\n  -webkit-text-size-adjust: 100%;\\n  /* 2 */ }\\n\\n/**\\n * Remove the margin in all browsers (opinionated).\\n */\\nbody {\\n  margin: 0; }\\n\\n/* HTML5 display definitions\\n   ========================================================================== */\\n/**\\n * Add the correct display in IE 9-.\\n * 1. Add the correct display in Edge, IE, and Firefox.\\n * 2. Add the correct display in IE.\\n */\\narticle,\\naside,\\ndetails,\\nfigcaption,\\nfigure,\\nfooter,\\nheader,\\nmain,\\nmenu,\\nnav,\\nsection,\\nsummary {\\n  /* 1 */\\n  display: block; }\\n\\n/**\\n * Add the correct display in IE 9-.\\n */\\naudio,\\ncanvas,\\nprogress,\\nvideo {\\n  display: inline-block; }\\n\\n/**\\n * Add the correct display in iOS 4-7.\\n */\\naudio:not([controls]) {\\n  display: none;\\n  height: 0; }\\n\\n/**\\n * Add the correct vertical alignment in Chrome, Firefox, and Opera.\\n */\\nprogress {\\n  vertical-align: baseline; }\\n\\n/**\\n * Add the correct display in IE 10-.\\n * 1. Add the correct display in IE.\\n */\\ntemplate,\\n[hidden] {\\n  display: none; }\\n\\n/* Links\\n   ========================================================================== */\\n/**\\n * 1. Remove the gray background on active links in IE 10.\\n * 2. Remove gaps in links underline in iOS 8+ and Safari 8+.\\n */\\na {\\n  background-color: transparent;\\n  /* 1 */\\n  -webkit-text-decoration-skip: objects;\\n  /* 2 */ }\\n\\n/**\\n * Remove the outline on focused links when they are also active or hovered\\n * in all browsers (opinionated).\\n */\\na:active,\\na:hover {\\n  outline-width: 0; }\\n\\n/* Text-level semantics\\n   ========================================================================== */\\n/**\\n * 1. Remove the bottom border in Firefox 39-.\\n * 2. Add the correct text decoration in Chrome, Edge, IE, Opera, and Safari.\\n */\\nabbr[title] {\\n  border-bottom: none;\\n  /* 1 */\\n  text-decoration: underline;\\n  /* 2 */\\n  text-decoration: underline dotted;\\n  /* 2 */ }\\n\\n/**\\n * Prevent the duplicate application of `bolder` by the next rule in Safari 6.\\n */\\nb,\\nstrong {\\n  font-weight: inherit; }\\n\\n/**\\n * Add the correct font weight in Chrome, Edge, and Safari.\\n */\\nb,\\nstrong {\\n  font-weight: bolder; }\\n\\n/**\\n * Add the correct font style in Android 4.3-.\\n */\\ndfn {\\n  font-style: italic; }\\n\\n/**\\n * Correct the font size and margin on `h1` elements within `section` and\\n * `article` contexts in Chrome, Firefox, and Safari.\\n */\\nh1 {\\n  font-size: 2em;\\n  margin: 0.67em 0; }\\n\\n/**\\n * Add the correct background and color in IE 9-.\\n */\\nmark {\\n  background-color: #ff0;\\n  color: #000; }\\n\\n/**\\n * Add the correct font size in all browsers.\\n */\\nsmall {\\n  font-size: 80%; }\\n\\n/**\\n * Prevent `sub` and `sup` elements from affecting the line height in\\n * all browsers.\\n */\\nsub,\\nsup {\\n  font-size: 75%;\\n  line-height: 0;\\n  position: relative;\\n  vertical-align: baseline; }\\n\\nsub {\\n  bottom: -0.25em; }\\n\\nsup {\\n  top: -0.5em; }\\n\\n/* Embedded content\\n   ========================================================================== */\\n/**\\n * Remove the border on images inside links in IE 10-.\\n */\\nimg {\\n  border-style: none; }\\n\\n/**\\n * Hide the overflow in IE.\\n */\\nsvg:not(:root) {\\n  overflow: hidden; }\\n\\n/* Grouping content\\n   ========================================================================== */\\n/**\\n * 1. Correct the inheritance and scaling of font size in all browsers.\\n * 2. Correct the odd `em` font sizing in all browsers.\\n */\\ncode,\\nkbd,\\npre,\\nsamp {\\n  font-family: monospace, monospace;\\n  /* 1 */\\n  font-size: 1em;\\n  /* 2 */ }\\n\\n/**\\n * Add the correct margin in IE 8.\\n */\\nfigure {\\n  margin: 1em 40px; }\\n\\n/**\\n * 1. Add the correct box sizing in Firefox.\\n * 2. Show the overflow in Edge and IE.\\n */\\nhr {\\n  box-sizing: content-box;\\n  /* 1 */\\n  height: 0;\\n  /* 1 */\\n  overflow: visible;\\n  /* 2 */ }\\n\\n/* Forms\\n   ========================================================================== */\\n/**\\n * 1. Change font properties to `inherit` in all browsers (opinionated).\\n * 2. Remove the margin in Firefox and Safari.\\n */\\nbutton,\\ninput,\\nselect,\\ntextarea {\\n  font: inherit;\\n  /* 1 */\\n  margin: 0;\\n  /* 2 */ }\\n\\n/**\\n * Restore the font weight unset by the previous rule.\\n */\\noptgroup {\\n  font-weight: bold; }\\n\\n/**\\n * Show the overflow in IE.\\n * 1. Show the overflow in Edge.\\n */\\nbutton,\\ninput {\\n  /* 1 */\\n  overflow: visible; }\\n\\n/**\\n * Remove the inheritance of text transform in Edge, Firefox, and IE.\\n * 1. Remove the inheritance of text transform in Firefox.\\n */\\nbutton,\\nselect {\\n  /* 1 */\\n  text-transform: none; }\\n\\n/**\\n * 1. Prevent a WebKit bug where (2) destroys native `audio` and `video`\\n *    controls in Android 4.\\n * 2. Correct the inability to style clickable types in iOS and Safari.\\n */\\nbutton,\\nhtml [type=\\\"button\\\"],\\n[type=\\\"reset\\\"],\\n[type=\\\"submit\\\"] {\\n  -webkit-appearance: button;\\n  /* 2 */ }\\n\\n/**\\n * Remove the inner border and padding in Firefox.\\n */\\nbutton::-moz-focus-inner,\\n[type=\\\"button\\\"]::-moz-focus-inner,\\n[type=\\\"reset\\\"]::-moz-focus-inner,\\n[type=\\\"submit\\\"]::-moz-focus-inner {\\n  border-style: none;\\n  padding: 0; }\\n\\n/**\\n * Restore the focus styles unset by the previous rule.\\n */\\nbutton:-moz-focusring,\\n[type=\\\"button\\\"]:-moz-focusring,\\n[type=\\\"reset\\\"]:-moz-focusring,\\n[type=\\\"submit\\\"]:-moz-focusring {\\n  outline: 1px dotted ButtonText; }\\n\\n/**\\n * Change the border, margin, and padding in all browsers (opinionated).\\n */\\nfieldset {\\n  border: 1px solid #c0c0c0;\\n  margin: 0 2px;\\n  padding: 0.35em 0.625em 0.75em; }\\n\\n/**\\n * 1. Correct the text wrapping in Edge and IE.\\n * 2. Correct the color inheritance from `fieldset` elements in IE.\\n * 3. Remove the padding so developers are not caught out when they zero out\\n *    `fieldset` elements in all browsers.\\n */\\nlegend {\\n  box-sizing: border-box;\\n  /* 1 */\\n  color: inherit;\\n  /* 2 */\\n  display: table;\\n  /* 1 */\\n  max-width: 100%;\\n  /* 1 */\\n  padding: 0;\\n  /* 3 */\\n  white-space: normal;\\n  /* 1 */ }\\n\\n/**\\n * Remove the default vertical scrollbar in IE.\\n */\\ntextarea {\\n  overflow: auto; }\\n\\n/**\\n * 1. Add the correct box sizing in IE 10-.\\n * 2. Remove the padding in IE 10-.\\n */\\n[type=\\\"checkbox\\\"],\\n[type=\\\"radio\\\"] {\\n  box-sizing: border-box;\\n  /* 1 */\\n  padding: 0;\\n  /* 2 */ }\\n\\n/**\\n * Correct the cursor style of increment and decrement buttons in Chrome.\\n */\\n[type=\\\"number\\\"]::-webkit-inner-spin-button,\\n[type=\\\"number\\\"]::-webkit-outer-spin-button {\\n  height: auto; }\\n\\n/**\\n * 1. Correct the odd appearance in Chrome and Safari.\\n * 2. Correct the outline style in Safari.\\n */\\n[type=\\\"search\\\"] {\\n  -webkit-appearance: textfield;\\n  /* 1 */\\n  outline-offset: -2px;\\n  /* 2 */ }\\n\\n/**\\n * Remove the inner padding and cancel buttons in Chrome and Safari on OS X.\\n */\\n[type=\\\"search\\\"]::-webkit-search-cancel-button,\\n[type=\\\"search\\\"]::-webkit-search-decoration {\\n  -webkit-appearance: none; }\\n\\n/**\\n * Correct the text style of placeholders in Chrome, Edge, and Safari.\\n */\\n::-webkit-input-placeholder {\\n  color: inherit;\\n  opacity: 0.54; }\\n\\n/**\\n * 1. Correct the inability to style clickable types in iOS and Safari.\\n * 2. Change font properties to `inherit` in Safari.\\n */\\n::-webkit-file-upload-button {\\n  -webkit-appearance: button;\\n  /* 1 */\\n  font: inherit;\\n  /* 2 */ }\\n\\nhtml, body {\\n  height: 100%;\\n  font-size: calc(14px + ((100vw - 320px) / 1600) * 6);\\n  font-family: \\\"Noto Sans TC\\\", \\\"Noto Sans CJK TC\\\", \\\"PingFang TC\\\", sans-serif;\\n  background-color: #fafafa;\\n  color: #4a4a4a;\\n  -webkit-font-smoothing: antialiased; }\\n\\n* {\\n  box-sizing: border-box; }\\n\\nimg {\\n  position: relative;\\n  font-family: \\\"PingFang TC\\\";\\n  font-weight: 300;\\n  font-size: 14px;\\n  line-height: 2;\\n  text-align: center; }\\n  img:before {\\n    display: block;\\n    margin-bottom: 10px;\\n    content: \\\"抱歉，這張圖片目前已移除或無法使用\\\"; }\\n  img:after {\\n    position: absolute;\\n    z-index: 20;\\n    top: 5px;\\n    left: 0;\\n    width: 100%;\\n    text-align: center;\\n    top: 50%;\\n    display: block;\\n    padding: 10px 5px;\\n    background-color: #bbb;\\n    border: 2px dotted #444;\\n    content: \\\"url\\\" \\\"(\\\" attr(src) \\\")\\\"; }\\n\\n.hero-image {\\n  width: 100vw;\\n  height: 100vh;\\n  position: relative;\\n  left: 50%;\\n  right: 50%;\\n  margin-left: -50vw;\\n  margin-right: -50vw;\\n  background-position: center;\\n  background-size: cover; }\\n\\n.full-width {\\n  width: 100vw;\\n  position: relative;\\n  left: 50%;\\n  right: 50%;\\n  margin-left: -50vw;\\n  margin-right: -50vw; }\\n\\nsvg {\\n  width: 100%;\\n  height: 100%; }\\n\\n.line {\\n  height: 100%; }\\n\\n.detail {\\n  display: block;\\n  position: absolute;\\n  padding: 3px 8px;\\n  background-color: rgba(125, 125, 125, 0.6);\\n  color: #fff;\\n  line-height: 1;\\n  border-radius: 3px;\\n  font-family: Oswald; }\\n  .detail .detail-item.jobless:before {\\n    color: #27cc95; }\\n  .detail .detail-item.salary:before {\\n    color: #39a5c8; }\\n  .detail .detail-item.hours:before {\\n    color: #3295b5; }\\n  .detail .detail-item:before {\\n    font-size: 1.2em;\\n    display: inline-block;\\n    margin-right: 4px;\\n    content: \\\"●\\\"; }\\n\\n.tick text {\\n  font-size: 20px;\\n  font-weight: bold;\\n  font-family: Oswald; }\\n\\n.tick line {\\n  stroke: #aaa;\\n  stroke-dasharray: 3,3; }\\n\\n.top-summary-board {\\n  width: 80%;\\n  max-width: 700px;\\n  padding: 20px;\\n  margin: 0 auto;\\n  background-color: rgba(125, 125, 125, 0.6);\\n  color: #fff;\\n  backdrop-filter: blur(2px);\\n  -webkit-backdrop-filter: blur(2px);\\n  border-radius: 3px; }\\n\\n.circle {\\n  stroke: #fff; }\\n  .circle.toggle {\\n    fill: #fff;\\n    stroke: #ff6565; }\\n\\n.container {\\n  padding: 0 15px; }\\n\\nh1, h2, h3, h4, h5, h6 {\\n  margin: 0; }\\n\\n.clearfix {\\n  zoom: 1; }\\n  .clearfix:before, .clearfix:after {\\n    content: \\\"\\\";\\n    display: table;\\n    clear: both; }\\n\\n.labor-story .chart {\\n  float: left;\\n  width: 55%;\\n  padding: 10px;\\n  height: 100vh;\\n  background-color: #fff; }\\n\\n.labor-story .story-area {\\n  float: right;\\n  height: 100vh;\\n  overflow-y: scroll;\\n  width: 45%;\\n  padding: 15px;\\n  background-color: #fff;\\n  border-left: 1px solid #aaa; }\\n\\n.text-center {\\n  text-align: center; }\\n\\n.affix {\\n  position: fixed;\\n  height: 100%;\\n  top: 0; }\\n\\n.circle {\\n  fill: #ff6565; }\\n\\n.story {\\n  margin-left: 1.5em;\\n  margin-right: 5%;\\n  background-color: #fff; }\\n  .story .story-title {\\n    font-size: 1.65em;\\n    letter-spacing: 1px;\\n    padding-left: .5em;\\n    border-left: 5px solid currentColor;\\n    line-height: 1; }\\n  .story .story-time {\\n    position: relative;\\n    font-family: Oswald;\\n    font-size: 3em;\\n    font-weight: medium;\\n    color: #213670; }\\n    .story .story-time:before {\\n      position: absolute;\\n      display: inline-block;\\n      top: 40%;\\n      left: -50px;\\n      z-index: 100;\\n      content: \\\"\\\";\\n      width: 20px;\\n      height: 20px;\\n      border-radius: 50%;\\n      background-color: #213670;\\n      border: 3px solid #fff; }\\n  .story .story-image {\\n    max-width: 100%; }\\n\\n.board-container {\\n  display: flex;\\n  justify-content: space-between; }\\n\\n.board {\\n  width: 31%;\\n  padding: 10px;\\n  background-color: #fff;\\n  box-shadow: 0 0 2px 1px rgba(100, 100, 100, 0.5); }\\n  .board .board-title {\\n    padding-bottom: .3em;\\n    border-bottom: 1px solid #343434;\\n    text-align: center;\\n    font-size: 1.25em; }\\n  .board .number {\\n    display: block;\\n    color: #213670;\\n    font-family: Oswald;\\n    font-size: 3em;\\n    text-align: center; }\\n    .board .number small {\\n      font-size: 15%; }\\n\",\"$fonts: (\\n  normal: ('Noto Sans TC', 'Noto Sans CJK TC', 'PingFang TC', sans-serif),\\n  serif: ('Georgia', 'PT Serif', Times, 'Times New Roman', 'Songti TC', 'Hiragino Mincho ProN', serif)\\n);\\n\\n$font-sizes: (\\n  desktop: (\\n    'x-large': 2rem,\\n    large: 1.67rem,\\n    medium: 1.35rem,\\n    normal: 1rem,\\n    small: .87rem,\\n    'x-small': .8rem,\\n  ),\\n  mobile: (\\n    'x-large': 1.56rem,\\n    large: 1.4rem,\\n    medium: 1.05rem,\\n    normal: 1rem,\\n    small: 0.97rem,\\n    'x-small': 0.85rem,\\n  )\\n);\\n\\n/**\\n * util function to get font-size\\n * @param $key, $device\\n * @return $font-size\\n */\\n\\n@function f($key, $device: 'desktop') {\\n  $font-size-map: map-get($font-sizes, $device);\\n\\n  @if map-has-key($font-size-map, $key) {\\n    @return map-get($font-size-map, $key);\\n  } @else {\\n    @error \\\"unknown key #{$key} in $font-size. please checkout `_scale.scss` for more information\\\";\\n  }\\n}\\n\\n/**\\n * Usage\\n *\\n * .a {\\n *   @include responsive-font-size('x-small');\\n * }\\n *\\n * .a {\\n *   font-size: 11px;\\n *\\n *   @media desktop {\\n *     font-size: 12px;\\n *   }\\n * }\\n * 如果找不到 key，則會丟出 error\\n */\\n\\n@mixin responsive-font-size($key) {\\n  @if variable-exist(desktop) {\\n    font-size: f($key, 'desktop');\\n\\n    // this variable came from `_grid.scss`\\n    @include for-mobile(tablet-up) {\\n      font-size: f($key, 'mobile');\\n    }\\n  } @else {\\n    @error \\\"請提供 $desktop 變數以供 susy-breakpoint 使用\\\";\\n  }\\n}\\n\",\"/*! normalize.css v4.1.1 | MIT License | github.com/necolas/normalize.css */\\n\\n/**\\n * 1. Change the default font family in all browsers (opinionated).\\n * 2. Prevent adjustments of font size after orientation changes in IE and iOS.\\n */\\n\\nhtml {\\n  font-family: sans-serif; /* 1 */\\n  -ms-text-size-adjust: 100%; /* 2 */\\n  -webkit-text-size-adjust: 100%; /* 2 */\\n}\\n\\n/**\\n * Remove the margin in all browsers (opinionated).\\n */\\n\\nbody {\\n  margin: 0;\\n}\\n\\n/* HTML5 display definitions\\n   ========================================================================== */\\n\\n/**\\n * Add the correct display in IE 9-.\\n * 1. Add the correct display in Edge, IE, and Firefox.\\n * 2. Add the correct display in IE.\\n */\\n\\narticle,\\naside,\\ndetails, /* 1 */\\nfigcaption,\\nfigure,\\nfooter,\\nheader,\\nmain, /* 2 */\\nmenu,\\nnav,\\nsection,\\nsummary { /* 1 */\\n  display: block;\\n}\\n\\n/**\\n * Add the correct display in IE 9-.\\n */\\n\\naudio,\\ncanvas,\\nprogress,\\nvideo {\\n  display: inline-block;\\n}\\n\\n/**\\n * Add the correct display in iOS 4-7.\\n */\\n\\naudio:not([controls]) {\\n  display: none;\\n  height: 0;\\n}\\n\\n/**\\n * Add the correct vertical alignment in Chrome, Firefox, and Opera.\\n */\\n\\nprogress {\\n  vertical-align: baseline;\\n}\\n\\n/**\\n * Add the correct display in IE 10-.\\n * 1. Add the correct display in IE.\\n */\\n\\ntemplate, /* 1 */\\n[hidden] {\\n  display: none;\\n}\\n\\n/* Links\\n   ========================================================================== */\\n\\n/**\\n * 1. Remove the gray background on active links in IE 10.\\n * 2. Remove gaps in links underline in iOS 8+ and Safari 8+.\\n */\\n\\na {\\n  background-color: transparent; /* 1 */\\n  -webkit-text-decoration-skip: objects; /* 2 */\\n}\\n\\n/**\\n * Remove the outline on focused links when they are also active or hovered\\n * in all browsers (opinionated).\\n */\\n\\na:active,\\na:hover {\\n  outline-width: 0;\\n}\\n\\n/* Text-level semantics\\n   ========================================================================== */\\n\\n/**\\n * 1. Remove the bottom border in Firefox 39-.\\n * 2. Add the correct text decoration in Chrome, Edge, IE, Opera, and Safari.\\n */\\n\\nabbr[title] {\\n  border-bottom: none; /* 1 */\\n  text-decoration: underline; /* 2 */\\n  text-decoration: underline dotted; /* 2 */\\n}\\n\\n/**\\n * Prevent the duplicate application of `bolder` by the next rule in Safari 6.\\n */\\n\\nb,\\nstrong {\\n  font-weight: inherit;\\n}\\n\\n/**\\n * Add the correct font weight in Chrome, Edge, and Safari.\\n */\\n\\nb,\\nstrong {\\n  font-weight: bolder;\\n}\\n\\n/**\\n * Add the correct font style in Android 4.3-.\\n */\\n\\ndfn {\\n  font-style: italic;\\n}\\n\\n/**\\n * Correct the font size and margin on `h1` elements within `section` and\\n * `article` contexts in Chrome, Firefox, and Safari.\\n */\\n\\nh1 {\\n  font-size: 2em;\\n  margin: 0.67em 0;\\n}\\n\\n/**\\n * Add the correct background and color in IE 9-.\\n */\\n\\nmark {\\n  background-color: #ff0;\\n  color: #000;\\n}\\n\\n/**\\n * Add the correct font size in all browsers.\\n */\\n\\nsmall {\\n  font-size: 80%;\\n}\\n\\n/**\\n * Prevent `sub` and `sup` elements from affecting the line height in\\n * all browsers.\\n */\\n\\nsub,\\nsup {\\n  font-size: 75%;\\n  line-height: 0;\\n  position: relative;\\n  vertical-align: baseline;\\n}\\n\\nsub {\\n  bottom: -0.25em;\\n}\\n\\nsup {\\n  top: -0.5em;\\n}\\n\\n/* Embedded content\\n   ========================================================================== */\\n\\n/**\\n * Remove the border on images inside links in IE 10-.\\n */\\n\\nimg {\\n  border-style: none;\\n}\\n\\n/**\\n * Hide the overflow in IE.\\n */\\n\\nsvg:not(:root) {\\n  overflow: hidden;\\n}\\n\\n/* Grouping content\\n   ========================================================================== */\\n\\n/**\\n * 1. Correct the inheritance and scaling of font size in all browsers.\\n * 2. Correct the odd `em` font sizing in all browsers.\\n */\\n\\ncode,\\nkbd,\\npre,\\nsamp {\\n  font-family: monospace, monospace; /* 1 */\\n  font-size: 1em; /* 2 */\\n}\\n\\n/**\\n * Add the correct margin in IE 8.\\n */\\n\\nfigure {\\n  margin: 1em 40px;\\n}\\n\\n/**\\n * 1. Add the correct box sizing in Firefox.\\n * 2. Show the overflow in Edge and IE.\\n */\\n\\nhr {\\n  box-sizing: content-box; /* 1 */\\n  height: 0; /* 1 */\\n  overflow: visible; /* 2 */\\n}\\n\\n/* Forms\\n   ========================================================================== */\\n\\n/**\\n * 1. Change font properties to `inherit` in all browsers (opinionated).\\n * 2. Remove the margin in Firefox and Safari.\\n */\\n\\nbutton,\\ninput,\\nselect,\\ntextarea {\\n  font: inherit; /* 1 */\\n  margin: 0; /* 2 */\\n}\\n\\n/**\\n * Restore the font weight unset by the previous rule.\\n */\\n\\noptgroup {\\n  font-weight: bold;\\n}\\n\\n/**\\n * Show the overflow in IE.\\n * 1. Show the overflow in Edge.\\n */\\n\\nbutton,\\ninput { /* 1 */\\n  overflow: visible;\\n}\\n\\n/**\\n * Remove the inheritance of text transform in Edge, Firefox, and IE.\\n * 1. Remove the inheritance of text transform in Firefox.\\n */\\n\\nbutton,\\nselect { /* 1 */\\n  text-transform: none;\\n}\\n\\n/**\\n * 1. Prevent a WebKit bug where (2) destroys native `audio` and `video`\\n *    controls in Android 4.\\n * 2. Correct the inability to style clickable types in iOS and Safari.\\n */\\n\\nbutton,\\nhtml [type=\\\"button\\\"], /* 1 */\\n[type=\\\"reset\\\"],\\n[type=\\\"submit\\\"] {\\n  -webkit-appearance: button; /* 2 */\\n}\\n\\n/**\\n * Remove the inner border and padding in Firefox.\\n */\\n\\nbutton::-moz-focus-inner,\\n[type=\\\"button\\\"]::-moz-focus-inner,\\n[type=\\\"reset\\\"]::-moz-focus-inner,\\n[type=\\\"submit\\\"]::-moz-focus-inner {\\n  border-style: none;\\n  padding: 0;\\n}\\n\\n/**\\n * Restore the focus styles unset by the previous rule.\\n */\\n\\nbutton:-moz-focusring,\\n[type=\\\"button\\\"]:-moz-focusring,\\n[type=\\\"reset\\\"]:-moz-focusring,\\n[type=\\\"submit\\\"]:-moz-focusring {\\n  outline: 1px dotted ButtonText;\\n}\\n\\n/**\\n * Change the border, margin, and padding in all browsers (opinionated).\\n */\\n\\nfieldset {\\n  border: 1px solid #c0c0c0;\\n  margin: 0 2px;\\n  padding: 0.35em 0.625em 0.75em;\\n}\\n\\n/**\\n * 1. Correct the text wrapping in Edge and IE.\\n * 2. Correct the color inheritance from `fieldset` elements in IE.\\n * 3. Remove the padding so developers are not caught out when they zero out\\n *    `fieldset` elements in all browsers.\\n */\\n\\nlegend {\\n  box-sizing: border-box; /* 1 */\\n  color: inherit; /* 2 */\\n  display: table; /* 1 */\\n  max-width: 100%; /* 1 */\\n  padding: 0; /* 3 */\\n  white-space: normal; /* 1 */\\n}\\n\\n/**\\n * Remove the default vertical scrollbar in IE.\\n */\\n\\ntextarea {\\n  overflow: auto;\\n}\\n\\n/**\\n * 1. Add the correct box sizing in IE 10-.\\n * 2. Remove the padding in IE 10-.\\n */\\n\\n[type=\\\"checkbox\\\"],\\n[type=\\\"radio\\\"] {\\n  box-sizing: border-box; /* 1 */\\n  padding: 0; /* 2 */\\n}\\n\\n/**\\n * Correct the cursor style of increment and decrement buttons in Chrome.\\n */\\n\\n[type=\\\"number\\\"]::-webkit-inner-spin-button,\\n[type=\\\"number\\\"]::-webkit-outer-spin-button {\\n  height: auto;\\n}\\n\\n/**\\n * 1. Correct the odd appearance in Chrome and Safari.\\n * 2. Correct the outline style in Safari.\\n */\\n\\n[type=\\\"search\\\"] {\\n  -webkit-appearance: textfield; /* 1 */\\n  outline-offset: -2px; /* 2 */\\n}\\n\\n/**\\n * Remove the inner padding and cancel buttons in Chrome and Safari on OS X.\\n */\\n\\n[type=\\\"search\\\"]::-webkit-search-cancel-button,\\n[type=\\\"search\\\"]::-webkit-search-decoration {\\n  -webkit-appearance: none;\\n}\\n\\n/**\\n * Correct the text style of placeholders in Chrome, Edge, and Safari.\\n */\\n\\n::-webkit-input-placeholder {\\n  color: inherit;\\n  opacity: 0.54;\\n}\\n\\n/**\\n * 1. Correct the inability to style clickable types in iOS and Safari.\\n * 2. Change font properties to `inherit` in Safari.\\n */\\n\\n::-webkit-file-upload-button {\\n  -webkit-appearance: button; /* 1 */\\n  font: inherit; /* 2 */\\n}\\n\",\"html, body {\\n  height: 100%;\\n  font-size: calc(14px + ((100vw - 320px) / 1600) * 6);\\n  font-family: map-get($fonts, normal);\\n\\n  background-color: #fafafa;\\n  color: #4a4a4a;\\n\\n  -webkit-font-smoothing: antialiased;\\n}\\n\\n* {\\n  box-sizing: border-box;\\n}\\n\\nimg {\\n  position: relative;\\n  font-family: \\\"PingFang TC\\\";\\n  font-weight: 300;\\n  font-size: 14px;\\n  line-height: 2;\\n  text-align: center;\\n  \\n  &:before {\\n    display: block;\\n    margin-bottom: 10px;\\n    content: \\\"抱歉，這張圖片目前已移除或無法使用\\\";\\n  }\\n  \\n  &:after {\\n    position: absolute;\\n    z-index: 20;\\n    top: 5px;\\n    left: 0;\\n    width: 100%;\\n    text-align: center;\\n    top: 50%;\\n    display: block;\\n    padding: 10px 5px;\\n    background-color: #bbb;\\n    border: 2px dotted #444;\\n    content: \\\"url\\\" \\\"(\\\" attr(src) \\\")\\\";\\n  }\\n}\",\".hero-image {\\n  width: 100vw;\\n  height: 100vh;\\n  position: relative;\\n  left: 50%;\\n  right: 50%;\\n  margin-left: -50vw;\\n  margin-right: -50vw;\\n\\n  background-position: center;\\n  background-size: cover;\\n}\\n\\n.full-width {\\n  width: 100vw;\\n  position: relative;\\n  left: 50%;\\n  right: 50%;\\n  margin-left: -50vw;\\n  margin-right: -50vw;\\n}\",\"@import \\\"variables\\\";\\n@import \\\"normalize.scss\\\";\\n@import \\\"base.scss\\\";\\n@import \\\"hero-image\\\";\\n\\n\\nsvg {\\n  width: 100%;\\n  height: 100%;\\n}\\n\\n.line { height: 100%; }\\n\\n.detail {\\n  display: block;\\n  position: absolute;\\n  padding: 3px 8px;\\n  background-color: rgba(125,125,125, .6);\\n  color: #fff;\\n  line-height: 1;\\n  border-radius: 3px;\\n\\n  font-family: Oswald;\\n\\n  \\n\\n  .detail-item {\\n    &.jobless:before { color: #27cc95;}\\n    &.salary:before { color: #39a5c8;}\\n    &.hours:before { color: darken(#39a5c8, 5%); }\\n\\n    &:before {\\n      font-size: 1.2em;\\n      display: inline-block;\\n      margin-right: 4px;\\n      content: \\\"●\\\";\\n    }\\n  }\\n}\\n\\n.tick text {\\n  font-size: 20px;\\n  font-weight: bold; \\n  font-family: Oswald;\\n}\\n\\n.tick line {\\n  stroke: #aaa;\\n  stroke-dasharray: 3,3;\\n}\\n\\n.top-summary-board {\\n  width: 80%;\\n  max-width: 700px;\\n  padding: 20px;\\n  margin: 0 auto;\\n  background-color: rgba(125,125,125, .6);\\n  color: #fff;\\n  backdrop-filter: blur(2px);\\n  -webkit-backdrop-filter: blur(2px);\\n  border-radius: 3px;\\n}\\n\\n.circle {\\n  stroke: #fff;\\n\\n  &.toggle {\\n    fill: #fff;\\n    stroke: #ff6565;\\n  }\\n}\\n\\n.container {\\n  padding: 0 15px;\\n}\\n\\nh1,h2,h3,h4,h5,h6 { margin: 0; }\\n\\n.clearfix {\\n  zoom: 1;  \\n  &:before,\\n  &:after {\\n    content: \\\"\\\";\\n    display: table;\\n    clear: both;\\n  }\\n}\\n.labor-story {\\n  .chart {\\n    float: left;\\n    width: 55%;\\n    padding: 10px;\\n    height: 100vh;\\n    background-color: #fff;\\n  }\\n\\n  .story-area {\\n    float: right;\\n    height: 100vh;\\n    overflow-y: scroll;\\n    width: 45%;\\n    padding: 15px;\\n    background-color: #fff;\\n    border-left: 1px solid #aaa;\\n  }\\n}\\n\\n.text-center {\\n  text-align: center;\\n}\\n.affix {\\n  position: fixed;\\n  height: 100%;\\n  top: 0;\\n}\\n\\n.circle {\\n  fill: #ff6565;\\n}\\n\\n.story {\\n  margin-left: 1.5em;\\n  margin-right: 5%;\\n  background-color: #fff;\\n\\n  .story-title {\\n    font-size: 1.65em;\\n    letter-spacing: 1px;\\n    padding-left: .5em;\\n    border-left: 5px solid currentColor;\\n    line-height: 1;\\n  }\\n\\n  .story-time {\\n    position: relative;\\n    font-family: Oswald;\\n    font-size: 3em;\\n    font-weight: medium;\\n    color: #213670;\\n    &:before {\\n      position: absolute;\\n      display: inline-block;\\n      top: 40%;\\n      left: -50px;\\n      z-index: 100;\\n      content: \\\"\\\";\\n      width: 20px;\\n      height: 20px;\\n      border-radius: 50%;\\n      background-color: #213670;\\n      border: 3px solid #fff;\\n    }\\n  }\\n\\n  .story-image {\\n    max-width: 100%;\\n  }\\n}\\n\\n.board-container {\\n  display: flex;\\n  justify-content: space-between;\\n\\n}\\n.board {\\n  width: 31%;\\n  padding: 10px;\\n  background-color: #fff;\\n  box-shadow: 0 0 2px 1px rgba(100, 100, 100, 0.5);\\n  \\n  .board-title {\\n    padding-bottom: .3em;\\n    border-bottom: 1px solid #343434;\\n    text-align: center;\\n    font-size: 1.25em;\\n  }\\n\\n  .number {\\n    display: block;\\n    color: #213670;\\n    font-family: Oswald;\\n    font-size: 3em;\\n    text-align: center;\\n\\n    small { font-size: 15%; }\\n  }\\n}\"],\"sourceRoot\":\"\"}]);\n\n// exports\n\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/css-loader?sourceMap=true!./~/sass-loader/lib/loader.js?sourceMap=true!./app/styles/main.scss\n// module id = 321\n// module chunks = 0\n\n//# sourceURL=webpack:///./app/styles/main.scss?./~/css-loader?sourceMap=true!./~/sass-loader/lib/loader.js?sourceMap=true");
+
+/***/ }),
+/* 322 */
+/***/ (function(module, exports, __webpack_require__) {
+
+eval("/*\n\tMIT License http://www.opensource.org/licenses/mit-license.php\n\tAuthor Tobias Koppers @sokra\n*/\nvar stylesInDom = {},\n\tmemoize = function(fn) {\n\t\tvar memo;\n\t\treturn function () {\n\t\t\tif (typeof memo === \"undefined\") memo = fn.apply(this, arguments);\n\t\t\treturn memo;\n\t\t};\n\t},\n\tisOldIE = memoize(function() {\n\t\t// Test for IE <= 9 as proposed by Browserhacks\n\t\t// @see http://browserhacks.com/#hack-e71d8692f65334173fee715c222cb805\n\t\t// Tests for existence of standard globals is to allow style-loader \n\t\t// to operate correctly into non-standard environments\n\t\t// @see https://github.com/webpack-contrib/style-loader/issues/177\n\t\treturn window && document && document.all && !window.atob;\n\t}),\n\tgetElement = (function(fn) {\n\t\tvar memo = {};\n\t\treturn function(selector) {\n\t\t\tif (typeof memo[selector] === \"undefined\") {\n\t\t\t\tmemo[selector] = fn.call(this, selector);\n\t\t\t}\n\t\t\treturn memo[selector]\n\t\t};\n\t})(function (styleTarget) {\n\t\treturn document.querySelector(styleTarget)\n\t}),\n\tsingletonElement = null,\n\tsingletonCounter = 0,\n\tstyleElementsInsertedAtTop = [],\n\tfixUrls = __webpack_require__(319);\n\nmodule.exports = function(list, options) {\n\tif(typeof DEBUG !== \"undefined\" && DEBUG) {\n\t\tif(typeof document !== \"object\") throw new Error(\"The style-loader cannot be used in a non-browser environment\");\n\t}\n\n\toptions = options || {};\n\toptions.attrs = typeof options.attrs === \"object\" ? options.attrs : {};\n\n\t// Force single-tag solution on IE6-9, which has a hard limit on the # of <style>\n\t// tags it will allow on a page\n\tif (typeof options.singleton === \"undefined\") options.singleton = isOldIE();\n\n\t// By default, add <style> tags to the <head> element\n\tif (typeof options.insertInto === \"undefined\") options.insertInto = \"head\";\n\n\t// By default, add <style> tags to the bottom of the target\n\tif (typeof options.insertAt === \"undefined\") options.insertAt = \"bottom\";\n\n\tvar styles = listToStyles(list);\n\taddStylesToDom(styles, options);\n\n\treturn function update(newList) {\n\t\tvar mayRemove = [];\n\t\tfor(var i = 0; i < styles.length; i++) {\n\t\t\tvar item = styles[i];\n\t\t\tvar domStyle = stylesInDom[item.id];\n\t\t\tdomStyle.refs--;\n\t\t\tmayRemove.push(domStyle);\n\t\t}\n\t\tif(newList) {\n\t\t\tvar newStyles = listToStyles(newList);\n\t\t\taddStylesToDom(newStyles, options);\n\t\t}\n\t\tfor(var i = 0; i < mayRemove.length; i++) {\n\t\t\tvar domStyle = mayRemove[i];\n\t\t\tif(domStyle.refs === 0) {\n\t\t\t\tfor(var j = 0; j < domStyle.parts.length; j++)\n\t\t\t\t\tdomStyle.parts[j]();\n\t\t\t\tdelete stylesInDom[domStyle.id];\n\t\t\t}\n\t\t}\n\t};\n};\n\nfunction addStylesToDom(styles, options) {\n\tfor(var i = 0; i < styles.length; i++) {\n\t\tvar item = styles[i];\n\t\tvar domStyle = stylesInDom[item.id];\n\t\tif(domStyle) {\n\t\t\tdomStyle.refs++;\n\t\t\tfor(var j = 0; j < domStyle.parts.length; j++) {\n\t\t\t\tdomStyle.parts[j](item.parts[j]);\n\t\t\t}\n\t\t\tfor(; j < item.parts.length; j++) {\n\t\t\t\tdomStyle.parts.push(addStyle(item.parts[j], options));\n\t\t\t}\n\t\t} else {\n\t\t\tvar parts = [];\n\t\t\tfor(var j = 0; j < item.parts.length; j++) {\n\t\t\t\tparts.push(addStyle(item.parts[j], options));\n\t\t\t}\n\t\t\tstylesInDom[item.id] = {id: item.id, refs: 1, parts: parts};\n\t\t}\n\t}\n}\n\nfunction listToStyles(list) {\n\tvar styles = [];\n\tvar newStyles = {};\n\tfor(var i = 0; i < list.length; i++) {\n\t\tvar item = list[i];\n\t\tvar id = item[0];\n\t\tvar css = item[1];\n\t\tvar media = item[2];\n\t\tvar sourceMap = item[3];\n\t\tvar part = {css: css, media: media, sourceMap: sourceMap};\n\t\tif(!newStyles[id])\n\t\t\tstyles.push(newStyles[id] = {id: id, parts: [part]});\n\t\telse\n\t\t\tnewStyles[id].parts.push(part);\n\t}\n\treturn styles;\n}\n\nfunction insertStyleElement(options, styleElement) {\n\tvar styleTarget = getElement(options.insertInto)\n\tif (!styleTarget) {\n\t\tthrow new Error(\"Couldn't find a style target. This probably means that the value for the 'insertInto' parameter is invalid.\");\n\t}\n\tvar lastStyleElementInsertedAtTop = styleElementsInsertedAtTop[styleElementsInsertedAtTop.length - 1];\n\tif (options.insertAt === \"top\") {\n\t\tif(!lastStyleElementInsertedAtTop) {\n\t\t\tstyleTarget.insertBefore(styleElement, styleTarget.firstChild);\n\t\t} else if(lastStyleElementInsertedAtTop.nextSibling) {\n\t\t\tstyleTarget.insertBefore(styleElement, lastStyleElementInsertedAtTop.nextSibling);\n\t\t} else {\n\t\t\tstyleTarget.appendChild(styleElement);\n\t\t}\n\t\tstyleElementsInsertedAtTop.push(styleElement);\n\t} else if (options.insertAt === \"bottom\") {\n\t\tstyleTarget.appendChild(styleElement);\n\t} else {\n\t\tthrow new Error(\"Invalid value for parameter 'insertAt'. Must be 'top' or 'bottom'.\");\n\t}\n}\n\nfunction removeStyleElement(styleElement) {\n\tstyleElement.parentNode.removeChild(styleElement);\n\tvar idx = styleElementsInsertedAtTop.indexOf(styleElement);\n\tif(idx >= 0) {\n\t\tstyleElementsInsertedAtTop.splice(idx, 1);\n\t}\n}\n\nfunction createStyleElement(options) {\n\tvar styleElement = document.createElement(\"style\");\n\toptions.attrs.type = \"text/css\";\n\n\tattachTagAttrs(styleElement, options.attrs);\n\tinsertStyleElement(options, styleElement);\n\treturn styleElement;\n}\n\nfunction createLinkElement(options) {\n\tvar linkElement = document.createElement(\"link\");\n\toptions.attrs.type = \"text/css\";\n\toptions.attrs.rel = \"stylesheet\";\n\n\tattachTagAttrs(linkElement, options.attrs);\n\tinsertStyleElement(options, linkElement);\n\treturn linkElement;\n}\n\nfunction attachTagAttrs(element, attrs) {\n\tObject.keys(attrs).forEach(function (key) {\n\t\telement.setAttribute(key, attrs[key]);\n\t});\n}\n\nfunction addStyle(obj, options) {\n\tvar styleElement, update, remove;\n\n\tif (options.singleton) {\n\t\tvar styleIndex = singletonCounter++;\n\t\tstyleElement = singletonElement || (singletonElement = createStyleElement(options));\n\t\tupdate = applyToSingletonTag.bind(null, styleElement, styleIndex, false);\n\t\tremove = applyToSingletonTag.bind(null, styleElement, styleIndex, true);\n\t} else if(obj.sourceMap &&\n\t\ttypeof URL === \"function\" &&\n\t\ttypeof URL.createObjectURL === \"function\" &&\n\t\ttypeof URL.revokeObjectURL === \"function\" &&\n\t\ttypeof Blob === \"function\" &&\n\t\ttypeof btoa === \"function\") {\n\t\tstyleElement = createLinkElement(options);\n\t\tupdate = updateLink.bind(null, styleElement, options);\n\t\tremove = function() {\n\t\t\tremoveStyleElement(styleElement);\n\t\t\tif(styleElement.href)\n\t\t\t\tURL.revokeObjectURL(styleElement.href);\n\t\t};\n\t} else {\n\t\tstyleElement = createStyleElement(options);\n\t\tupdate = applyToTag.bind(null, styleElement);\n\t\tremove = function() {\n\t\t\tremoveStyleElement(styleElement);\n\t\t};\n\t}\n\n\tupdate(obj);\n\n\treturn function updateStyle(newObj) {\n\t\tif(newObj) {\n\t\t\tif(newObj.css === obj.css && newObj.media === obj.media && newObj.sourceMap === obj.sourceMap)\n\t\t\t\treturn;\n\t\t\tupdate(obj = newObj);\n\t\t} else {\n\t\t\tremove();\n\t\t}\n\t};\n}\n\nvar replaceText = (function () {\n\tvar textStore = [];\n\n\treturn function (index, replacement) {\n\t\ttextStore[index] = replacement;\n\t\treturn textStore.filter(Boolean).join('\\n');\n\t};\n})();\n\nfunction applyToSingletonTag(styleElement, index, remove, obj) {\n\tvar css = remove ? \"\" : obj.css;\n\n\tif (styleElement.styleSheet) {\n\t\tstyleElement.styleSheet.cssText = replaceText(index, css);\n\t} else {\n\t\tvar cssNode = document.createTextNode(css);\n\t\tvar childNodes = styleElement.childNodes;\n\t\tif (childNodes[index]) styleElement.removeChild(childNodes[index]);\n\t\tif (childNodes.length) {\n\t\t\tstyleElement.insertBefore(cssNode, childNodes[index]);\n\t\t} else {\n\t\t\tstyleElement.appendChild(cssNode);\n\t\t}\n\t}\n}\n\nfunction applyToTag(styleElement, obj) {\n\tvar css = obj.css;\n\tvar media = obj.media;\n\n\tif(media) {\n\t\tstyleElement.setAttribute(\"media\", media)\n\t}\n\n\tif(styleElement.styleSheet) {\n\t\tstyleElement.styleSheet.cssText = css;\n\t} else {\n\t\twhile(styleElement.firstChild) {\n\t\t\tstyleElement.removeChild(styleElement.firstChild);\n\t\t}\n\t\tstyleElement.appendChild(document.createTextNode(css));\n\t}\n}\n\nfunction updateLink(linkElement, options, obj) {\n\tvar css = obj.css;\n\tvar sourceMap = obj.sourceMap;\n\n\t/* If convertToAbsoluteUrls isn't defined, but sourcemaps are enabled\n\tand there is no publicPath defined then lets turn convertToAbsoluteUrls\n\ton by default.  Otherwise default to the convertToAbsoluteUrls option\n\tdirectly\n\t*/\n\tvar autoFixUrls = options.convertToAbsoluteUrls === undefined && sourceMap;\n\n\tif (options.convertToAbsoluteUrls || autoFixUrls){\n\t\tcss = fixUrls(css);\n\t}\n\n\tif(sourceMap) {\n\t\t// http://stackoverflow.com/a/26603875\n\t\tcss += \"\\n/*# sourceMappingURL=data:application/json;base64,\" + btoa(unescape(encodeURIComponent(JSON.stringify(sourceMap)))) + \" */\";\n\t}\n\n\tvar blob = new Blob([css], { type: \"text/css\" });\n\n\tvar oldSrc = linkElement.href;\n\n\tlinkElement.href = URL.createObjectURL(blob);\n\n\tif(oldSrc)\n\t\tURL.revokeObjectURL(oldSrc);\n}\n\n\n//////////////////\n// WEBPACK FOOTER\n// ./~/style-loader/addStyles.js\n// module id = 322\n// module chunks = 0\n\n//# sourceURL=webpack:///./~/style-loader/addStyles.js?");
 
 /***/ })
 /******/ ]);

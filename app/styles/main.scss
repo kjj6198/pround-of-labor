@@ -39,7 +39,8 @@ svg {
 }
 
 .tick text {
-  font-size: 17px;
+  font-size: 20px;
+  font-weight: bold; 
   font-family: Oswald;
 }
 
@@ -79,6 +80,7 @@ h1,h2,h3,h4,h5,h6 { margin: 0; }
   zoom: 1;  
   &:before,
   &:after {
+    content: "";
     display: table;
     clear: both;
   }
@@ -124,6 +126,9 @@ h1,h2,h3,h4,h5,h6 { margin: 0; }
   .story-title {
     font-size: 1.65em;
     letter-spacing: 1px;
+    padding-left: .5em;
+    border-left: 5px solid currentColor;
+    line-height: 1;
   }
 
   .story-time {
@@ -145,6 +150,10 @@ h1,h2,h3,h4,h5,h6 { margin: 0; }
       background-color: #213670;
       border: 3px solid #fff;
     }
+  }
+
+  .story-image {
+    max-width: 100%;
   }
 }
 

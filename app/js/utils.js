@@ -25,3 +25,9 @@ export const numToCurrency = (number, options = {
     formatNumber,
   )(number);
 }
+
+export const simpleFormat = (str) => {
+  return str.split('\n')
+    .map(line => `${line}<br/>`)
+    .join('');
+}

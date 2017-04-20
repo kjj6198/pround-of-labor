@@ -42,7 +42,7 @@ function showSalaryDetail(targetNode, data) {
   const detailTemplate = `
     <div>
       <p class="detail-item salary"><small>平均薪資 </small><strong>${+data["平均薪資"]}</strong></p>
-      <p class="detail-item jobless"><small>薪資成長幅度 </small><strong>${data["成長幅度"]}</strong></p>
+      <p class="detail-item jobless"><small>薪資漲幅 </small><strong>${data["成長幅度"]}</strong></p>
       <p class="detail-item hours"><small>物價指數 </small><strong>${data["物價指數"]}%</strong></p>
     </div>
   `;
@@ -179,6 +179,7 @@ function drawLineChart(err, datas) {
   //   })
   //   .style('stroke-width', 2)
   //   .style('fill', 'none');
+    // displayBoard(data[]);
 
      svg
     .selectAll('circle')
@@ -192,6 +193,7 @@ function drawLineChart(err, datas) {
           .attr('stroke-width', 2)
           .on('mouseover', function(data) {
             this.classList.add('toggle');
+            console.log(this, d3.mouse(this))
             showSalaryDetail(this.parentNode, data);
             updateBoardDisplay(data, d3.nest().key(d => d["年份"]).entries(datas));
             $('#chartArea').attr('data-current-year', data['年份'])
