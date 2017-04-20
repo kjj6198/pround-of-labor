@@ -206,4 +206,4 @@ function drawLineChart(err, datas) {
 
 
 
-d3.csv('/salary.csv', drawLineChart);
+d3.csv('./data/salary.csv', drawLineChart);

@@ -44,4 +44,4 @@ function drawEvents(events) {
 
 
 
-d3.csv('/events.csv', drawEvents);
+d3.csv('./data/events.csv', drawEvents);
