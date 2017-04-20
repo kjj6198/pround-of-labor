@@ -42,7 +42,7 @@ module.exports = (env) => {
     }));
 
     plugins.push(new ExtractTextPlugin({
-      filename: '../../styles/bundle.scss',
+      filename: '../../styles/bundle.css',
       allChunks: true
     }));
   }
