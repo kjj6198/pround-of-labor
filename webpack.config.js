@@ -1,5 +1,7 @@
 const webpack = require('webpack');
 const path = require('path');
+const ExtractTextPlugin = require("extract-text-webpack-plugin");
+
 
 PATH = {
   stylesheets: path.join(__dirname, 'app', 'styles'),
@@ -34,10 +36,15 @@ module.exports = (env) => {
     plugins.push(new webpack.HotModuleReplacementPlugin())
   }
 
-  if (env.production !== undefined) {
+  if (env.production) {
     plugins.push(new webpack.optimize.UglifyJsPlugin({
       compress: process.env.NODE_ENV === 'production'
-    })) 
+    }));
+
+    plugins.push(new ExtractTextPlugin({
+      filename: '../../styles/bundle.scss',
+      allChunks: true
+    }));
   }
 
   return {
@@ -77,7 +84,12 @@ module.exports = (env) => {
         {
           test: /\.(sass|scss)$/,
           exclude: /settings/,
-          loaders: [
+          loaders: env.production ? ExtractTextPlugin.extract({
+            use: [
+              'css-loader?sourceMap=true',
+              'sass-loader?sourceMap=true'  
+            ]
+          }) : [
             'style-loader?sourceMap=true',
             'css-loader?sourceMap=true',
             'sass-loader?sourceMap=true'
