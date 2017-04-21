@@ -17,6 +17,16 @@ svg {
   padding: 0 15px;
 }
 
+.clearfix {
+  zoom: 1;  
+  &:before,
+  &:after {
+    content: "";
+    display: table;
+    clear: both;
+  }
+}
+
 
 .line { height: 100%; }
 
@@ -45,7 +55,6 @@ svg {
   }
 }
 
-
 .top-summary-board {
   width: 80%;
   max-width: 700px;
@@ -58,43 +67,6 @@ svg {
   border-radius: 3px;
 }
 
-.circle {
-  stroke: #fff;
-
-  &.toggle {
-    fill: #fff;
-    stroke: #ff6565;
-  }
-}
-
-.clearfix {
-  zoom: 1;  
-  &:before,
-  &:after {
-    content: "";
-    display: table;
-    clear: both;
-  }
-}
-.labor-story {
-  .chart {
-    float: left;
-    width: 55%;
-    padding: 10px;
-    height: 100vh;
-    background-color: #fff;
-  }
-
-  .story-area {
-    float: right;
-    height: 100vh;
-    overflow-y: scroll;
-    width: 45%;
-    padding: 15px;
-    background-color: #fff;
-    border-left: 1px solid #aaa;
-  }
-}
 
 .text-center {
   text-align: center;
@@ -108,8 +80,6 @@ svg {
 .circle {
   fill: #ff6565;
 }
-
-
 
 .board-container {
   display: flex;

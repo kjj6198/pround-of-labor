@@ -8,3 +8,12 @@
   stroke: #aaa;
   stroke-dasharray: 3,3;
 }
+
+.circle {
+  stroke: #fff;
+
+  &.toggle {
+    fill: #fff;
+    stroke: #ff6565;
+  }
+}

@@ -39,3 +39,23 @@
   }
 }
 
+
+.labor-story {
+  .chart {
+    float: left;
+    width: 55%;
+    padding: 10px;
+    height: 100vh;
+    background-color: #fff;
+  }
+
+  .story-area {
+    float: right;
+    height: 100vh;
+    overflow-y: scroll;
+    width: 45%;
+    padding: 15px;
+    background-color: #fff;
+    border-left: 1px solid #aaa;
+  }
+}
