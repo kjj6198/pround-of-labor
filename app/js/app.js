@@ -7,6 +7,7 @@ import { numToCurrency } from './utils';
 function drawTimeline() {}
 
 
+
 function updateBoardDisplay(data, datas) {  
   const jobless = document.querySelector('#jobless > .number');
   const hours   = document.querySelector('#hours > .number');

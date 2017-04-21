@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="logo-4" transform="translate(0.210000, 0.000000)" fill-rule="nonzero" fill="#DD5C3E">
+            <rect id="Rectangle-path" transform="translate(79.584865, 11.992897) rotate(-30.350000) translate(-79.584865, -11.992897) " x="67.7098649" y="6.99289655" width="23.75" height="10"></rect>
+            <path d="M26.36,0.82 C26.36,1.07 25.86,26.01 0.43,52.37 L7.63,59.31 C12.2998342,54.487414 16.5580177,49.2825959 20.36,43.75 L20.36,126.84 L30.36,126.84 L30.36,34.3 L26.15,34.3 C36.15,15.75 36.37,1.67 36.37,0.85 L26.36,0.82 Z" id="Shape"></path>
+            <path d="M59.92,1 L49.92,1.07 C49.92,2.49 50.08,15.99 51.92,33.87 L41.42,33.87 L41.42,43.87 L53,43.87 C56.59,72.06 64.33,106.72 81,123.55 L82.5,125 L91.58,125 L91.58,115 L86.74,115 C73.17,99.8 66.46,69.43 63.15,43.84 L91.59,43.84 L91.59,33.84 L62,33.84 C60.08,15.34 59.92,1.31 59.92,1 Z" id="Shape"></path>
+        </g>
+    </g>
+</svg>
