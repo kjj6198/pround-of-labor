@@ -2,12 +2,19 @@
 @import "normalize.scss";
 @import "base.scss";
 @import "hero-image";
+@import "story";
 
+@import 
 
 svg {
   width: 100%;
   height: 100%;
 }
+
+.container {
+  padding: 0 15px;
+}
+
 
 .line { height: 100%; }
 
@@ -21,8 +28,6 @@ svg {
   border-radius: 3px;
 
   font-family: Oswald;
-
-  
 
   .detail-item {
     &.jobless:before { color: #27cc95;}
@@ -70,12 +75,6 @@ svg {
   }
 }
 
-.container {
-  padding: 0 15px;
-}
-
-h1,h2,h3,h4,h5,h6 { margin: 0; }
-
 .clearfix {
   zoom: 1;  
   &:before,
@@ -118,46 +117,7 @@ h1,h2,h3,h4,h5,h6 { margin: 0; }
   fill: #ff6565;
 }
 
-.story {
-  margin-left: 1.5em;
-  margin-right: 5%;
-  background-color: #fff;
 
-  .story-title {
-    font-size: 1.65em;
-    letter-spacing: 1px;
-    padding-left: .5em;
-    border-left: 5px solid currentColor;
-    line-height: 1;
-  }
-
-  .story-time {
-    position: relative;
-    font-family: Oswald;
-    font-size: 3em;
-    font-weight: medium;
-    color: #213670;
-    -webkit-text-stroke-color: #213670;
-    -webkit-text-stroke-width: 1px;
-    &:before {
-      position: absolute;
-      display: inline-block;
-      top: 40%;
-      left: -50px;
-      z-index: 100;
-      content: "";
-      width: 20px;
-      height: 20px;
-      border-radius: 50%;
-      background-color: #213670;
-      border: 3px solid #fff;
-    }
-  }
-
-  .story-image {
-    max-width: 100%;
-  }
-}
 
 .board-container {
   display: flex;
