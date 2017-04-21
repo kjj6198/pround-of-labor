@@ -1,10 +1,12 @@
 @import "variables";
+@import "colors";
+
+
 @import "normalize.scss";
 @import "base.scss";
 @import "hero-image";
 @import "story";
-
-@import 
+@import "chart";
 
 svg {
   width: 100%;
@@ -43,16 +45,6 @@ svg {
   }
 }
 
-.tick text {
-  font-size: 20px;
-  font-weight: bold; 
-  font-family: Oswald;
-}
-
-.tick line {
-  stroke: #aaa;
-  stroke-dasharray: 3,3;
-}
 
 .top-summary-board {
   width: 80%;

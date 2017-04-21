@@ -16,8 +16,8 @@
     font-family: Oswald;
     font-size: 3em;
     font-weight: medium;
-    color: #213670;
-    -webkit-text-stroke-color: #213670;
+    color: c(main);
+    -webkit-text-stroke-color: c(main);
     -webkit-text-stroke-width: 1px;
     &:before {
       position: absolute;
@@ -29,7 +29,7 @@
       width: 20px;
       height: 20px;
       border-radius: 50%;
-      background-color: #213670;
+      background-color: c(main);
       border: 3px solid #fff;
     }
   }
