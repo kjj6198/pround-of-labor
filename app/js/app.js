@@ -4,9 +4,39 @@ import "./storys";
 
 import { numToCurrency } from './utils';
 
-function drawTimeline() {}
+const normalizeData = (datas) => d3.nest().key(d => d["年份"]).entries(datas);
+const bindMousemove = (xScale, yScale, datas) => (...args) => {
+  const target = args[2][0];
+  const [xCoords] = d3.mouse(target);
+  const targetYear = Math.round(xScale.invert(xCoords));
+  const prevYear = $('#chartArea').attr('data-current-year');
 
+  if (targetYear === prevYear || targetYear < 62) { return ; }  
+  const targetData = datas.filter(d => +d['年份'] === +targetYear)[0];
 
+  updateBoardDisplay(targetData, normalizeData(datas));
+  showSalaryDetail('', targetData);
+
+  d3
+    .select('.guide-line')
+    .attr('x1', xCoords)
+    .attr('x2', xCoords)
+
+  d3.select('.guide-circle')
+    .attr('r', 15)
+    .attr('cx', xCoords)
+    .attr('cy', yScale(targetData['平均薪資']))
+
+  $('#chartArea').attr('data-current-year', targetYear);
+  $('.currentYear > text')[0].textContent = `民國 ${targetYear} 年`;
+}
+
+function moveGuideline(year) {
+
+  return function(datas) {
+    const data = datas.filter(d => +d['年份'] === +year);
+  }
+}
 
 function updateBoardDisplay(data, datas) {  
   const jobless = document.querySelector('#jobless > .number');
@@ -15,12 +45,13 @@ function updateBoardDisplay(data, datas) {
   const prevYear = $('#chartArea').attr('data-current-year');
 
   const [prevData] = datas.filter(d => +d.key === +prevYear);
-  if (!prevData) { return ; }
+  if (!prevData || prevYear <= 62) { return ; }
   
   d3.selectAll('.number')
     .transition()
     .duration(600)
     .tween('number', () => {
+  
       const joblessRate = d3.interpolate(+prevData.values[0]['失業率'], +data['失業率']);
       const workHours   = d3.interpolate(+prevData.values[0]['平均工時'], +data['平均工時']);
       const salary      = d3.interpolateRound(+prevData.values[0]['平均薪資'], +data['平均薪資']);
@@ -33,12 +64,19 @@ function updateBoardDisplay(data, datas) {
     })
 }
 
+function initFirstDisplay(data, datas, display) {
+  updateBoardDisplay(data, normalizeData(datas));
+  showSalaryDetail('', data);
+  display.text(`民國 ${data['年份']} 年`);
+}
+
 
 const getTranslate = (translate) => {
   const matches = /\s?(\d+\.*\d+)\,\s?(\d+)/.exec(translate);
   
   return `translate(${+matches[1]}px, ${+matches[2]}px)`;
 }
+
 function showSalaryDetail(targetNode, data) {
   const detailTemplate = `
     <div>
@@ -48,11 +86,9 @@ function showSalaryDetail(targetNode, data) {
     </div>
   `;
   
-  const translate = getTranslate($(targetNode).attr('transform'));
   
   $('.detail')
     .html(detailTemplate)
-    .css('transform', translate)
     .show()
 }
 
@@ -80,8 +116,6 @@ function responsivefy(svg) {
     .call(resize);
 
   d3.select(window).on('resize.' + 'chart', resize);
-
-
 }
 
 function drawLineChart(err, datas) {
@@ -92,8 +126,6 @@ function drawLineChart(err, datas) {
     bottom: 30,
     left: 80
   };
-
-
 
   const width = window.innerWidth - margin.left - margin.right;
   const height = window.innerHeight - margin.top - margin.bottom;
@@ -107,11 +139,13 @@ function drawLineChart(err, datas) {
       .attr('transform', `translate(${margin.left}, ${margin.bottom})`);      
   const xScale = d3
     .scaleLinear()
+    .clamp(true)
     .domain([
       60,
       105
     ])
-    .range([0, width]);
+    .range([0, width])
+    
   
   const yJoblessScale = d3
     .scaleLinear()
@@ -123,6 +157,7 @@ function drawLineChart(err, datas) {
   
   const yScale = d3
     .scaleLinear()
+    .clamp(true)
     .domain([
       2000,
       50000
@@ -134,27 +169,59 @@ function drawLineChart(err, datas) {
   svg
     .append('g')
       .attr('transform', `translate(0, ${height})`)
+      .attr('class', 'x axis')
     .call(d3.axisBottom(xScale).ticks(10).tickSize(-height))
   
   svg
     .append('g')
+    .attr('class', 'y axis')
     .call(d3.axisLeft(yScale).ticks(15).tickSize(-width))
+
+  const guideGroup = svg.append('g')
+  const guideArea  = guideGroup
+    .append('rect')
+    .attr('class', 'guide-area')
+    .attr('transform', 'translate(0,0)')
+    .attr('w', 0)
+    .attr('h', 0)
+    .attr('fill', '#fff')
+    .attr('opacity', 0.5)
+    .attr('width', width)
+    .attr('height', height)
+    .on('mousemove', bindMousemove(xScale, yScale, datas))
+
+  const guideLine = guideGroup
+    .append('line')
+    .attr('class', 'guide-line')
+    .attr('y2', height)
+    .attr('stroke-width', 4)
+    .attr('stroke', '#000')
+
+  const guideCircle = guideGroup
+    .append('circle')
+    .attr('class', 'guide-circle')
+    .attr('stroke-width', 2)
+    .attr('stroke', 'red')
+    .attr('fill', '#fff')
 
   const line = d3.line()
     .x(d => xScale(+d['年份']))
     .y(d => yScale(+d['平均薪資']));
-    // .curve(d3.curveCatmullRom.alpha(0.5))
-  const circles = svg
-    .selectAll('circle')
-    .attr('r', 5)
-    .attr('fill', '#aaa')
-    
-  
+
   const joblessLine = d3.line()
     .x(d => xScale(+d['年份']))
     .y(d => yJoblessScale(+d['失業率']))
     .curve(d3.curveCatmullRom.alpha(0.5));
-    
+  
+  const cuurentYearDisplay = svg
+    .append('g')
+    .attr('class', 'currentYear')
+    .attr('transform', `translate(${width - 300}, ${height - 50})`)
+    .append('text')
+      .attr('font-size', 50)
+      .attr('font-family', 'Oswald')
+      .attr('style', "fill: #888")
+
   svg
     .selectAll('.line1')
     .data(datas)
@@ -168,43 +235,7 @@ function drawLineChart(err, datas) {
     .style('stroke-width', 2)
     .style('fill', 'none')
 
-  // svg
-  //   .selectAll('.line2')
-  //   .data(data)
-  //   .enter()
-  //   .append('path')
-  //   .attr('class', 'line')
-  //   .attr('stroke', '#123')
-  //   .attr('d', d => {
-  //     return joblessLine(data);
-  //   })
-  //   .style('stroke-width', 2)
-  //   .style('fill', 'none');
-    // displayBoard(data[]);
-
-     svg
-    .selectAll('circle')
-    .data(datas)
-    .enter()
-        .append('circle')
-          .attr('cx', d => xScale(+d['年份']))
-          .attr('cy', d => yScale(+d['平均薪資']))
-          .attr('class', 'circle')
-          .attr('r', 8)
-          .attr('stroke-width', 2)
-          .on('mouseover', function(data) {
-            this.classList.add('toggle');
-            console.log(this, d3.mouse(this))
-            showSalaryDetail(this.parentNode, data);
-            updateBoardDisplay(data, d3.nest().key(d => d["年份"]).entries(datas));
-            $('#chartArea').attr('data-current-year', data['年份'])
-          })
-          .on('mouseleave', function() {
-            this.classList.remove('toggle');
-            // hideDetail();
-          });
+    initFirstDisplay(datas.slice(-1)[0], datas, cuurentYearDisplay);
 };
-
-
 
 d3.csv('/salary.csv', drawLineChart);

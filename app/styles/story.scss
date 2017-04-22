@@ -19,11 +19,23 @@
     color: c(main);
     -webkit-text-stroke-color: c(main);
     -webkit-text-stroke-width: 1px;
+
+    &:after {
+      position: absolute;
+      display: inline-block;
+      content: "";
+      width: 15px;
+      height: 4px;
+
+      background-color: c(main);
+      top: 53%;
+      left: -40px;
+    }
     &:before {
       position: absolute;
       display: inline-block;
       top: 40%;
-      left: -50px;
+      left: -25px;
       z-index: 100;
       content: "";
       width: 20px;

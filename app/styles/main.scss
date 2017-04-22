@@ -1,16 +1,40 @@
 @import "variables";
 @import "colors";
-
-
 @import "normalize.scss";
 @import "base.scss";
 @import "hero-image";
 @import "story";
 @import "chart";
-
 svg {
   width: 100%;
   height: 100%;
+}
+
+.hero-title {
+  padding: 1em;
+  text-align: center;
+}
+
+[class^="logo"] {
+  width: 100px;
+  height: 80px;
+  fill: #fff;
+
+  // stroke-dasharray: 500px;
+  // stroke-dashoffset: 500px;
+  g {
+      stroke: #fff;
+      stroke-width: 4px;
+  }
+}
+
+.logo-1 {
+  width: 80px;
+}
+
+.logo-3 {
+  width: 80px;
+  height: 130px;
 }
 
 .container {
@@ -18,40 +42,44 @@ svg {
 }
 
 .clearfix {
-  zoom: 1;  
+  zoom: 1;
   &:before,
   &:after {
-    content: "";
-    display: table;
-    clear: both;
+      content: "";
+      display: table;
+      clear: both;
   }
 }
 
-
-.line { height: 100%; }
+.line {
+  height: 100%;
+}
 
 .detail {
   display: block;
   position: absolute;
   padding: 3px 8px;
-  background-color: rgba(125,125,125, .6);
+  background-color: rgba(125, 125, 125, .6);
   color: #fff;
   line-height: 1;
   border-radius: 3px;
-
   font-family: Oswald;
-
   .detail-item {
-    &.jobless:before { color: #27cc95;}
-    &.salary:before { color: #39a5c8;}
-    &.hours:before { color: darken(#39a5c8, 5%); }
-
-    &:before {
-      font-size: 1.2em;
-      display: inline-block;
-      margin-right: 4px;
-      content: "●";
-    }
+      &.jobless:before {
+          color: #27cc95;
+      }
+      &.salary:before {
+          color: #39a5c8;
+      }
+      &.hours:before {
+          color: darken(#39a5c8, 5%);
+      }
+      &:before {
+          font-size: 1.2em;
+          display: inline-block;
+          margin-right: 4px;
+          content: "●";
+      }
   }
 }
 
@@ -60,17 +88,17 @@ svg {
   max-width: 700px;
   padding: 20px;
   margin: 0 auto;
-  background-color: rgba(125,125,125, .6);
+  background-color: rgba(125, 125, 125, .6);
   color: #fff;
   backdrop-filter: blur(2px);
   -webkit-backdrop-filter: blur(2px);
   border-radius: 3px;
 }
 
-
 .text-center {
   text-align: center;
 }
+
 .affix {
   position: fixed;
   height: 100%;
@@ -84,28 +112,27 @@ svg {
 .board-container {
   display: flex;
   justify-content: space-between;
-
 }
+
 .board {
   width: 31%;
   padding: 10px;
   background-color: #fff;
   box-shadow: 0 0 2px 1px rgba(100, 100, 100, 0.5);
-  
   .board-title {
-    padding-bottom: .3em;
-    border-bottom: 1px solid #343434;
-    text-align: center;
-    font-size: 1.25em;
+      padding-bottom: .3em;
+      border-bottom: 1px solid #343434;
+      text-align: center;
+      font-size: 1.25em;
   }
-
   .number {
-    display: block;
-    color: #213670;
-    font-family: Oswald;
-    font-size: 3em;
-    text-align: center;
-
-    small { font-size: 15%; }
+      display: block;
+      color: #213670;
+      font-family: Oswald;
+      font-size: 3em;
+      text-align: center;
+      small {
+          font-size: 15%;
+      }
   }
 }
