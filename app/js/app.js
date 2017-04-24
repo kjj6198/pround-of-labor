@@ -342,7 +342,7 @@ function drawRalatedLineChart(err, datas) {
     .style('fill', 'none')
 }
 
-d3.csv('/salary.csv', (err, datas) => {
+d3.csv('./data/salary.csv', (err, datas) => {
   drawLineChart(err, datas);
   drawRalatedLineChart(err, datas);
 });
