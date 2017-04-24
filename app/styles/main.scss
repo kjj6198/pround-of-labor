@@ -5,6 +5,9 @@
 @import "hero-image";
 @import "story";
 @import "chart";
+@import "labor-topic";
+
+
 svg {
   width: 100%;
   height: 100%;
@@ -20,11 +23,8 @@ svg {
   height: 80px;
   fill: #fff;
 
-  // stroke-dasharray: 500px;
-  // stroke-dashoffset: 500px;
   g {
-      stroke: #fff;
-      stroke-width: 4px;
+      fill: #fff;
   }
 }
 
@@ -135,4 +135,10 @@ svg {
           font-size: 15%;
       }
   }
+}
+
+.section-seperator {
+  border: 1px solid #333;
+  margin: 4em 25%;
+
 }
