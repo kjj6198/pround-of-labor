@@ -1,0 +1,51 @@
+.labor-topic {
+  position: relative;
+  margin: 0;
+  min-height: 100vh;
+  background: #fff;
+
+  .topic-title {
+    display: inline-block;
+    position: relative;
+    z-index: 1;
+    font-size: 2em;
+    font-weight: bold;
+
+    &:before {
+      position: absolute;
+      z-index: 0;
+      content: "ISSUE 1";
+      text-align: center;
+      width: 100%;
+      top: 50%;
+
+      color: #bbb;
+      opacity: .8;
+    }
+  }
+
+  .description {
+    width: 100%;
+  }
+
+  .chart-legend {
+    position: absolute;
+    z-index: 1;
+    right: 20px;
+    top: 5%;
+    background-color: transparent;
+    border: 2px solid c(word);
+    border-radius: 6px;
+    
+    ul { padding: 0; list-style: none; }
+    li {
+      padding-left: .5em;
+
+      &:before {
+        content: '● ';
+        font-size: .6em;
+        color: currentColor;
+      }
+    }
+  }
+}

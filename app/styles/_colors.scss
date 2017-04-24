@@ -1,0 +1,11 @@
+$colors: (
+  main: #213670,
+  word: #343434,
+  hint: #ff6565,
+);
+
+@function c($key) {
+  @if map-has-key($colors, $key) {
+    @return map-get($colors , $key);
+  } 
+}
