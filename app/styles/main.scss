@@ -6,7 +6,9 @@
 @import "story";
 @import "chart";
 @import "labor-topic";
+@import "author";
 
+a { color:inherit; }
 
 svg {
   width: 100%;

@@ -1,6 +1,20 @@
+.story-area {
+  position: relative;
+  .story-timeline {
+    position: absolute;
+    right: 0;
+    top: 20px;
+    width: 12%;
+    color: #fff;
+    background-color: #27cc95;
+    height: 100%;
+  }
+}
+
 .story {
+  position: relative;
   margin-left: 1.5em;
-  margin-right: 5%;
+  margin-right: 10%;
   background-color: #fff;
 
   .story-title {

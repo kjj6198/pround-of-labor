@@ -11,6 +11,8 @@
     font-size: 2em;
     font-weight: bold;
 
+    margin-bottom: 2em;
+
     &:before {
       position: absolute;
       z-index: 0;
@@ -32,7 +34,7 @@
     position: absolute;
     z-index: 1;
     right: 20px;
-    top: 5%;
+    top: 20%;
     background-color: transparent;
     border: 2px solid c(word);
     border-radius: 6px;

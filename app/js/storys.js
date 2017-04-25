@@ -7,8 +7,15 @@ function strToEls(str) {
   return contextRange.createContextualFragment(str);
 }
 
+function drawStoryTimeline(datas) {
+  $('#storyTimeline').html(datas.map(d => `
+    <p style="text-align:center;font-weight:bold;">
+      ${d['Year']}.${d['Month']}
+    </p>
+  `).join(''));
+}
+
 const storyTemplate = ({time, title, description, image_url}) => {  
-  console.log(description)
   return `
     <div class="story">
       <time class="story-time">${time}</time>
@@ -21,15 +28,7 @@ const storyTemplate = ({time, title, description, image_url}) => {
   `
 };
 
-const storyElm = strToEls(storyTemplate({
-  time: new Date(),
-  title: "hello",
-  description: "hello"
-}));
-console.log(storyElm)
-
 function drawEvents(events) {
-  console.table(events);
   const $storyArea = $('.js-story-timeline');
   events.map(event => {
     const story = strToEls(storyTemplate({
@@ -44,4 +43,8 @@ function drawEvents(events) {
 
 
 
-d3.csv('/events.csv', drawEvents);
+
+d3.csv('/events.csv', (error, datas) => {
+  drawEvents(datas);
+  drawStoryTimeline(datas);
+});
