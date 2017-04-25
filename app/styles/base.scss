@@ -1,6 +1,6 @@
 html, body {
   height: 100%;
-  font-size: calc(14px + ((100vw - 320px) / 1600) * 6);
+  font-size: calc(16px + ((100vw - 320px) / 2000) * 6);
   font-family: map-get($fonts, normal);
 
   background-color: #fafafa;

@@ -75,11 +75,13 @@
         </div>
     </div>
 
-    <section class="labor-story clearfix">
+    <section class="labor-story-container">
+      <div class="labor-story clearfix" data-spy="affix" data-offset-top="1000">
         <div class="chart">
             <h2 class="text-center">台灣勞動環境總覽圖</h2>
             <h3 class="labor-story__current-year"></h3>
             <div class="taiwan-labor-info-chart">
+                <div class="detail"></div>
                 <div id="chartArea" data-current-year="105"></div>
             </div>
             <div class="board-container">
@@ -100,27 +102,46 @@
                     <span class="number"></span>
                 </div>
             </div>
-        </div>
-
-        <div class="story-area js-story-timeline clearfix">
-          <div id="storyTimeline" class="story-timeline"></div>
-        </div>
-        <div class="detail"></div>
+        </div>        
+      </div>
     </section>
+
+    <hr class="section-seperator" />
+    <section class="storys-timeline">
+      <div class="story-area js-story-timeline clearfix">
+        <div id="storyTimeline" class="story-timeline"></div>
+      </div>
+    </section>
+
     <hr class="section-seperator" />
     <section class="labor-topic">
       <h3 class="topic-title issue-1">台灣勞工環境解密</h3>
-      <span>台灣邁入高齡化社會，老年人口將近 14%</span>
-      
-      <div class="description">
-        <div class="chart-legend">
-          <ul>
-            <li>失業率： <span class="jobless"></span></li>
-            <li>物價指數： <span class="price-rate"></span></li>
-            <li>薪資漲幅： <span class="salary-rate"></span></li>
-          </ul>
+      <span>薪資凍漲</span>
+
+      <div class="container">
+        <div class="">
+          <p>從 1997 年開始，薪資漲幅下滑到 5% 以下，在 2009 年出現了平均薪資下滑的情形。之後的台灣薪資漲幅就在 0 ~ 2% 中擺盪。為什麼薪資水準倒退十年？</p>
+
+          <h4>產業無法轉型，停留在代工階段</h4>
+          <p>早期的台灣以代工產業為主，從 1960 年代開始以輕工業發展為主。1980 年代成立了新竹科學園區，生產電子代工零件（積體電路、電晶體等）。</p>
+          <p>後來勞工意識逐漸抬頭，薪資逐漸上漲後，企業紛紛外移，租用更廉價的人力及資源設廠。為了因應勞工外移，開始引進外勞。</p>
+
+          <h4>22K 計畫遺毒，企業習慣以低薪雇用新鮮人</h4>
+          <p>原本的 22K 計畫，造成企業開始以 22K 作為雇用新鮮人的標準。資方因節省成本而不願重視人才、大學文憑氾濫，而長期下來的資訊不對稱、不透明的狀況下，新鮮人常常在迫不得已之下接受低薪。</p>
+          <p>低薪競爭的惡性循環導致企業不願給予更好的待遇，而畢業生則因沒有選擇被迫進入不合理的職場環境下工作。</p>
+
+          <h4>學用落差大</h4>
         </div>
-        <div id="relatedChart"></div>
+        <div class="description">
+          <div class="chart-legend">
+            <ul>
+              <li>失業率： <span class="jobless"></span></li>
+              <li>物價指數： <span class="price-rate"></span></li>
+              <li>薪資漲幅： <span class="salary-rate"></span></li>
+            </ul>
+          </div>
+          <div id="relatedChart"></div>
+        </div>
       </div>
     </section>
 
@@ -131,6 +152,7 @@
       
 
       <div class="description">
+        <div id="workHoursChart"></div>
       </div>
     </section>
     <hr class="section-seperator" />

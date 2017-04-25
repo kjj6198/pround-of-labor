@@ -1,3 +1,5 @@
+.taiwan-labor-info-chart { position: relative; }
+
 .tick text {
   font-size: 20px;
   font-weight: bold; 
@@ -24,7 +26,7 @@
     g {
       text { visibility: hidden; }
     }
-    g:nth-child(5n),
+    g:nth-child(2n),
     g:first-child,
     g:last-child {
       visibility: visible;
