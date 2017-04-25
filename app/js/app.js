@@ -174,6 +174,7 @@ function drawLineChart(err, datas) {
       height,
       0
     ]);
+
   svg
     .append('g')
       .attr('transform', `translate(0, ${height})`)
@@ -184,6 +185,12 @@ function drawLineChart(err, datas) {
     .append('g')
     .attr('class', 'y axis')
     .call(d3.axisLeft(yScale).ticks(15).tickSize(-width))
+    .append('text')
+    .text('（新台幣）')
+    .attr('y', 5)
+    .attr('x', 10)
+    .style('fill', '#000')
+    .style('font-size', '20px')
 
   const guideGroup = svg.append('g')
   const guideArea  = guideGroup
@@ -304,7 +311,11 @@ function drawRalatedLineChart(err, datas) {
 
   const svg = generateSVG('#relatedChart', window.innerWidth, window.innerHeight);
   generateAxis(xScale, yScale, '（%）', 20, 10)(svg, width, height);
-  drawGuideArea(width, height)(svg, datas[0])(function(){});
+  
+  const options = {
+    xScale,
+    yScale
+  }
 
   svg
     .selectAll('.line.jobless')
@@ -340,9 +351,11 @@ function drawRalatedLineChart(err, datas) {
       return salaryRate(datas);
     })
     .style('fill', 'none')
+    drawGuideArea(width, height, options)(svg, datas);
 }
 
 d3.csv('./data/salary.csv', (err, datas) => {
   drawLineChart(err, datas);
   drawRalatedLineChart(err, datas);
+  
 });

@@ -71,7 +71,54 @@ export function generateAxis(xScale, yScale, label = '', xTicks = 10, yTicks = 1
   }
 }
 
-export const drawGuideArea = (width, height) => (svg, data) => (handleMoveFn) => {
+export const drawDisplayBoard = (data) => {
+  $('.chart-legend .jobless').text(data['失業率'])
+  $('.chart-legend .price-rate').text(data['物價指數'])
+  $('.chart-legend .salary-rate').text(data['成長幅度'])
+}
+
+export const moveGuideline = (datas, options) => (...args) => {
+  const { xScale, yScale } = options;
+  const target = args[2][0];
+  /* [TODO] if touch device, detect it */
+  const [xCoords, yCoords] = d3.mouse(target);
+
+  const targetYear  = Math.round(xScale.invert(xCoords));
+  const [data] = datas.filter(d => +d['年份'] === +targetYear);
+
+  const values = {
+    jobless: data['失業率'],
+    priceRate: data['物價指數'],
+    salaryRate: data['成長幅度'].split('%')[0],
+  };
+  
+  const points = d3
+    .selectAll('.guide-points')
+    .attr('transform', d => {
+      const translateY = yScale(values[d.name]);
+      return `translate(${Math.round(xScale(targetYear))}, ${translateY})`
+    })
+    .attr('fill-opacity', 1)
+    .attr('stroke-opacity', .5)
+    .attr('opacity', 1)
+  
+  d3
+    .selectAll('.guide-line')
+    .attr('transform', `translate(${Math.round(xScale(targetYear))}, 0)`)
+    .style('stroke-width', '1px')
+    .attr('stroke', '#000')
+    .style('shape-rendering', 'crispEdges')
+
+  d3.selectAll('.guide-text')
+    .attr('transform', d => `translate(${xScale(targetYear)},${yScale(values[d.name])})`)
+    .text(d => `${d.value}:${data[d.value]}`)
+  
+  drawDisplayBoard(data);
+
+};
+
+export const drawGuideArea = (width, height, options = {}) => (svg, datas) => {
+  const {xScale, yScale} = options;
   const guideGroup = svg.append('g').attr('opacity', 1);
   const guideArea = guideGroup
     .append('rect')
@@ -83,16 +130,51 @@ export const drawGuideArea = (width, height) => (svg, data) => (handleMoveFn) =>
     .attr('fill', '#fff')
     .attr('width', width)
     .attr('height', height)
-    .on('mousemove', handleMoveFn)
-    .on('touchend', handleMoveFn);
+    .on('mousemove', moveGuideline(datas, { xScale, yScale }))
+    .on('touchend', console.log);
+
+  const guideLine = guideGroup.append('line')
+    .attr('class', 'guide-line')
+    .attr('x0', 0)
+    .attr('x1', 0)
+    .attr('y0', 0)
+    .attr('y1', height);
+
+  const points = [
+    {
+      name: 'jobless',
+      value: '失業率'
+    },
+    {
+      name: 'salaryRate',
+      value: '成長幅度'
+    },
+    {
+      name: 'priceRate',
+      value: '物價指數'
+    }
+  ]
 
   const guidePoints = guideGroup
     .selectAll('.guide-points')
-    .data(data)
+    .data(points)
     .enter()
     .append('circle')
-      .attr('r', 3)
+      .attr('class', d => `guide-points ${d.name}`)
+      .attr('r', 5)
+      .attr('opacity', 0)
       .style('stroke', '#000')
-      .style('stroke-opacity', .3)
+      .style('stroke-opacity', 0)
       .style('fill', '#333')
+  
+  const groupTexts = guideGroup
+    .selectAll('.guide-text')
+    .data(points)
+    .enter()
+    .append('text')
+      .attr('y', -20)
+      .attr('class','guide-text')
+      .attr('text-anchor', 'middle')
+      .attr('color', '#333')
+      .style('font-size', '14px')
 }
