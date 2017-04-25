@@ -316,7 +316,6 @@ function drawRalatedLineChart(err, datas) {
     xScale,
     yScale
   }
-  drawGuideArea(width, height, options)(svg, datas);
 
   svg
     .selectAll('.line.jobless')
@@ -352,8 +351,7 @@ function drawRalatedLineChart(err, datas) {
       return salaryRate(datas);
     })
     .style('fill', 'none')
-
-    
+    drawGuideArea(width, height, options)(svg, datas);
 }
 
 d3.csv('/salary.csv', (err, datas) => {
