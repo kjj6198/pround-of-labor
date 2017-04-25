@@ -12,14 +12,14 @@ export const createCommentArea = (text, potision, options = { class: 'comment' }
 }
 
 export const responsivefy = (svg) => {
-  const container = d3.select(svg.node().parentNode);
+  const container = svg.node().parentNode;
 
   const width = svg.attr('width');
   const height = svg.attr('height');
   const aspect = width / height;
 
   const resize = () => {
-    const targetWidth = container.attr('width');
+    const targetWidth = container.clientWidth;
     svg
       .attr('width', targetWidth)
       .attr('height', targetWidth / aspect);
@@ -56,7 +56,11 @@ export function generateAxis(xScale, yScale, label = '', xTicks = 10, yTicks = 1
       .append('g')
         .attr('transform', `translate(0, ${height})`)
         .attr('class', 'x axis')
-      .call(d3.axisBottom(xScale).ticks(xTicks).tickSize(10))
+      .call(d3.axisBottom(xScale).ticks(xTicks).tickFormat(d3.format('d')).tickSize(10))
+    d3.selectAll('.x.axis text')
+      .attr('y', 15)
+      .style('font-size', '12px')
+
     svg
       .append('g')
       .attr('class', 'y axis')
@@ -68,6 +72,7 @@ export function generateAxis(xScale, yScale, label = '', xTicks = 10, yTicks = 1
           .text(label)
           .style('fill', '#111')
           .style('font-size', '20px')
+          .style('font-weight', 'bold')
   }
 }
 

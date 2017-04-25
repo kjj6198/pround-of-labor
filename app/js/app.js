@@ -22,7 +22,7 @@ const bindMousemove = (xScale, yScale, datas) => (...args) => {
   const targetYear = Math.round(xScale.invert(xCoords));
   const prevYear = $('#chartArea').attr('data-current-year');
 
-  if (targetYear === prevYear || targetYear < 62) { return ; }  
+  if (targetYear === prevYear || targetYear < 1973 || targetYear > 2016) { return ; }  
   const targetData = datas.filter(d => +d['年份'] === +targetYear)[0];
 
   updateBoardDisplay(targetData, normalizeData(datas));
@@ -41,11 +41,11 @@ const bindMousemove = (xScale, yScale, datas) => (...args) => {
   d3.select('.guide-box')
     .attr('transform', `translate(${xCoords}, 0)`)
     .select('text')
-    .text(`民國 ${targetYear} 年`)
+    .text(`${targetYear}`)
     
 
   $('#chartArea').attr('data-current-year', targetYear);
-  $('.currentYear > text')[0].textContent = `民國 ${targetYear} 年`;
+  $('.currentYear > text')[0].textContent = `${targetYear}`;
 }
 
 function moveGuideline(year) {
@@ -84,7 +84,7 @@ function updateBoardDisplay(data, datas) {
 function initFirstDisplay(data, datas, display) {
   updateBoardDisplay(data, normalizeData(datas));
   showSalaryDetail('', data);
-  display.text(`民國 ${data['年份']} 年`);
+  display.text(`${data['年份']}`);
 }
 
 
@@ -97,7 +97,7 @@ const getTranslate = (translate) => {
 function showSalaryDetail(targetNode, data) {
   const detailTemplate = `
     <div>
-      <p class="detail-item salary"><small>平均薪資 </small><strong>${+data["平均薪資"]}</strong></p>
+      <p class="detail-item salary"><small>平均薪資 </small><strong>${numToCurrency(+data["平均薪資"])}</strong></p>
       <p class="detail-item jobless"><small>薪資漲幅 </small><strong>${data["成長幅度"]}</strong></p>
       <p class="detail-item hours"><small>物價指數 </small><strong>${data["物價指數"]}%</strong></p>
     </div>
@@ -137,7 +137,6 @@ function responsivefy(svg) {
 
 
 function drawLineChart(err, datas) {
-  console.table(datas);
   const svg = d3.select('#chartArea')
     .append('svg')
       .attr('width', width + margin.left + margin.right)
@@ -149,8 +148,8 @@ function drawLineChart(err, datas) {
     .scaleLinear()
     .clamp(true)
     .domain([
-      60,
-      105
+      1971,
+      2016
     ])
     .range([0, width])
     
@@ -179,7 +178,7 @@ function drawLineChart(err, datas) {
     .append('g')
       .attr('transform', `translate(0, ${height})`)
       .attr('class', 'x axis')
-    .call(d3.axisBottom(xScale).ticks(10).tickSize(-height))
+    .call(d3.axisBottom(xScale).ticks(10).tickFormat(d3.format('d')).tickSize(-height))
   
   svg
     .append('g')
@@ -188,7 +187,7 @@ function drawLineChart(err, datas) {
     .append('text')
     .text('（新台幣）')
     .attr('y', 5)
-    .attr('x', 10)
+    .attr('x', 100)
     .style('fill', '#000')
     .style('font-size', '20px')
 
@@ -251,14 +250,6 @@ function drawLineChart(err, datas) {
     .y(d => yJoblessScale(+d['失業率']))
     .curve(d3.curveCatmullRom.alpha(0.5));
   
-  const cuurentYearDisplay = svg
-    .append('g')
-    .attr('class', 'currentYear')
-    .attr('transform', `translate(${width - 300}, ${height - 50})`)
-    .append('text')
-      .attr('font-size', 40)
-      .attr('font-family', 'PingFang TC')
-      .attr('style', "fill: #aaa")
 
   svg
     .selectAll('.line1')
@@ -274,21 +265,32 @@ function drawLineChart(err, datas) {
     .style('stroke-width', 5)
     .style('fill', 'none')
 
+    const cuurentYearDisplay = svg
+      .append('g')
+      .attr('class', 'currentYear')
+      .attr('transform', `translate(${width - 300}, ${height - 50})`)
+      .append('text')
+        .attr('font-size', 200)
+        .attr('x', -200)
+        .attr('font-family', 'PingFang TC')
+        .attr('style', "fill: #aaa")
+
     initFirstDisplay(datas.slice(-1)[0], datas, cuurentYearDisplay);
+
 };
 
 function drawRalatedLineChart(err, datas) {
-  datas = datas.filter(d => +d['年份'] >= 78);
+  datas = datas.filter(d => +d['年份'] >= 1980);
 
   const xScale = d3
     .scaleLinear()
-    .domain([78, 105])
+    .domain([1980, 2016])
     .range([0, width]);
 
   const yScale = d3
     .scaleLinear()
     .clamp(true)
-    .domain([-5.0, 15.0])
+    .domain([-5.0, 25.0])
     .range([height, 0]);
 
   const joblessLine = d3
@@ -310,7 +312,7 @@ function drawRalatedLineChart(err, datas) {
     .y(d => yScale(d['成長幅度'].split('%')[0]))
 
   const svg = generateSVG('#relatedChart', window.innerWidth, window.innerHeight);
-  generateAxis(xScale, yScale, '（%）', 20, 10)(svg, width, height);
+  generateAxis(xScale, yScale, '（%）', 20, 15)(svg, width, height);
   
   const options = {
     xScale,
@@ -352,9 +354,19 @@ function drawRalatedLineChart(err, datas) {
     })
     .style('fill', 'none')
     drawGuideArea(width, height, options)(svg, datas);
+
+    svg
+      .append('g')
+      .attr('class', 'eventArea')
+    drawEventRange();
 }
 
 d3.csv('./data/salary.csv', (err, datas) => {
+  datas = datas.map(d => {
+    d['年份'] = (+d['年份'] + 1911).toString();
+    return d;
+  });
+
   drawLineChart(err, datas);
   drawRalatedLineChart(err, datas);
   

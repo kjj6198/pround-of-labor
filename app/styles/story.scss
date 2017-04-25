@@ -14,8 +14,11 @@
 .story {
   position: relative;
   margin-left: 1.5em;
+  margin-bottom: 5em;
   margin-right: 10%;
   background-color: #fff;
+
+  border-bottom: 1px dashed #aaa;
 
   .story-title {
     font-size: 1.65em;
@@ -59,7 +62,14 @@
       border: 3px solid #fff;
     }
   }
-
+  
+  figure {
+    figcaption {
+      font-size: .65em;
+      text-align: center;
+      font-style: italic;
+    }  
+  }
   .story-image {
     max-width: 100%;
   }
@@ -68,10 +78,9 @@
 
 .labor-story {
   .chart {
-    float: left;
-    width: 55%;
+    
+    width: 100%;
     padding: 10px;
-    height: 100vh;
     background-color: #fff;
   }
 
@@ -84,4 +93,10 @@
     background-color: #fff;
     border-left: 1px solid #aaa;
   }
+}
+
+
+.storys-timeline {
+  padding: 5%;
+  background-color: #fff;
 }

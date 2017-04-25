@@ -1,9 +1,9 @@
 import { simpleFormat } from './utils';
 
-const contextRange = document.createRange();
-contextRange.setStart(document.body, 0);
-
 function strToEls(str) {
+  const contextRange = document.createRange();
+  contextRange.setStart(document.body, 0);
+
   return contextRange.createContextualFragment(str);
 }
 
@@ -15,7 +15,7 @@ function drawStoryTimeline(datas) {
   `).join(''));
 }
 
-const storyTemplate = ({time, title, description, image_url}) => {  
+const storyTemplate = ({time, title, description, image_url, caption}) => {  
   return `
     <div class="story">
       <time class="story-time">${time}</time>
@@ -23,7 +23,11 @@ const storyTemplate = ({time, title, description, image_url}) => {
       <p class="story-content">
         ${simpleFormat(description)}
       </p>
-      <img class="story-image" src="${image_url}" />
+      <figure>
+        <img class="story-image" src="${image_url}" />
+        <figcaption>${caption}</figcaption>
+      </figure>
+
     </div>
   `
 };
@@ -35,7 +39,8 @@ function drawEvents(events) {
       time: `${event['Year']} / ${event['Month']} / ${event['Date']} `,
       description: event['Description'],
       title: event['Title'],
-      image_url: event['Image_url']
+      image_url: event['Image_url'],
+      caption: event['caption']
     }))
     $storyArea.append(story);
   });

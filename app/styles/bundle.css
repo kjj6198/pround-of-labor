@@ -388,7 +388,7 @@ textarea {
 
 html, body {
   height: 100%;
-  font-size: calc(14px + ((100vw - 320px) / 1600) * 6);
+  font-size: calc(16px + ((100vw - 320px) / 2000) * 6);
   font-family: "Noto Sans TC", "Noto Sans CJK TC", "PingFang TC", sans-serif;
   background-color: #fafafa;
   color: #4a4a4a;
@@ -458,8 +458,10 @@ img {
 .story {
   position: relative;
   margin-left: 1.5em;
+  margin-bottom: 5em;
   margin-right: 10%;
-  background-color: #fff; }
+  background-color: #fff;
+  border-bottom: 1px dashed #aaa; }
   .story .story-title {
     font-size: 1.65em;
     letter-spacing: 1px;
@@ -495,14 +497,16 @@ img {
       border-radius: 50%;
       background-color: #213670;
       border: 3px solid #fff; }
+  .story figure figcaption {
+    font-size: .65em;
+    text-align: center;
+    font-style: italic; }
   .story .story-image {
     max-width: 100%; }
 
 .labor-story .chart {
-  float: left;
-  width: 55%;
+  width: 100%;
   padding: 10px;
-  height: 100vh;
   background-color: #fff; }
 
 .labor-story .story-area {
@@ -513,6 +517,13 @@ img {
   padding: 15px;
   background-color: #fff;
   border-left: 1px solid #aaa; }
+
+.storys-timeline {
+  padding: 5%;
+  background-color: #fff; }
+
+.taiwan-labor-info-chart {
+  position: relative; }
 
 .tick text {
   font-size: 20px;
@@ -535,18 +546,18 @@ img {
 #relatedChart .x.axis g text {
   visibility: hidden; }
 
-#relatedChart .x.axis g:nth-child(5n),
+#relatedChart .x.axis g:nth-child(2n),
 #relatedChart .x.axis g:first-child,
 #relatedChart .x.axis g:last-child {
   visibility: visible; }
-  #relatedChart .x.axis g:nth-child(5n) line,
+  #relatedChart .x.axis g:nth-child(2n) line,
   #relatedChart .x.axis g:first-child line,
   #relatedChart .x.axis g:last-child line {
     stroke-dasharray: 0;
     stroke-dashoffset: 0;
     stroke: #000;
     stroke-width: 3; }
-  #relatedChart .x.axis g:nth-child(5n) text,
+  #relatedChart .x.axis g:nth-child(2n) text,
   #relatedChart .x.axis g:first-child text,
   #relatedChart .x.axis g:last-child text {
     visibility: visible;
@@ -581,9 +592,9 @@ img {
     position: absolute;
     z-index: 1;
     right: 20px;
-    top: 20%;
+    top: 30%;
     padding-right: 15px;
-    background-color: transparent;
+    background-color: rgba(255, 255, 255, 0.7);
     border: 2px solid #343434;
     border-radius: 6px; }
     .labor-topic .chart-legend ul {
@@ -653,12 +664,13 @@ svg {
 .detail {
   display: block;
   position: absolute;
+  right: 15px;
   padding: 3px 8px;
-  background-color: rgba(125, 125, 125, 0.6);
   color: #fff;
   line-height: 1;
+  font-family: Oswald;
   border-radius: 3px;
-  font-family: Oswald; }
+  background-color: rgba(125, 125, 125, 0.6); }
   .detail .detail-item.jobless:before {
     color: #27cc95; }
   .detail .detail-item.salary:before {
