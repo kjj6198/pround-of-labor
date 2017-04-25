@@ -444,9 +444,21 @@ img {
   margin-left: -50vw;
   margin-right: -50vw; }
 
+.story-area {
+  position: relative; }
+  .story-area .story-timeline {
+    position: absolute;
+    right: 0;
+    top: 20px;
+    width: 12%;
+    color: #fff;
+    background-color: #27cc95;
+    height: 100%; }
+
 .story {
+  position: relative;
   margin-left: 1.5em;
-  margin-right: 5%;
+  margin-right: 10%;
   background-color: #fff; }
   .story .story-title {
     font-size: 1.65em;
@@ -552,7 +564,8 @@ img {
     position: relative;
     z-index: 1;
     font-size: 2em;
-    font-weight: bold; }
+    font-weight: bold;
+    margin-bottom: 2em; }
     .labor-topic .topic-title:before {
       position: absolute;
       z-index: 0;
@@ -568,7 +581,8 @@ img {
     position: absolute;
     z-index: 1;
     right: 20px;
-    top: 5%;
+    top: 20%;
+    padding-right: 15px;
     background-color: transparent;
     border: 2px solid #343434;
     border-radius: 6px; }
@@ -581,6 +595,25 @@ img {
         content: '\25CF   ';
         font-size: .6em;
         color: currentColor; }
+
+.author-section {
+  width: 100%;
+  min-height: 50vh;
+  background-color: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: .8em; }
+  .author-section dt {
+    width: 150px;
+    font-weight: bold;
+    display: inline-block;
+    margin-right: 1em; }
+  .author-section dd {
+    display: inline-block; }
+
+a {
+  color: inherit; }
 
 svg {
   width: 100%;
