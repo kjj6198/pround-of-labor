@@ -110,7 +110,7 @@
     // AFFIX DATA-API
     // ==============
   
-    $(document).on('load', function () {
+    $(window).on('load', function () {
       $('[data-spy="affix"]').each(function () {
         var $spy = $(this)
         var data = $spy.data()
@@ -119,8 +119,7 @@
   
         if (data.offsetBottom) data.offset.bottom = data.offsetBottom
         if (data.offsetTop)    data.offset.top    = data.offsetTop
-        if (data.offsetTop == null)    data.offset.top    = $spy.offset().top - 1
-  
+        if (data.offsetTop == null || typeof data.offsetTop === 'undefined')    data.offset.top    = $spy.offset().top - 1
         $spy.affix(data)
       })
     })

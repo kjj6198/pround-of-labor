@@ -252,9 +252,6 @@ function drawLineChart(err, datas) {
   
 
   svg
-    .selectAll('.line1')
-    .data(datas)
-    .enter()
     .append('path')
     .attr('class', 'line')
     .attr('stroke', '#ff6565')
@@ -280,7 +277,7 @@ function drawLineChart(err, datas) {
 };
 
 function drawRalatedLineChart(err, datas) {
-  datas = datas.filter(d => +d['年份'] >= 1980);
+  datas = datas.filter(d => +d['年份'] >= 1981);
 
   const xScale = d3
     .scaleLinear()
@@ -290,7 +287,7 @@ function drawRalatedLineChart(err, datas) {
   const yScale = d3
     .scaleLinear()
     .clamp(true)
-    .domain([-5.0, 25.0])
+    .domain([-6.0, 18.0])
     .range([height, 0]);
 
   const joblessLine = d3
@@ -307,7 +304,7 @@ function drawRalatedLineChart(err, datas) {
   
   const salaryRate = d3
     .line()
-    .curve(d3.curveMonotoneX)
+    .curve(d3.curveStepBefore)
     .x(d => xScale(+d['年份']))
     .y(d => yScale(d['成長幅度'].split('%')[0]))
 
@@ -336,7 +333,7 @@ function drawRalatedLineChart(err, datas) {
     .enter()
     .append('path')
     .attr('stroke', '#0000ff')
-    .attr('stroke-width', 2)
+    .attr('stroke-width', 3)
     .attr('d', d => {
       return priceRateLine(datas);
     })
@@ -348,7 +345,7 @@ function drawRalatedLineChart(err, datas) {
     .enter()
     .append('path')
     .attr('stroke', '#00ff00')
-    .attr('stroke-width', 2)
+    .attr('stroke-width', 3)
     .attr('d', d => {
       return salaryRate(datas);
     })
@@ -369,5 +366,17 @@ d3.csv('/salary.csv', (err, datas) => {
 
   drawLineChart(err, datas);
   drawRalatedLineChart(err, datas);
+});
+
+const unaffix = Math.round($('.js-story-timeline').offset().top + $('.js-story-timeline').height() + (window.innerHeight / 2 - 50));
+
+$(window).on('scroll', e => {
+  const shouldUnAffix = window.pageYOffset >= unaffix;
+  const $target = $('.story-timeline');
+  if (shouldUnAffix) {
+    $target.removeClass('affix').addClass('unaffix')
+  } else if(window.pageYOffset <= unaffix && $target.hasClass('unaffix')) {
+    $target.removeClass('unaffix').addClass('affix');
+  }
   
 });

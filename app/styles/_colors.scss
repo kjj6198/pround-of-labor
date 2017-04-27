@@ -2,6 +2,11 @@ $colors: (
   main: #213670,
   word: #343434,
   hint: #ff6565,
+  color1: rgba(8, 186, 206, 1),
+  color2: rgba(114, 119, 172, 1),
+  color3: rgba(109, 157, 197, 1),
+  color4: rgba(128, 222, 217, 1),
+  color5: rgba(174, 236, 239, 1), 
 );
 
 @function c($key) {

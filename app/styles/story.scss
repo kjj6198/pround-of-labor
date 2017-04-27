@@ -1,13 +1,28 @@
 .story-area {
+  padding: 5%;
   position: relative;
   .story-timeline {
     position: absolute;
     right: 0;
-    top: 20px;
-    width: 12%;
+    top: 0;
+    width: 8%;
     color: #fff;
     background-color: #27cc95;
     height: 100%;
+    overflow-y: scroll;
+  }
+
+  .story-timeline.affix {
+    position: fixed;
+    top: 0;
+  }
+
+  .story-timeline.unaffix {
+    position: absolute;
+    height: 100vh;
+    top: calc(100% - 100vh);
+    overflow-y: scroll;
+
   }
 }
 
@@ -19,7 +34,7 @@
   background-color: #fff;
 
   border-bottom: 1px dashed #aaa;
-
+  
   .story-title {
     font-size: 1.65em;
     letter-spacing: 1px;
@@ -97,6 +112,6 @@
 
 
 .storys-timeline {
-  padding: 5%;
   background-color: #fff;
 }
+

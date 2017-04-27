@@ -1,5 +1,21 @@
 import { simpleFormat } from './utils';
 
+function scrollToTarget(target) {
+  $('html, body').animate({
+    scrollTop: target.offset().top
+  }, 1000, function() {    
+    var $target = $(target);
+    $target.focus();
+    if ($target.is(":focus")) { // Checking if the target was focused
+      return false;
+    } else {
+      $target.attr('tabindex','-1'); // Adding tabindex for elements not focusable
+      $target.focus(); // Set focus again
+    };
+  });
+  $(target).offset().top
+}
+
 function strToEls(str) {
   const contextRange = document.createRange();
   contextRange.setStart(document.body, 0);
@@ -18,7 +34,10 @@ function drawStoryTimeline(datas) {
 const storyTemplate = ({time, title, description, image_url, caption}) => {  
   return `
     <div class="story">
-      <time class="story-time">${time}</time>
+      <img src="labor-hand.svg" alt="" style="width:50px;"/>
+      <time class="story-time">
+        ${time}
+      </time>
       <h4 class="story-title">${title}</h4>
       <p class="story-content">
         ${simpleFormat(description)}

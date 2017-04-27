@@ -20,6 +20,11 @@
   }
 }
 
+.line {
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
 #relatedChart {
   text { font-size: 10px; }
   .x.axis {
