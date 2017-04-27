@@ -3,9 +3,10 @@
   position: relative;
   .story-timeline {
     position: absolute;
+    z-index: 55;
     right: 0;
     top: 0;
-    width: 8%;
+    width: 5vw;
     color: #fff;
     background-color: #27cc95;
     height: 100%;
@@ -113,5 +114,7 @@
 
 .storys-timeline {
   background-color: #fff;
+  width: 55%;
+  margin-left: 45%;
 }
 

@@ -4,6 +4,7 @@ import "./storys";
 
 import { numToCurrency } from './utils';
 import { generateSVG, generateAxis, drawGuideArea } from './chartUtils';
+import { SALARY_URL } from './constants';
 
 const margin = {
     top: 30,
@@ -358,9 +359,10 @@ function drawRalatedLineChart(err, datas) {
     drawEventRange();
 }
 
-d3.csv('/salary.csv', (err, datas) => {
+d3.csv(SALARY_URL, (err, datas) => {
   datas = datas.map(d => {
     d['年份'] = (+d['年份'] + 1911).toString();
+    d['成長幅度'] = d['成長幅度'] * 100 + '%';
     return d;
   });
 
@@ -368,15 +370,20 @@ d3.csv('/salary.csv', (err, datas) => {
   drawRalatedLineChart(err, datas);
 });
 
-const unaffix = Math.round($('.js-story-timeline').offset().top + $('.js-story-timeline').height() + (window.innerHeight / 2 - 50));
 
-$(window).on('scroll', e => {
-  const shouldUnAffix = window.pageYOffset >= unaffix;
+(function (){
   const $target = $('.story-timeline');
-  if (shouldUnAffix) {
-    $target.removeClass('affix').addClass('unaffix')
-  } else if(window.pageYOffset <= unaffix && $target.hasClass('unaffix')) {
-    $target.removeClass('unaffix').addClass('affix');
-  }
-  
-});
+  const $chart = $('#taiwanLaborEnv');
+  const unaffix = Math.round($('.js-story-timeline').offset().top + $('.js-story-timeline').height() + (window.innerHeight) + window.innerHeight / 2);
+
+  $(window).on('scroll', e => {
+    const shouldUnAffix = window.pageYOffset >= unaffix;
+    if (shouldUnAffix) {
+      $target.removeClass('affix').addClass('unaffix');
+      $chart.removeClass('affix').addClass('unaffix');
+    } else if(window.pageYOffset <= unaffix && $target.hasClass('unaffix')) {
+      $target.removeClass('unaffix').addClass('affix');
+      $chart.removeClass('affix').addClass('unaffix');
+    }
+  });  
+})()

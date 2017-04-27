@@ -19,6 +19,12 @@ body::-webkit-scrollbar {
   display: none;
 }
 
+.text-container {
+  width: 65%;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
 .hero-title {
   padding: 1em;
   text-align: center;

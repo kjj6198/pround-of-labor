@@ -1,4 +1,5 @@
 import { simpleFormat } from './utils';
+import { EVENTS_URL } from './constants';
 
 function scrollToTarget(target) {
   $('html, body').animate({
@@ -24,9 +25,13 @@ function strToEls(str) {
 }
 
 function drawStoryTimeline(datas) {
-  $('#storyTimeline').html(datas.map(d => `
+  const yearSet = d3.set(datas.map(d => d['Year']));
+  
+  console.log(yearSet.values())
+
+  $('#storyTimeline').html(yearSet.values().map(y => `
     <p style="text-align:center;font-weight:bold;">
-      ${d['Year']}.${d['Month']}
+      ${y}
     </p>
   `).join(''));
 }
@@ -35,7 +40,7 @@ const storyTemplate = ({time, title, description, image_url, caption}) => {
   return `
     <div class="story">
       <img src="labor-hand.svg" alt="" style="width:50px;"/>
-      <time class="story-time">
+      <time class="story-time" id="${time}">
         ${time}
       </time>
       <h4 class="story-title">${title}</h4>
@@ -63,12 +68,21 @@ function drawEvents(events) {
     }))
     $storyArea.append(story);
   });
+
+  $(document).on('click', '#storyTimeline', e=> {
+    const $target = $('.js-story-timeline').find(`[id^="${e.target.textContent.trim()}"]`).first();
+    // debugger
+    scrollToTarget($target);    
+
+  })
+
+
 }
 
 
 
 
-d3.csv('/events.csv', (error, datas) => {
+d3.csv(EVENTS_URL, (error, datas) => {
   drawEvents(datas);
   drawStoryTimeline(datas);
 });
