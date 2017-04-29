@@ -1,5 +1,19 @@
 .taiwan-labor-info-chart { position: relative; }
 
+.story-chart {
+  position: absolute;
+  padding: 20px;
+  top: 0;
+  width: 55%;
+  
+  &.unaffix {
+    position: absolute;
+    height: 100vh;
+    top: calc(100% - 100vh);
+    overflow-y: scroll;
+  }
+}
+
 .tick text {
   font-size: 20px;
   font-weight: bold; 

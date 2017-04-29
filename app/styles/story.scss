@@ -1,5 +1,8 @@
 .story-area {
+  width: 45%;
+  margin-left: 55%;
   padding: 5%;
+
   position: relative;
   .story-timeline {
     position: absolute;
@@ -11,6 +14,17 @@
     background-color: #27cc95;
     height: 100%;
     overflow-y: scroll;
+
+    p {
+      cursor: pointer;
+      background-color: #27cc95;
+
+      transition: transform .2s ease;
+
+      &:hover {
+        transform: translateX(-10%);
+      }
+    }
   }
 
   .story-timeline.affix {
@@ -30,11 +44,28 @@
 .story {
   position: relative;
   margin-left: 1.5em;
-  margin-bottom: 5em;
+  margin-bottom: -1px;
   margin-right: 10%;
-  background-color: #fff;
 
-  border-bottom: 1px dashed #aaa;
+  background-color: #fff;
+  
+  border-top: 1px dashed #aaa;
+
+  padding-top: 1em;
+
+  line-height: 1.67;
+
+  &:after {
+    position: absolute;
+    display: inline-block;
+    content: "";
+    width: 4px;
+    height: 100%;
+
+    background-color: c(main);
+    top: 0;
+    right: calc(110% + 10px);
+  }
   
   .story-title {
     font-size: 1.65em;
@@ -45,6 +76,8 @@
   }
 
   .story-time {
+    display: block;
+    width: 100%;
     position: relative;
     font-family: Oswald;
     font-size: 3em;
@@ -53,22 +86,11 @@
     -webkit-text-stroke-color: c(main);
     -webkit-text-stroke-width: 1px;
 
-    &:after {
-      position: absolute;
-      display: inline-block;
-      content: "";
-      width: 15px;
-      height: 4px;
-
-      background-color: c(main);
-      top: 53%;
-      left: -40px;
-    }
     &:before {
       position: absolute;
       display: inline-block;
-      top: 40%;
-      left: -25px;
+      top: calc(50% - 10px);
+      right: 110%;
       z-index: 100;
       content: "";
       width: 20px;
@@ -80,11 +102,19 @@
   }
   
   figure {
+    margin: 1em 0;
+    margin-bottom: 0;
+
+    padding-bottom: 2em;
     figcaption {
       font-size: .65em;
       text-align: center;
       font-style: italic;
-    }  
+    }
+
+    img { 
+
+    }
   }
   .story-image {
     max-width: 100%;
@@ -113,8 +143,7 @@
 
 
 .storys-timeline {
+  position: relative;
   background-color: #fff;
-  width: 55%;
-  margin-left: 45%;
 }
 

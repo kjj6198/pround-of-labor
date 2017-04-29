@@ -11,7 +11,8 @@
 </head>
 
 <body>
-    <div class="top container hero-image" style="background-image: url('top-image.jpg')">
+    <div class="top container">
+      <div class="hero-image" style="background-image: url('top-image.jpg')">
         <h2 class="hero-title">
             <svg class="logo-1" viewBox="0 0 87 129" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
         <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
@@ -73,10 +74,16 @@
 
             <p>工人爭的不只是錢，還有做人的尊嚴</p>
         </div>
+      </div>
     </div>
     <hr class="section-seperator" />
-    <section class="labor-story-container">
-      <div class="labor-story clearfix">
+    <section class="labor-images-container">
+      
+    </section>
+
+    <hr class="section-seperator" />
+    <section class="storys-timeline">
+      <div id="taiwanLaborEnv" class="story-chart" data-spy="affix">
         <div class="chart">
             <h2 class="text-center">台灣勞動環境總覽圖</h2>
             <h3 class="labor-story__current-year"></h3>
@@ -103,13 +110,6 @@
                 </div>
             </div>
         </div>        
-      </div>
-    </section>
-
-    <hr class="section-seperator" />
-    <section class="storys-timeline">
-      <div id="taiwanLaborEnv" class="chart" data-spy="affix">
-        
       </div>
 
       <div class="story-area js-story-timeline clearfix">
@@ -152,20 +152,21 @@
 
     <hr class="section-seperator"/>
     <section class="labor-topic">
-      <h3 class="topic-title issue-1">台灣勞工環境解密</h3>
-      <span>過勞之島</span>
-      <p>平均工時高居全球，</p>
-      
+      <div class="text-container">
+        <h3 class="topic-title issue-1">台灣勞工環境解密</h3>
+        <span>外籍勞工多</span>
+        <p>在人口外移以及面臨高齡化社會的衝擊下，引入大量外籍勞工已經是不可避免的趨勢，但目前的政策仍然不完善。而大量引進外勞也可能打亂市場，造成低價競爭。</p>
+      </div>
 
       <div class="description">
-        <div id="workHoursChart"></div>
+        <div id="workerChart"></div>
       </div>
     </section>
 
     <hr class="section-seperator" />
 
     <section class="labor-topic">
-      
+
       <h3 class="topic-title issue-2">台灣勞工解密</h3>
       <span>老年化人口</span>
 

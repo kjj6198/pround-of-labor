@@ -1,11 +1,11 @@
 import 'main.scss';
 import "affix.jquery";
 import "./storys";
+import "./foreignWorker"
 
 import { numToCurrency } from './utils';
-import { generateSVG, generateAxis, drawGuideArea } from './chartUtils';
+import { generateSVG, generateAxis, drawGuideArea, responsivefy } from './chartUtils';
 import { SALARY_URL } from './constants';
-
 const margin = {
     top: 30,
     right: 20,
@@ -96,10 +96,11 @@ const getTranslate = (translate) => {
 }
 
 function showSalaryDetail(targetNode, data) {
+  const growRate = (+data["成長幅度"].split('%')[0]).toFixed(2);
   const detailTemplate = `
     <div>
       <p class="detail-item salary"><small>平均薪資 </small><strong>${numToCurrency(+data["平均薪資"])}</strong></p>
-      <p class="detail-item jobless"><small>薪資漲幅 </small><strong>${data["成長幅度"]}</strong></p>
+      <p class="detail-item jobless"><small>薪資漲幅 </small><strong>${growRate}%</strong></p>
       <p class="detail-item hours"><small>物價指數 </small><strong>${data["物價指數"]}%</strong></p>
     </div>
   `;
@@ -114,30 +115,12 @@ function hideDetail() {
   $('.detail').hide()
 }
 
-function responsivefy(svg) {
-  const container = d3.select(svg.node().parentNode);
-
-  const width = svg.attr('width');
-  const height = svg.attr('height');
-  const aspect = width / height;
-
-  const resize = () => {
-    const targetWidth = container.attr('width');
-    svg
-      .attr('width', targetWidth)
-      .attr('height', targetWidth / aspect);
-  };
-  
-  svg
-    .attr('viewBox', '0 0 ' + width + ' ' + height)
-    .attr('preserveAspectRadio', 'xMinYMid')
-    .call(resize);
-
-  d3.select(window).on('resize.' + 'chart', resize);
-}
 
 
 function drawLineChart(err, datas) {
+  const width = (window.innerWidth / 2) - margin.left - margin.right;
+  const height = 600 - margin.top - margin.bottom;
+
   const svg = d3.select('#chartArea')
     .append('svg')
       .attr('width', width + margin.left + margin.right)
@@ -191,6 +174,16 @@ function drawLineChart(err, datas) {
     .attr('x', 100)
     .style('fill', '#000')
     .style('font-size', '20px')
+
+  const cuurentYearDisplay = svg
+    .append('g')
+    .attr('class', 'currentYear')
+    .attr('transform', `translate(${width - 300}, ${height - 50})`)
+    .append('text')
+      .attr('font-size', 200)
+      .attr('x', -200)
+      .attr('font-family', 'PingFang TC')
+      .attr('style', "fill: #aaa")
 
   const guideGroup = svg.append('g')
   const guideArea  = guideGroup
@@ -263,15 +256,7 @@ function drawLineChart(err, datas) {
     .style('stroke-width', 5)
     .style('fill', 'none')
 
-    const cuurentYearDisplay = svg
-      .append('g')
-      .attr('class', 'currentYear')
-      .attr('transform', `translate(${width - 300}, ${height - 50})`)
-      .append('text')
-        .attr('font-size', 200)
-        .attr('x', -200)
-        .attr('font-family', 'PingFang TC')
-        .attr('style', "fill: #aaa")
+   
 
     initFirstDisplay(datas.slice(-1)[0], datas, cuurentYearDisplay);
 
@@ -309,7 +294,7 @@ function drawRalatedLineChart(err, datas) {
     .x(d => xScale(+d['年份']))
     .y(d => yScale(d['成長幅度'].split('%')[0]))
 
-  const svg = generateSVG('#relatedChart', window.innerWidth, window.innerHeight);
+  const svg = generateSVG('#relatedChart', 1600, 500);
   generateAxis(xScale, yScale, '（%）', 20, 15)(svg, width, height);
   
   const options = {
@@ -374,7 +359,7 @@ d3.csv(SALARY_URL, (err, datas) => {
 (function (){
   const $target = $('.story-timeline');
   const $chart = $('#taiwanLaborEnv');
-  const unaffix = Math.round($('.js-story-timeline').offset().top + $('.js-story-timeline').height() + (window.innerHeight) + window.innerHeight / 2);
+  const unaffix = Math.round($('.js-story-timeline').offset().top + $('.js-story-timeline').height() + window.innerHeight * 2 + window.innerHeight / 2);
 
   $(window).on('scroll', e => {
     const shouldUnAffix = window.pageYOffset >= unaffix;
@@ -383,7 +368,7 @@ d3.csv(SALARY_URL, (err, datas) => {
       $chart.removeClass('affix').addClass('unaffix');
     } else if(window.pageYOffset <= unaffix && $target.hasClass('unaffix')) {
       $target.removeClass('unaffix').addClass('affix');
-      $chart.removeClass('affix').addClass('unaffix');
+      $chart.removeClass('unaffix').addClass('affix');
     }
-  });  
+  });
 })()

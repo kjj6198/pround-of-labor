@@ -1,5 +1,5 @@
 import { simpleFormat } from './utils';
-import { EVENTS_URL } from './constants';
+import { EVENTS_URL, PRESIDENT_URL } from './constants';
 
 function scrollToTarget(target) {
   $('html, body').animate({
@@ -39,7 +39,6 @@ function drawStoryTimeline(datas) {
 const storyTemplate = ({time, title, description, image_url, caption}) => {  
   return `
     <div class="story">
-      <img src="labor-hand.svg" alt="" style="width:50px;"/>
       <time class="story-time" id="${time}">
         ${time}
       </time>
@@ -81,8 +80,10 @@ function drawEvents(events) {
 
 
 
-
-d3.csv(EVENTS_URL, (error, datas) => {
-  drawEvents(datas);
-  drawStoryTimeline(datas);
-});
+d3.queue()
+  .defer(d3.csv, EVENTS_URL)
+  .defer(d3.csv, PRESIDENT_URL)
+  .await((err, eventData, presidentData) => {
+    drawEvents(eventData);
+    drawStoryTimeline(eventData);
+  })

@@ -12,23 +12,24 @@ export const createCommentArea = (text, potision, options = { class: 'comment' }
 }
 
 export const responsivefy = (svg) => {
-  const container = svg.node().parentNode;
+  const container = d3.select(svg.node().parentNode);
 
-  const width = svg.attr('width');
-  const height = svg.attr('height');
+  const width = parseInt(svg.style('width'));
+  const height = parseInt(svg.style('height'));
   const aspect = width / height;
 
-  const resize = () => {
-    const targetWidth = container.clientWidth;
-    svg
-      .attr('width', targetWidth)
-      .attr('height', targetWidth / aspect);
-  };
-  
   svg
     .attr('viewBox', '0 0 ' + width + ' ' + height)
     .attr('preserveAspectRadio', 'xMinYMid')
     .call(resize);
+
+
+  function resize() {
+    const targetWidth = parseInt(container.style('width'));
+    svg
+      .attr('width', targetWidth)
+      .attr('height', Math.round(targetWidth / aspect));
+  };
 
   d3.select(window).on('resize.' + 'chart', resize);
 }

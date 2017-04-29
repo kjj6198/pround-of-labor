@@ -14,3 +14,11 @@ $colors: (
     @return map-get($colors , $key);
   } 
 }
+
+
+@for $i from 1 through 5 {
+  .color-#{$i} {
+    fill: map-get($colors, color#{$i});
+    background-color: map-get($colors, color#{$i});
+  }
+}

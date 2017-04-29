@@ -4,6 +4,14 @@ $fonts: (
   serif: ('Georgia', 'PT Serif', Times, 'Times New Roman', 'Songti TC', 'Hiragino Mincho ProN', serif)
 );
 
+$breakpoints: (
+  mobile: px2rem(500px),
+  tablet: (px2rem(501px) px2rem(900px)),
+  laptop: (px2rem(901px) px2rem(1200px)),
+  desktop: (px2rem(1200px)),
+  'large-desktop': (px2rem(1300px))
+)!default;
+
 $font-sizes: (
   desktop: (
     'x-large': 2rem,
@@ -38,23 +46,6 @@ $font-sizes: (
     @error "unknown key #{$key} in $font-size. please checkout `_scale.scss` for more information";
   }
 }
-
-/**
- * Usage
- *
- * .a {
- *   @include responsive-font-size('x-small');
- * }
- *
- * .a {
- *   font-size: 11px;
- *
- *   @media desktop {
- *     font-size: 12px;
- *   }
- * }
- * 如果找不到 key，則會丟出 error
- */
 
 @mixin responsive-font-size($key) {
   @if variable-exist(desktop) {
