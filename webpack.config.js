@@ -88,6 +88,15 @@ module.exports = (env) => {
           loaders: env.production ? ExtractTextPlugin.extract({
             use: [
               'css-loader?url=false&sourceMap=true',
+              {
+                loader: 'postcss-loader',
+                options: {
+                  plugins: function() {
+                    return [require('autoprefixer'), require('cssnano')]
+                  }
+                }
+              },
+
               'sass-loader?sourceMap=true'  
             ]
           }) : [
