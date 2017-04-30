@@ -32,18 +32,6 @@ body::-webkit-scrollbar {
 
 
   text-shadow: 3px 3px 0 #0199d9, 4px 4px 0 #0199d9, 5px 5px 0 #0199d9, 6px 6px 0 #0199d9, 7px 7px 0 #0199d9, 8px 8px 0 #0199d9, 9px 9px 0 #0199d9, 10px 10px 0 #0199d9, 11px 11px 0 #0199d9, 12px 12px 0 #0199d9, 13px 13px 0 #0199d9, 14px 14px 0 #0199d9, 15px 15px 0 #0199d9, 16px 16px 0 #0199d9, 17px 17px 0 #0199d9, 18px 18px 0 #0199d9, 19px 19px 0 #0199d9, 20px 20px 0 #0199d9;
-
-  &:after {
-    display: inline-block;
-    width: 2em;
-    height: 2em;
-    content: '';
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: bottom bottom;
-    background-image: url('labor-hand.svg');
-    transform: translateY(1em) rotate(35deg);
-  }
 }
 
 .text-container {
