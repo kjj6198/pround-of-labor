@@ -110,7 +110,7 @@
     // AFFIX DATA-API
     // ==============
   
-    $(window).on('loadss', function () {
+    $(window).on('load', function () {
       $('[data-spy="affix"]').each(function () {
         var $spy = $(this)
         var data = $spy.data()
