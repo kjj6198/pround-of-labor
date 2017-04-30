@@ -63,6 +63,7 @@ module.exports = (env) => {
     devtool: env.production ? 'source-map' : 'eval',
     entry: {
       app: 'app.js',
+      tweet: 'tweet.js',
     },
     output: {
       path: path.join(PATH.javascripts, 'bundle'),

@@ -12,7 +12,9 @@
   "license": "ISC",
   "dependencies": {
     "autoprefixer": "^6.7.7",
+    "crypto-js": "^3.1.9-1",
     "d3": "^4.7.4",
+    "oauth-1.0a": "^2.1.0",
     "owl.carousel": "^2.2.0",
     "postcss-loader": "^1.3.3",
     "ramda": "^0.23.0",

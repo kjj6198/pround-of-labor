@@ -4,13 +4,20 @@
   position: absolute;
   top: 1%;
   left: 5%;
-  width: 650px;
+  max-width: 650px;
   background-color: transparent;
   pointer-events: none;
+
+  @include for-mobile { left: 20%; }
 
   p {
     display: inline-block;
     margin: 1em;
+
+    @include for-mobile {
+      margin: 0;
+    }
+
     &:before {
       content: "◼︎";
       font-size: 1.3em;
@@ -76,6 +83,12 @@
 
   border-radius: 4px;
 
+  @include for-mobile { 
+
+    padding: 5px;
+    font-size: f(x-small);
+  }
+
   p { margin: 0; }
 }
 
@@ -130,6 +143,10 @@
     height: 100vh;
     top: calc(100% - 100vh);
     overflow-y: scroll;
+    @include for-mobile {
+      position: static;
+      height: initial;
+    }
   }
 
   @include for-mobile { 
@@ -154,6 +171,8 @@
   }
 
   .legend {
+    @include for-mobile { top: 2%; }
+    
     span {
       font-size: 1.4em;
     }

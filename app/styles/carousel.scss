@@ -79,12 +79,14 @@
 .owl-prev,
 .owl-next {
   width: 3%;
+  min-width: 30px;
   height: 100%;
   top: 0;
   position: absolute;
   z-index: 15;
   display: inline-block;
   text-indent: -9999px;
+  overflow: hidden;
   background-repeat: no-repeat;
   background-size: 1em;
   background-position-y: center;

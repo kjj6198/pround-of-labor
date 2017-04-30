@@ -1,0 +1,11 @@
+.twitter-timeline-container {
+  width: 45%;
+  margin: 0 auto;
+
+  @include for-mobile { width: 95%;}
+
+  & > iframe { 
+    width: 100%!important;
+    height: 1000px!important;
+  }
+}
