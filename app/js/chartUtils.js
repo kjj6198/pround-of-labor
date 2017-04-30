@@ -48,7 +48,7 @@ export function responsivefy(svg) {
       width = parseInt(svg.style("width")),
       height = parseInt(svg.style("height")),
       aspect = width / height;
-      console.log(width, height)
+      
   // add viewBox and preserveAspectRatio properties,
   // and call resize so that svg resizes on inital page load
   svg.attr("viewBox", "0 0 " + width + " " + height)
