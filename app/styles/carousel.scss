@@ -1,0 +1,39 @@
+.labor-images-container {
+  background-color: #fff;
+}
+
+.labor-images__title {
+  padding: 3em;
+}
+
+.owl-stage-outer {
+  overflow: hidden;
+  
+  // padding: 1em 3em;
+
+  .owl-stage { 
+    display: flex;
+    padding-bottom: 10px;
+  }
+  .owl-item {
+    // float: left;
+    min-height: 1px;
+    position: relative;
+  }
+}
+
+.gallery-image {
+  margin: 0 1em;
+  background-position: center;
+  padding-bottom: 65%; 
+  background-size:cover;
+
+  border-radius: 10px;
+  cursor: pointer;
+
+  &:hover {
+    background-blend-mode: darken;
+    background-color: rgba(125,125,125,.8);
+  }
+}
+

@@ -15,8 +15,8 @@
 </head>
 
 <body>
-
-  <div class="top container hero-image" style="background-image: url('./img/top-image.jpg')">
+    <div class="top container">
+      <div class="hero-image" style="background-image: url('top-image.jpg')">
         <h2 class="hero-title">
             <svg class="logo-1" viewBox="0 0 87 129" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
         <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
@@ -78,10 +78,23 @@
 
             <p>工人爭的不只是錢，還有做人的尊嚴</p>
         </div>
+      </div>
     </div>
+    <hr class="section-seperator" />
+    <section class="labor-images-container">
+      <h2 class="labor-images__title">
+        街角一隅
+      </h2>
 
-    <section class="labor-story-container">
-      <div class="labor-story clearfix">
+      <div class="labor-images__content">
+          
+      </div>
+
+    </section>
+
+    <hr class="section-seperator" />
+    <section class="storys-timeline">
+      <div id="taiwanLaborEnv" class="story-chart" data-spy="affix">
         <div class="chart">
             <h2 class="text-center">台灣勞動環境總覽圖</h2>
             <h3 class="labor-story__current-year"></h3>
@@ -109,22 +122,20 @@
             </div>
         </div>        
       </div>
-    </section>
 
-    <hr class="section-seperator" />
-    <section class="storys-timeline">
       <div class="story-area js-story-timeline clearfix">
-        <div id="storyTimeline" class="story-timeline"></div>
+        <h2 class="bloody-text">勞工大事紀</h2>
+        <p>台灣勞工運動及事件</p>
+        <div id="storyTimeline" class="story-timeline" data-spy="affix"></div>
       </div>
     </section>
 
     <hr class="section-seperator" />
     <section class="labor-topic">
-      <h3 class="topic-title issue-1">台灣勞工環境解密</h3>
-      <span>薪資凍漲</span>
-
       <div class="container">
-        <div class="">
+        <div class="text-container">
+          <h3 class="topic-title issue-1">台灣勞工環境解密</h3>
+          <span>薪資凍漲</span>
           <p>從 1997 年開始，薪資漲幅下滑到 5% 以下，在 2009 年出現了平均薪資下滑的情形。之後的台灣薪資漲幅就在 0 ~ 2% 中擺盪。為什麼薪資水準倒退十年？</p>
 
           <h4>產業無法轉型，停留在代工階段</h4>
@@ -138,28 +149,49 @@
           <h4>學用落差大</h4>
         </div>
         <div class="description">
-          <div class="chart-legend">
+          <div id="relatedChart">
+            <div class="chart-legend">
             <ul>
               <li>失業率： <span class="jobless"></span></li>
               <li>物價指數： <span class="price-rate"></span></li>
               <li>薪資漲幅： <span class="salary-rate"></span></li>
             </ul>
           </div>
-          <div id="relatedChart"></div>
+          </div>
         </div>
       </div>
     </section>
 
     <hr class="section-seperator"/>
     <section class="labor-topic">
-      <h3 class="topic-title issue-1">台灣勞工環境解密</h3>
-      <span>工時居全球前五名，薪水卻是亞洲四小龍最低分</span>
-      
+      <div class="text-container">
+        <h3 class="topic-title issue-2">台灣勞工環境解密</h3>
+        <span>外籍勞工多</span>
+        <p>在人口外移以及面臨高齡化社會的衝擊下，引入大量外籍勞工已經是不可避免的趨勢，但目前的政策仍然不完善。而大量引進外勞也可能打亂市場，造成低價競爭。</p>
+      </div>
 
       <div class="description">
-        <div id="workHoursChart"></div>
+        <div id="workerChart"></div>
       </div>
     </section>
+
+    <hr class="section-seperator" />
+
+    <section class="labor-topic">
+
+      <h3 class="topic-title issue-3">台灣勞工解密</h3>
+      <span>老年化人口</span>
+
+      <div class="description">
+        <h3>台灣人口分布圖</h3>
+        <span id="displayYear" class="display-year number"></span>
+        <span id="displayRate" class="display-year number"></span>
+        <span id="displayElder" class="display-year number"></span>
+        <div class=""></div>
+        <div id="elderChart" class="elder-chart"></div>
+      </div>
+    </section>
+
     <hr class="section-seperator" />
     <h4>製作人員名單</h4>
     <section class="author-section">

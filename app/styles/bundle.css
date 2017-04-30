@@ -4,22 +4,41 @@
  * @param $key, $device
  * @return $font-size
  */
+.color-1 {
+  fill: #08bace;
+  background-color: #08bace; }
+
+.color-2 {
+  fill: #7277ac;
+  background-color: #7277ac; }
+
+.color-3 {
+  fill: #6d9dc5;
+  background-color: #6d9dc5; }
+
+.color-4 {
+  fill: #80ded9;
+  background-color: #80ded9; }
+
+.color-5 {
+  fill: #aeecef;
+  background-color: #aeecef; }
+
+.color-6 {
+  fill: #ff6565;
+  background-color: #ff6565; }
+
 /**
- * Usage
- *
- * .a {
- *   @include responsive-font-size('x-small');
- * }
- *
- * .a {
- *   font-size: 11px;
- *
- *   @media desktop {
- *     font-size: 12px;
- *   }
- * }
- * 如果找不到 key，則會丟出 error
+ * Search given breakpoint map and key (as device)
+ * 
+ * @example
+ * @include breakpoint(mobile) { font-size: 14px; }
+ * => @media screen and (min-width: ($mobile-width)) { font-size: 14px }
+ * 
+ * @param $device [string]
+ * @raise if map or map-key not found.
  */
+/* device mixin, using breakpoint variable */
 /*! normalize.css v4.1.1 | MIT License | github.com/necolas/normalize.css */
 /**
  * 1. Change the default font family in all browsers (opinionated).
@@ -390,9 +409,10 @@ html, body {
   height: 100%;
   font-size: calc(16px + ((100vw - 320px) / 2000) * 6);
   font-family: "Noto Sans TC", "Noto Sans CJK TC", "PingFang TC", sans-serif;
-  background-color: #fafafa;
+  background-color: #efefef;
   color: #4a4a4a;
-  -webkit-font-smoothing: antialiased; }
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent; }
 
 * {
   box-sizing: border-box; }
@@ -445,23 +465,53 @@ img {
   margin-right: -50vw; }
 
 .story-area {
+  width: 45%;
+  margin-left: 55%;
+  padding: 5%;
   position: relative; }
   .story-area .story-timeline {
     position: absolute;
+    z-index: 55;
     right: 0;
-    top: 20px;
-    width: 12%;
+    top: 0;
+    width: 5vw;
     color: #fff;
     background-color: #27cc95;
-    height: 100%; }
+    height: 100%;
+    overflow-y: scroll; }
+    .story-area .story-timeline p {
+      cursor: pointer;
+      background-color: #27cc95;
+      transition: transform .2s ease; }
+      .story-area .story-timeline p:hover {
+        transform: translateX(-10%); }
+  .story-area .story-timeline.affix {
+    position: fixed;
+    top: 0; }
+  .story-area .story-timeline.unaffix {
+    position: absolute;
+    height: 100vh;
+    top: calc(100% - 100vh);
+    overflow-y: scroll; }
 
 .story {
   position: relative;
   margin-left: 1.5em;
-  margin-bottom: 5em;
+  margin-bottom: -1px;
   margin-right: 10%;
   background-color: #fff;
-  border-bottom: 1px dashed #aaa; }
+  border-top: 1px dashed #aaa;
+  padding-top: 1em;
+  line-height: 1.67; }
+  .story:after {
+    position: absolute;
+    display: inline-block;
+    content: "";
+    width: 4px;
+    height: 100%;
+    background-color: #213670;
+    top: 0;
+    right: calc(110% + 10px); }
   .story .story-title {
     font-size: 1.65em;
     letter-spacing: 1px;
@@ -469,6 +519,8 @@ img {
     border-left: 5px solid currentColor;
     line-height: 1; }
   .story .story-time {
+    display: block;
+    width: 100%;
     position: relative;
     font-family: Oswald;
     font-size: 3em;
@@ -476,20 +528,11 @@ img {
     color: #213670;
     -webkit-text-stroke-color: #213670;
     -webkit-text-stroke-width: 1px; }
-    .story .story-time:after {
-      position: absolute;
-      display: inline-block;
-      content: "";
-      width: 15px;
-      height: 4px;
-      background-color: #213670;
-      top: 53%;
-      left: -40px; }
     .story .story-time:before {
       position: absolute;
       display: inline-block;
-      top: 40%;
-      left: -25px;
+      top: calc(50% - 10px);
+      right: 110%;
       z-index: 100;
       content: "";
       width: 20px;
@@ -497,10 +540,14 @@ img {
       border-radius: 50%;
       background-color: #213670;
       border: 3px solid #fff; }
-  .story figure figcaption {
-    font-size: .65em;
-    text-align: center;
-    font-style: italic; }
+  .story figure {
+    margin: 1em 0;
+    margin-bottom: 0;
+    padding-bottom: 2em; }
+    .story figure figcaption {
+      font-size: .65em;
+      text-align: center;
+      font-style: italic; }
   .story .story-image {
     max-width: 100%; }
 
@@ -519,14 +566,56 @@ img {
   border-left: 1px solid #aaa; }
 
 .storys-timeline {
-  padding: 5%;
+  position: relative;
   background-color: #fff; }
 
 .taiwan-labor-info-chart {
   position: relative; }
 
+.display-year {
+  font-size: 2em; }
+
+.legend {
+  position: absolute;
+  width: 35%;
+  right: 10px;
+  top: 10%;
+  pointer-events: none;
+  padding: 2em;
+  border: 2px solid #999;
+  border-radius: 4px; }
+
+.guide-points {
+  stroke-width: 2px;
+  stroke: #fff; }
+  .guide-points.salaryRate {
+    fill: #9acec6; }
+  .guide-points.priceRate {
+    fill: #cfad9b; }
+  .guide-points.jobless {
+    fill: #e7420c; }
+
+#relatedChart {
+  position: relative;
+  width: 80%;
+  margin: 0 auto; }
+
+.story-chart {
+  position: absolute;
+  padding: 20px;
+  top: 0;
+  width: 55%; }
+  .story-chart.unaffix {
+    position: absolute;
+    height: 100vh;
+    top: calc(100% - 100vh);
+    overflow-y: scroll; }
+
+.elder-chart {
+  width: 55%; }
+
 .tick text {
-  font-size: 20px;
+  font-size: 1.2em;
   font-weight: bold;
   font-family: Oswald; }
 
@@ -539,6 +628,10 @@ img {
   .circle.toggle {
     fill: #fff;
     stroke: #ff6565; }
+
+.line {
+  stroke-linecap: round;
+  stroke-linejoin: round; }
 
 #relatedChart text {
   font-size: 10px; }
@@ -623,12 +716,51 @@ img {
   .author-section dd {
     display: inline-block; }
 
+.tooltip-text {
+  font-size: .8em; }
+
+.labor-images-container {
+  background-color: #fff; }
+
+.labor-images__title {
+  padding: 3em; }
+
+.owl-stage-outer {
+  overflow: hidden; }
+  .owl-stage-outer .owl-stage {
+    display: flex;
+    padding-bottom: 10px; }
+  .owl-stage-outer .owl-item {
+    min-height: 1px;
+    position: relative; }
+
+.gallery-image {
+  margin: 0 1em;
+  background-position: center;
+  padding-bottom: 65%;
+  background-size: cover;
+  border-radius: 10px;
+  cursor: pointer; }
+  .gallery-image:hover {
+    background-blend-mode: darken;
+    background-color: rgba(125, 125, 125, 0.8); }
+
 a {
   color: inherit; }
 
-svg {
-  width: 100%;
-  height: 100%; }
+body::-webkit-scrollbar {
+  display: none; }
+
+.bloody-text {
+  color: #aaa;
+  font-size: 2em;
+  letter-spacing: 2px;
+  text-shadow: 4px 4px 1px #300000, 4px 6px 1px #400000, 4px 8px 1px #500000, 4px 10px 1px #600000, 4px 12px 1px #700000, 4px 14px 1px #800000, 4px 16px 1px #900000, 4px 18px 1px #A00000, 4px 20px 1px #B00000, 4px 22px 1px #C00000, 4px 24px 1px #D00000; }
+
+.text-container {
+  width: 65%;
+  max-width: 960px;
+  margin: 0 auto; }
 
 .hero-title {
   padding: 1em;
@@ -664,7 +796,7 @@ svg {
 .detail {
   display: block;
   position: absolute;
-  right: 15px;
+  right: 5%;
   padding: 3px 8px;
   color: #fff;
   line-height: 1;
