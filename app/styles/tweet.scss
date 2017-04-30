@@ -6,6 +6,10 @@
 
   & > iframe { 
     width: 100%!important;
-    height: 1000px!important;
+    height: 600px!important;
+
+    @include for-mobile {
+      height: 85vh!important;
+    }
   }
 }

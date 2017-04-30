@@ -1039,7 +1039,10 @@ img {
       width: 95%; } }
   .twitter-timeline-container > iframe {
     width: 100% !important;
-    height: 1000px !important; }
+    height: 600px !important; }
+    @media screen and (max-width: 500px) {
+      .twitter-timeline-container > iframe {
+        height: 85vh !important; } }
 
 a {
   color: inherit; }
