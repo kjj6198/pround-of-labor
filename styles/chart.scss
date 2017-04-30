@@ -1,0 +1,275 @@
+.taiwan-labor-info-chart { position: relative; }
+
+.worker-legend {
+  position: absolute;
+  top: 1%;
+  left: 5%;
+  max-width: 650px;
+  background-color: transparent;
+  pointer-events: none;
+
+  @include for-mobile { left: 20%; }
+
+  p {
+    display: inline-block;
+    margin: 1em;
+
+    @include for-mobile {
+      margin: 0;
+    }
+
+    &:before {
+      content: "◼︎";
+      font-size: 1.3em;
+    }
+    &:nth-child(1):before {
+      color: c(color1);
+    }
+
+    &:nth-child(2):before {
+      color: c(color2);
+    }
+
+    &:nth-child(3):before {
+      color: c(color3);
+    }
+
+    &:nth-child(4):before {
+      color: c(color4);
+    }
+  }
+}
+
+.display-year {
+  font-size: 2em;
+}
+
+#chartArea {
+  svg {
+    background-size: 25%;
+    background-repeat: no-repeat;
+    background-position: 6% 50%; 
+
+    &:before {
+      content: attr(data-name);
+    }
+  }
+}
+
+#workerChart {
+  position: relative;
+  text { font-size: 1.1rem; }
+  
+  .x.axis {
+
+    @include for-mobile {
+      g:nth-child(2n) {
+        text { visibility: hidden; }
+      }  
+    }
+  }
+}
+
+
+.legend {
+  position: absolute;
+  width: auto;
+  right: 10px;
+  top: 10%;
+  pointer-events: none;
+  padding: 2em;
+
+  border: 2px solid #999;
+
+  border-radius: 4px;
+
+  @include for-mobile { 
+
+    padding: 5px;
+    font-size: f(x-small);
+  }
+
+  p { margin: 0; }
+}
+
+.guide-text {
+  font-size: .9rem;
+  fill-opacity: .8;
+
+  font-weight: bold;
+}
+
+.guide-line {
+  stroke-width: 2;
+}
+
+.guide-points {
+  stroke-width: 2px;
+  stroke: #fff;
+  &.salaryRate {
+    fill: rgb(154, 206, 198);
+  }
+
+  &.priceRate {
+    fill: #cfad9b;
+  }
+
+  &.jobless {
+    fill: #e7420c;
+  }
+
+}
+
+#relatedChart {
+  position: relative;
+  width: 80%;
+  margin: 0 auto;
+
+  @include for-mobile { width: 100%; }
+}
+
+.story-chart {
+  position: absolute;
+  padding: 20px;
+  top: 0;
+  width: 55%;
+
+  @include for-tablet {
+    width: 45%;
+  }
+  
+  &.unaffix {
+    position: absolute;
+    height: 100vh;
+    top: calc(100% - 100vh);
+    overflow-y: scroll;
+    @include for-mobile {
+      position: static;
+      height: initial;
+    }
+  }
+
+  @include for-mobile { 
+    display: block;
+    width: 100%;
+    position: static;
+
+    &.affix {
+      position: inherit;
+    }
+  }
+}
+
+.elder-chart {
+  position: relative;
+  width: 100%;
+  margin: 0 auto;
+  
+  text { 
+    fill: #333;
+    font-size: 1rem!important;
+  }
+
+  .legend {
+    @include for-mobile { top: 2%; }
+    
+    span {
+      font-size: 1.4em;
+    }
+    
+  }
+
+  .x.axis {
+    @include for-mobile {
+      g { 
+        text { 
+          visibility: hidden;
+        }
+
+        &:nth-child(5n) {
+          text { 
+            visibility: visible;
+            font-size: .8rem!important;
+          }
+        }
+      }
+    }
+  }
+}
+
+.tick text {
+  font-size: 1.2rem;
+  // font-weight: bold; 
+  font-family: Oswald;
+  fill: #333;
+
+  @include for-large-desktop { font-size: 1.35rem; }
+}
+
+.tick line {
+  stroke: #aaa;
+  stroke-dasharray: 5,5;
+}
+
+.circle {
+  stroke: #fff;
+
+  &.toggle {
+    fill: #fff;
+    stroke: #ff6565;
+  }
+}
+
+.line {
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+#relatedChart {
+  .x.axis {
+    g {
+      text { visibility: hidden; }
+    }
+    g:nth-child(2n),
+    g:first-child,
+    g:last-child {
+      visibility: visible;
+      line {
+        stroke-dasharray: 0;
+        stroke-dashoffset: 0;
+        stroke: #000;
+        stroke-width: 3;
+      }
+
+      text {
+        visibility: visible;
+        font-family: 'Hiragino Kaku Gothic W3 JIS2004', 'Hiragino Kaku Gothic ProN', 'ヒラギノ角ゴ ProN W3', Meiryo, メイリオ, sans-serif;
+        font-size: .8rem;
+        color: #aaa;
+      }
+      
+    }
+  }
+}
+
+.display-rate {
+  @include responsive-font-size(normal);
+  &:before {
+    content: "◼︎" attr(data-label);
+    font-size: .8em;
+    color: c(color1);
+    display: inline-block;
+    margin-right: .5em;
+  }
+}
+
+.display-elder {
+  @include responsive-font-size(normal);
+  &:before {
+    content: "◼︎" attr(data-label);
+    font-size: .8em;
+    color: c(color2);
+    display: inline-block;
+    margin-right: .5em;
+  } 
+}

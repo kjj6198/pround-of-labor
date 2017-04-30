@@ -1,0 +1,210 @@
+.story-area {
+  width: 45%;
+  margin-left: 55%;
+  padding: 5%;
+  padding-top: 1em;
+
+  position: relative;
+
+  @include for-tablet {
+    width: 55%;
+    margin-left: 45%;
+  }
+
+  @include for-mobile {
+    width: 98%;
+    margin: 0 auto;
+  }
+  .story-timeline {
+    position: absolute;
+    z-index: 55;
+    right: 0;
+    top: 0;
+    width: 5vw;
+    color: #fff;
+    background-color: #27cc95;
+    height: 100%;
+    overflow-y: scroll;
+    
+    @include for-mobile {
+      &.affix-top { opacity: 0; }
+    }
+    
+
+    &.affix {
+      position: fixed;
+      top: 0;
+
+      opacity: 1;
+
+      @include for-mobile {
+        display: block;
+        top: initial;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        width: 100%;
+        padding-top: 8px;
+        padding-bottom: 8px;
+        height: auto;
+        white-space: nowrap;
+        
+        p { 
+          
+          margin: 0;
+          font-size: f(small);
+        }
+      }
+    }
+
+    &.unaffix {
+      position: absolute;
+      height: 100vh;
+      top: calc(100% - 100vh);
+      overflow-y: scroll;
+
+      @include for-mobile {
+        width: 100%;
+        height: auto;
+        top: initial;
+        bottom: 0;
+        white-space: nowrap;
+      }
+
+    }
+
+    p {
+      cursor: pointer;
+      background-color: #27cc95;
+
+      transition: transform .2s ease;
+      
+      @include for-mobile { 
+        display: inline-block;
+        margin: 0 .25em!important;
+        &:hover {
+          transform: none;
+        }
+      }
+
+      &:hover {
+        transform: translateX(-10%);
+      }
+    }
+  }
+
+  
+}
+
+.story {
+  position: relative;
+  margin-left: 1.5em;
+  margin-bottom: -1px;
+  margin-right: 10%;
+  padding-top: 1em;
+
+  @include for-mobile { 
+    margin: 0; 
+
+    &:last-child { padding-bottom: 3rem; }
+  }
+
+  background-color: #fff;
+  
+  border-top: 1px dashed #aaa;
+  line-height: 1.67;
+
+  &:after {
+    position: absolute;
+    display: inline-block;
+    content: "";
+    width: 3px;
+    height: 100%;
+
+    background-color: rgba(#ccc, .8);
+    top: 0;
+    right: calc(110% + 11px);
+  }
+  
+  .story-title {
+    
+    letter-spacing: 1px;
+    padding-left: .5em;
+    border-left: 5px solid currentColor;
+    line-height: 1;
+
+    @include responsive-font-size(large);
+  }
+
+  .story-time {
+    display: block;
+    width: 100%;
+    position: relative;
+    font-family: Oswald;
+    font-weight: medium;
+    color: c(main);
+    -webkit-text-stroke-color: c(main);
+    -webkit-text-stroke-width: 1px;
+
+    @include responsive-font-size(xx-large);
+
+    &:before {
+      position: absolute;
+      display: inline-block;
+      top: calc(50% - 10px);
+      right: 110%;
+      z-index: 100;
+      content: "";
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background-color: c(main);
+      border: 3px solid #fff;
+    }
+  }
+  
+  figure {
+    margin: 1em 0;
+    margin-bottom: 0;
+
+    padding-bottom: 2em;
+    figcaption {
+      font-size: .65em;
+      text-align: center;
+      font-style: italic;
+    }
+
+    img { 
+
+    }
+  }
+  .story-image {
+    max-width: 100%;
+  }
+}
+
+
+.labor-story {
+  .chart {
+    width: 100%;
+    padding: 10px;
+    background-color: #fff;
+  }
+
+  .story-area {
+    float: right;
+    height: 100vh;
+    overflow-y: scroll;
+    width: 45%;
+    padding: 15px;
+    background-color: #fff;
+    border-left: 1px solid #aaa;
+  }
+}
+
+
+.storys-timeline {
+  position: relative;
+  background-color: #fff;
+}
+

@@ -1,0 +1,20 @@
+.author-section {
+  width: 100%;
+  min-height: 350px;
+  height: 35vh;
+  background-color: #fff;
+  display: flex;
+    justify-content: center;
+    align-items: center;   
+
+  font-size: .8em;
+
+  dt { 
+    width: 150px;
+    font-weight: bold; display: inline-block; margin-right: 1em;
+  }
+  dd { display: inline-block; }
+  .author-list {
+    
+  }
+}

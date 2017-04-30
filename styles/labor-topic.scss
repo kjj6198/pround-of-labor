@@ -1,0 +1,102 @@
+.labor-procession {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  padding: .5em 0;
+  border-top: 3px solid #000;
+  border-bottom: 3px solid #000;
+  margin-bottom: 1em!important;
+
+  img {
+    display: block;
+    margin: 0 auto;
+    width: 40%;
+  }
+
+  h2 { 
+    font-size: 2rem;
+    @include for-mobile {
+      font-size: 1.5rem;
+    }
+  }
+}
+
+.labor-twitter {
+  padding-top: 1em;
+}
+
+.labor-topic {
+  position: relative;
+  margin: 0;
+  min-height: 100vh;
+  background: #fff;
+
+  .topic-sub {
+    margin-top: 1.5em;
+    font-size: 2em;
+    font-weight: bold;
+    color: #bbb;
+
+    @include for-mobile {
+      margin-top: 1em;
+    }
+  }
+
+
+
+  .topic-title {
+    display: inline-block;
+    position: relative;
+    z-index: 1;
+    
+    font-weight: bold;
+
+    @include responsive-font-size(x-large);
+    
+    margin: 2rem 0;
+    margin-top: 0;
+    padding-left: .6em;
+    line-height: 1;
+    border-left: .18em solid currentColor;
+
+    &:before {
+      position: absolute;
+      z-index: 0;
+      text-align: center;
+      width: 100%;
+      top: 50%;
+
+      color: #bbb;
+      opacity: .8;
+    }
+  }
+
+  .description {
+    width: 100%;
+  }
+
+  .chart-legend {
+    position: absolute;
+    z-index: 1;
+    right: 20px;
+    top: 6%;
+    padding-right: 15px;
+    background-color: rgba(#fff, .7);
+    border: 2px solid c(word);
+    border-radius: 6px;
+
+    pointer-events: none;
+    
+    ul { padding: 0; list-style: none; }
+    li {
+      padding-left: .5em;
+
+      &:before {
+        content: '● ';
+        font-size: .6em;
+        color: currentColor;
+      }
+    }
+  }
+}

@@ -1,0 +1,47 @@
+html, body {
+  height: 100%;
+  font-size: calc(16px + ((100vw - 320px) / 2000) * 6);
+  font-family: map-get($fonts, normal);
+
+  background-color: #efefef;
+  color: #4a4a4a;
+
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+h1,h2,h3,h4,h5,h6 { margin: 0; }
+
+img {
+  position: relative;
+  font-family: "PingFang TC";
+  font-weight: 300;
+  font-size: 14px;
+  line-height: 2;
+  text-align: center;
+  
+  &:before {
+    display: block;
+    margin-bottom: 10px;
+    content: "抱歉，這張圖片目前已移除或無法使用";
+  }
+  
+  &:after {
+    position: absolute;
+    z-index: 20;
+    top: 5px;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    top: 50%;
+    display: block;
+    padding: 10px 5px;
+    background-color: #bbb;
+    border: 2px dotted #444;
+    content: "url" "(" attr(src) ")";
+  }
+}

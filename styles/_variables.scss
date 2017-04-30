@@ -1,0 +1,59 @@
+$fonts: (
+  normal: ('Noto Sans TC', 'Noto Sans CJK TC', 'PingFang TC', sans-serif),
+  number: 'Oswald',
+  serif: ('Georgia', 'PT Serif', Times, 'Times New Roman', 'Songti TC', 'Hiragino Mincho ProN', serif)
+);
+
+$breakpoints: (
+  mobile: 500px,
+  tablet: (501px 900px),
+  laptop: (901px 1200px),
+  desktop: 1200px,
+  'large-desktop': 1300px
+)!default;
+
+$font-sizes: (
+  desktop: (
+    'xx-large': 3rem,
+    'x-large': 2.5rem,
+    large: 2.25rem,
+    medium: 1.67rem,
+    normal: 1rem,
+    small: .87rem,
+    'x-small': .8rem,
+  ),
+  mobile: (
+    'xx-large': 2rem,
+    'x-large': 1.56rem,
+    large: 1.4rem,
+    medium: 1.05rem,
+    normal: 1rem,
+    small: 0.97rem,
+    'x-small': 0.85rem,
+  )
+);
+
+/**
+ * util function to get font-size
+ * @param $key, $device
+ * @return $font-size
+ */
+
+@function f($key, $device: 'desktop') {
+  $font-size-map: map-get($font-sizes, $device);
+
+  @if map-has-key($font-size-map, $key) {
+    @return map-get($font-size-map, $key);
+  } @else {
+    @error "unknown key #{$key} in $font-size. please checkout `_scale.scss` for more information";
+  }
+}
+
+@mixin responsive-font-size($key) {
+    font-size: f($key, 'desktop');
+
+    @include for-mobile() {
+      font-size: f($key, 'mobile');
+    }
+  
+}

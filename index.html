@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel="icon" href="./img/favicon.ico" type="image/x-icon">
+  <title>台灣勞工大代誌</title>
+  <meta name="og:description" content="勞基法已成立 33 年，台灣的勞動環境仍有很大的改善空間。 儘管如此，勞工意識逐漸抬頭，老前輩們留下的足跡不可置否。 這些豐碩的成果是靠他們的汗水、鮮血、甚至性命換來的。" />
+  <meta property="og:title" content="該頁Title"/>
+  <meta property="og:type" content="website"/>
+
+  <meta property="og:url" content="https://kjj6198.github.io/app/index.html"/>
+
+  <meta property="og:image" content="https://kjj6198.github.io/img/labor-hand.svg"/>
+
+  <meta property="og:site_name" content="勞工大代誌" />
+
+  
+  <link href="https://fonts.googleapis.com/css?family=Oswald" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.7.4/d3.min.js"></script>
+  <script
+  src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+  <link rel="stylesheet" href="./styles/bundle.css">
+
+</head>
+
+<body>
+    <div class="top container">
+      <div class="hero-image" style="background-image: url('./img/top-image.jpg')">
+        <h2 class="hero-title">
+            <svg class="logo-1" viewBox="0 0 87 129" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+        <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+          <g id="logo-1" fill-rule="nonzero" >
+            <rect id="Rectangle-path" x="2.28" y="8" width="10" height="15.75"></rect>
+            <polygon id="Shape" points="22.23 35.71 25.84 40.44 33.79 34.36 29.03 28.15 29.03 0 19.03 0 19.03 25.95 0 37.57 5.21 46.1"></polygon>
+            <polygon id="Shape" points="42.41 47.45 58.02 35.13 74.32 48.05 86.87 39.41 81.19 31.18 74.74 35.62 63.03 26.33 63.03 23.75 82.56 12.31 77.5 3.69 63.03 12.16 63.03 0 53.03 0 53.03 26.33 36.22 39.6"></polygon>
+            <rect id="Rectangle-path" x="35.78" y="8" width="10" height="15.75"></rect>
+            <polygon id="Shape" points="2.28 65.5 12.28 65.5 12.28 60 75.03 60 75.03 65.5 85.03 65.5 85.03 50 2.28 50"></polygon>
+            <path d="M44.78,65.51 L34.78,65.51 C34.6887402,68.4359361 34.4283052,71.3541435 34,74.25 L2.61,74.25 L2.61,84.25 L32.1,84.25 C28.84,97.09 21.61,112.8 5.59,118.54 L9,128 C23.8,122.69 34.7,110.08 40.5,91.55 C41.28,89.06 41.92,86.62 42.44,84.3 L71.31,84.3 C70.31,90.76 67.47,102.96 59.6,118.3 L55.29,118.3 L55.29,128.3 L65.61,128.3 L67,125.62 C81.44,98.85 81.86,80.1 81.87,79.32 L81.94,74.25 L44.14,74.25 C44.5135009,71.3506129 44.7271573,68.4328678 44.78,65.51 Z"
+              id="Shape"></path>
+          </g>
+        </g>
+      </svg>
+            <svg class="logo-2" viewBox="0 0 74 122" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+        <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+          <polygon id="logo-2"  fill-rule="nonzero" points="37.71 111.07 53.99 52.32 31.69 52.32 39.03 10 70.65 10 70.65 0 3.4 0 3.4 10 28.88 10 19.8 62.32 40.84 62.32 27.33 111.07 0 111.07 0 121.07 73.16 121.07 73.16 111.07"></polygon>
+        </g>
+      </svg>
+            <svg class="logo-3" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+        <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+          <path d="M79.37,123.66 C56.88,98.91 41.56,64.66 41.37,64.32 L36.75,66.32 C39.0734079,56.5830382 40.6612192,46.6851238 41.5,36.71 L75.63,36.71 L75.63,26.71 L41.83,26.71 L41.83,0 L31.83,0 L31.83,26.75 L0.33,26.75 L0.33,36.75 L31.47,36.75 C30.17,51.13 24.39,92.54 0,121.63 L7.66,128.06 C21.66,111.34 29.96,91.31 34.85,73.87 C40.24,84.87 53.64,110.23 71.97,130.4 L79.37,123.66 Z"
+            id="logo-3"  fill-rule="nonzero"></path>
+        </g>
+      </svg>
+
+            <svg class="logo-4" viewBox="0 0 93 126" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="logo-4" fill-rule="nonzero" >
+            <rect id="Rectangle-path" transform="translate(80.000000, 11.000000) rotate(-30.350000) translate(-80.000000, -11.000000) " x="68" y="6" width="24" height="10"></rect>
+            <path d="M25.9732888,0 C25.9732888,0.249960324 25.4724541,25.1860022 0,51.5418188 L7.21202003,58.4807173 C11.8896503,53.6588968 16.1549426,48.4549046 19.9632721,42.9231868 L19.9632721,126 L29.9799666,126 L29.9799666,33.4746866 L25.7629382,33.4746866 C35.7796327,14.9276305 36,0.849865101 36,0.0299952389 L25.9732888,0 Z" id="Shape"></path>
+            <path d="M59.4373131,0 L49.4711979,0.07 C49.4711979,1.49 49.6306558,14.99 51.464421,32.87 L41,32.87 L41,42.87 L52.5407614,42.87 C56.1185968,71.06 63.8323699,105.72 80.445884,122.55 L81.9408013,124 L90.9900339,124 L90.9900339,114 L86.1664341,114 C72.6424158,98.8 65.9551525,68.43 62.6563683,42.84 L91,42.84 L91,32.84 L61.5102651,32.84 C59.596771,14.34 59.4373131,0.31 59.4373131,0 Z" id="Shape"></path>
+        </g>
+    </g>
+</svg>
+            <svg class="logo-5" viewBox="0 0 87 130" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+        <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+          <g id="logo-5" fill-rule="nonzero" >
+            <polygon id="Shape" points="28.35 20.82 15.83 0.39 7.3 5.61 15.96 19.75 0.53 19.75 0.53 29.75 28.35 29.75"></polygon>
+            <polygon id="Shape" points="53.52 54.81 38.52 54.81 38.52 64.81 78.53 64.81 78.53 54.81 63.52 54.81 63.52 34.75 80.53 34.75 80.53 24.75 63.52 24.75 63.52 1.84 53.52 1.84 53.52 24.75 36.52 24.75 36.52 34.75 53.52 34.75"></polygon>
+            <path d="M52.28,72.65 L43,72.65 L26.75,88.08 L26.75,71.8 L1,71.8 L1,129.68 L26.72,129.68 L26.72,90.86 L32.23,96.65 L42.23,87.11 L42.23,128.68 L77.48,128.68 L77.48,118.68 L52.28,118.68 L52.28,72.65 Z M16.75,119.65 L11,119.65 L11,81.8 L16.72,81.8 L16.75,119.65 Z"
+              id="Shape"></path>
+            <path d="M64.09,91.19 C69.24,85.89 69.21,74.82 69.15,72.66 L59.15,72.93 C59.29,78.67 57.86,83.56 56.85,84.28 C56.914031,84.2415735 56.9857194,84.2176774 57.06,84.21 L57.06,94.21 C59.7200887,94.2185906 62.2649955,93.1253305 64.09,91.19 L64.09,91.19 Z"
+              id="Shape"></path>
+            <path d="M58.12,110 L63.12,118.66 C86.23,105.34 86.12,74.04 86.12,72.72 L76.12,72.84 C76.1,73.12 76.2,99.59 58.12,110 Z"
+              id="Shape"></path>
+            <polygon id="Shape" points="27.75 36.84 0.38 36.84 0.38 46.84 17.75 46.84 17.75 53.81 0.38 53.81 0.38 63.81 27.75 63.81"></polygon>
+          </g>
+        </g>
+      </svg>
+        </h2>
+        <div class="top-summary-board">
+            <p>
+                勞基法已成立 33 年，台灣的勞動環境仍有很大的改善空間。 儘管如此，勞工意識逐漸抬頭，老前輩們留下的足跡不可置否。 這些豐碩的成果是靠他們的汗水、鮮血、甚至性命換來的。
+            </p>
+            <p>
+                而近期因為全聯總裁徐重仁的一席話：「年輕人不要怕吃苦，應該好好努力」，造成轟動。 到底台灣年輕人是不是不努力呢？我們用數據來說話。
+            </p>
+
+            <p>工人爭的不只是錢，還有做人的尊嚴</p>
+        </div>
+      </div>
+
+    </div>
+    <section class="labor-images-container">
+      <h2 class="labor-images__title">
+        <span>街角一隅</span>
+      </h2>
+
+      <div class="labor-images__content">
+          
+      </div>
+
+    </section>
+
+    <hr class="section-seperator" />
+    <section class="storys-timeline">
+      <div id="taiwanLaborEnv" class="story-chart" data-spy="affix">
+        <div class="chart">
+            <h2 class="text-center">台灣勞動環境總覽圖</h2>
+            <h3 class="labor-story__current-year"></h3>
+            <div class="taiwan-labor-info-chart">
+                <div class="detail"></div>
+                <div id="chartArea" data-current-year="105"></div>
+            </div>
+            <div class="board-container">
+                <div id="jobless" class="board jobless">
+                    <h3 class="board-title">失業率</h3>
+                    <span class="number"></span>
+                </div>
+
+                <div id="hours" class="board hours">
+                    <h3 class="board-title">平均工時</h3>
+
+                    <span class="number"></span>
+
+                </div>
+
+                <div id="price" class="board price">
+                    <h3 class="board-title">平均薪資</h3>
+                    <span class="number"></span>
+                </div>
+            </div>
+        </div>        
+      </div>
+
+      <div class="story-area js-story-timeline clearfix">
+        <h2 class="bloody-text" id="laborEvents">勞工大事紀</h2>
+        <p>台灣勞工運動及事件</p>
+        <div id="storyTimeline" class="story-timeline" data-spy="affix"></div>
+      </div>
+    </section>
+
+    <hr class="section-seperator" />
+    <section class="labor-topic">
+      <div class="container">
+        <div class="text-container">
+          <h4 class="topic-sub">ISSUE 1</h4>
+          <h3 class="topic-title issue-1" id="laborEnv">薪資凍漲</h3>
+          
+          <p>從 1997 年開始，薪資漲幅下滑到 5% 以下，在 2009 年出現了平均薪資下滑的情形。之後的台灣薪資漲幅就在 0 ~ 2% 中擺盪。為什麼薪資水準倒退十年？</p>
+
+          <h4>產業無法轉型，停留在代工階段</h4>
+          <p>早期的台灣以代工產業為主，從 1960 年代開始以輕工業發展為主。1980 年代成立了新竹科學園區，生產電子代工零件（積體電路、電晶體等）。</p>
+          <p>後來勞工意識逐漸抬頭，薪資逐漸上漲後，企業紛紛外移，租用更廉價的人力及資源設廠。為了因應勞工外移，開始引進外勞。</p>
+
+          <h4>22K 計畫遺毒，企業習慣以低薪雇用新鮮人</h4>
+          <p>原本的 22K 計畫，造成企業開始以 22K 作為雇用新鮮人的標準。資方因節省成本而不願重視人才、大學文憑氾濫。
+          </p>
+          <p>長期下來的資訊不對稱、不透明的狀況下，新鮮人常常在迫不得已之下接受低薪。</p>
+          
+          <p>低薪競爭的惡性循環導致企業不願給予更好的待遇，而畢業生則因沒有選擇被迫進入不合理的職場環境下工作。</p>
+
+          <h4>工時過長，勞工身心俱疲。</h4>
+          <p>
+            企業濫用責任制，強迫勞工在不合理的環境以及工時下工作。台灣 2015 年工時，除了比新加坡、韓國少之外，跟其他國家相比（日、美、加拿大等）超出近 400 ~ 500 小時左右。
+            <small><a href="http://statdb.mol.gov.tw/html/nat/104/104006%E5%88%86%E6%9E%90.pdf">資料來源</a></small>
+          </p>
+
+        </div>
+        <div class="description">
+          <div id="relatedChart">
+            <div class="chart-legend">
+            <ul>
+              <li>失業率： <span class="jobless"></span></li>
+              <li>物價指數： <span class="price-rate"></span></li>
+              <li>薪資漲幅： <span class="salary-rate"></span></li>
+            </ul>
+          </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="section-seperator"/>
+    <section class="labor-topic">
+      <div class="container">
+        <div class="text-container">
+          <h4 class="topic-sub">ISSUE 2</h4>
+          <h3 class="topic-title issue-2" id="foreignWorker">外籍勞工</h3>
+          <p>在人口外移以及面臨高齡化社會的衝擊下，引入大量外籍勞工已經是不可避免的趨勢。
+          政府政策尚未完善，外籍勞工面臨低薪，且常被以各種理由扣除薪水，也常常被要求不合理的工時。甚至雇主擅自扣押護照、手機等重要資訊。
+          </p>
+          <p>
+            而大量引進外勞也可能打亂市場，造成低價競爭。
+          </p>
+
+          <p>目前台灣的外籍勞工已經超過 60 萬人，佔台灣總勞動人口的 5%。</p>
+        </div>
+      </div>
+
+      <div class="description">
+        <div id="workerChart">
+          <div class="worker-legend">
+            <p>印尼</p>
+            <p>越南</p>
+            <p>菲律賓</p>
+            <p>泰國</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="container">
+        <div class="text-container">
+          <figure>
+            <img src="./img/IMG_1904.jpg" alt="">
+            <figcaption>外籍勞工新聞層出不窮</figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <hr class="section-seperator" />
+
+    <section class="labor-topic">
+      <div class="text-container">
+        <h5 class="topic-sub">ISSUE 3</h5>
+        <h3 class="topic-title issue-3" id="elder">老年化人口</h3>
+
+        <p>台灣老年人口分佈已將近 13%，即將進入超高齡社會。出生率低、人口外移等影響，在十年內台灣就會進入高齡、超高齡化社會。
+        </p>
+
+        <p>
+        受到人口外移、出生率低的影響，台灣的扶養比逐漸增高，造成國家的財政破產、年金制度崩盤。
+        經濟成長停滯、薪資凍漲、就業率不佳，都會間接影響到老人福利以及醫療品質。
+        </p>
+
+        <p>
+          為因應高齡化的衝擊，未來將會有更多外勞來填補台灣不足的勞動力。
+        </p>
+      </div>
+      <div class="description">
+        <h4 id="displayYear" class="display-year number text-center"></h4>
+        
+        <div id="elderChart" class="elder-chart">
+          <div class="legend">
+            <p>
+              <span class="display-rate number" id="displayRate" data-label="總人口數"></span>
+            </p>
+            <p>
+              <span class="display-elder number" id="displayElder" data-label="老年人口比" >
+              </span>
+            </p>
+          </div>
+        </div>
+        <h5 class="text-center">台灣人口分布圖</h5>
+      </div>
+    </section>
+
+    <section class="labor-topic labor-procession">
+      <h2>2017 - 勞動節遊行</h2>
+      <span>地點 - 總統府前凱道</span>
+    </section>
+
+    <hr class="section-seperator" />
+
+
+    <section class="labor-topic labor-procession">
+      <div class="text-container">
+        <img src="labor-hand.svg" alt="labor hand">
+        <h2 class="text-center"><a target="_blank" href="http://www.coolloud.org.tw/node/88167">2017 - 勞動節遊行</a></h2>
+        <span>地點 - 總統府前凱達格蘭大道</span>
+        <p>
+          今年的遊行訴求有：
+
+<ol>
+  <li>各行各業站出來！全面適用勞基法！</li>
+  <li>禁止勞動派遣！反對非典型僱用擴張！非正職勞工直接僱用！</li>
+  <li>勞保年金維持現制！反對長照市場化！老年生活充分保障！</li>
+  <li>要調薪！要休息！工時工資全面保障！</li>
+  <li>勞工團結組織工會！勞動三權完整保障！</li>
+</ol>
+
+        </p>
+        <ul>
+          <li>時間：2017 年 5 月 1 日（星期一）</li>
+          <li>中午 12 時 30 分集合</li>
+          <li>下午 13 時集會開始</li>
+          <li>下午 14 時遊行出發</li>
+          <li>下午 16 時抵達終點展開行動</li>
+        </ul> 
+      </div>
+    </section>
+
+    <section class="labor-topic labor-twitter">
+      <div class="text-container">
+        <h3 class="text-center topic-title">Hash Tag - 勞工大代誌</h3>
+      </div>
+      <div class="twitter-timeline-container">
+          <a class="twitter-timeline" data-dnt="true" href="https://twitter.com/hashtag/%E5%8B%9E%E5%B7%A5%E5%A4%A7%E4%BB%A3%E8%AA%8C" data-widget-id="858740249014353920">#勞工大代誌 推文</a>
+      </div>
+      
+    </section>
+    
+    <section class="author-section">
+      <dl class="author-list">
+        <h4 class="text-center">製作人員名單</h4>
+        <div>
+            <dt>製作、資料整理</dt>
+            <dd><a target="_blank" href="https://twitter.com/kalanyei">Kalan</a></dd>
+        </div>
+        <div>
+            <dt>設計、排版</dt>
+            <dd><a target="_blank" href="https://www.facebook.com/sandokaishy?fref=ts">Peter</a>、<a target="_blank" href="https://twitter.com/kalanyei">Kalan</a></dd>
+        </div>
+        <div>
+            <dt>攝影</dt>
+            <dd>雅婷、<a target="_blank" href="https://www.facebook.com/sandokaishy?fref=ts">Peter</a></dd>
+        </div>
+      <dl>
+    </section>
+
+</body>
+
+<script src="./js/bundle/app.bundle.js"></script>
+
+
+<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>

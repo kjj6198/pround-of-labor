@@ -1,0 +1,105 @@
+.labor-images-container {
+  background-color: #fff;
+}
+
+.gallery-title {
+  position: absolute;
+  top: calc(50% - .9em);
+  width: 100%;
+  color: #fff;
+  margin: 0;
+
+  letter-spacing: -1px;
+  text-align: center;
+
+  @include responsive-font-size(medium);
+
+  &:before {
+    position: absolute;
+    top: -100%;
+    width: 100%;
+    text-align: center;
+    display: block;
+    content: "ISSUE";    
+  }
+}
+
+.labor-images__title {
+  padding: 1em 0;
+  
+  text-align: center;
+  margin: 1rem;
+  margin-top: 0;
+
+  span {
+    display: inline-block;
+    border-bottom: 3px solid #333;
+  }
+}
+
+.labor-images__content {
+  position: relative;
+}
+
+.owl-stage-outer {
+  overflow: hidden;
+
+  
+  // padding: 1em 3em;
+
+  .owl-stage { 
+    display: flex;
+    padding-bottom: 10px;
+  }
+  .owl-item {
+    // float: left;
+    min-height: 1px;
+    position: relative;
+  }
+}
+
+.gallery-image {
+  position: relative;
+  margin: 0 1em;
+  background-position: center;
+  padding-bottom: 65%; 
+  background-size:cover;
+
+  border-radius: 10px;
+  cursor: pointer;
+  background-blend-mode: darken;
+  background-color: rgba(125,125,125,.8);
+
+  &:hover {
+    background-blend-mode: normal;
+  }
+}
+
+
+.owl-prev,
+.owl-next {
+  width: 3%;
+  min-width: 30px;
+  height: 100%;
+  top: 0;
+  position: absolute;
+  z-index: 15;
+  display: inline-block;
+  text-indent: -9999px;
+  overflow: hidden;
+  background-repeat: no-repeat;
+  background-size: 1em;
+  background-position-y: center;
+  background-position-x: center;
+  background-image: url('arrow-right.svg');
+  color: #fff;
+  background-color: transparent;
+}
+
+
+.owl-prev {
+  left: 0;
+  transform: rotate(180deg);
+}
+
+.owl-next { right: 0; }
