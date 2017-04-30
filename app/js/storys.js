@@ -73,7 +73,6 @@ function drawEvents(events) {
 
   $(document).on('click', '#storyTimeline', e=> {
     const $target = $('.js-story-timeline').find(`[id^="${e.target.textContent.trim()}"]`).first();
-    // debugger
     scrollToTarget($target);    
 
   })

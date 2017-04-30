@@ -5,23 +5,25 @@ $fonts: (
 );
 
 $breakpoints: (
-  mobile: px2rem(500px),
-  tablet: (px2rem(501px) px2rem(900px)),
-  laptop: (px2rem(901px) px2rem(1200px)),
-  desktop: (px2rem(1200px)),
-  'large-desktop': (px2rem(1300px))
+  mobile: 500px,
+  tablet: (501px 900px),
+  laptop: (901px 1200px),
+  desktop: 1200px,
+  'large-desktop': 1300px
 )!default;
 
 $font-sizes: (
   desktop: (
-    'x-large': 2rem,
-    large: 1.67rem,
-    medium: 1.35rem,
+    'xx-large': 3rem,
+    'x-large': 2.5rem,
+    large: 2.25rem,
+    medium: 1.67rem,
     normal: 1rem,
     small: .87rem,
     'x-small': .8rem,
   ),
   mobile: (
+    'xx-large': 2rem,
     'x-large': 1.56rem,
     large: 1.4rem,
     medium: 1.05rem,
@@ -48,14 +50,10 @@ $font-sizes: (
 }
 
 @mixin responsive-font-size($key) {
-  @if variable-exist(desktop) {
     font-size: f($key, 'desktop');
 
-    // this variable came from `_grid.scss`
-    @include for-mobile(tablet-up) {
+    @include for-mobile() {
       font-size: f($key, 'mobile');
     }
-  } @else {
-    @error "請提供 $desktop 變數以供 susy-breakpoint 使用";
-  }
+  
 }

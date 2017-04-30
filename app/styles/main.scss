@@ -1,6 +1,7 @@
 @import "variables";
 @import "colors";
 @import "mixins";
+@import "animations";
 @import "normalize.scss";
 @import "base.scss";
 @import "hero-image";
@@ -11,6 +12,7 @@
 @import "tooltip";
 @import "carousel";
 
+
 a { color:inherit; }
 
 body::-webkit-scrollbar {
@@ -18,21 +20,14 @@ body::-webkit-scrollbar {
 }
 
 .bloody-text { 
-   color: #aaa;
-   font-size: 2em;
-   letter-spacing: 2px;
-   text-shadow:
-   4px 4px 1px #300000,
-   4px 6px 1px #400000,
-   4px 8px 1px #500000,
-   4px 10px 1px #600000,
-   4px 12px 1px #700000,
-   4px 14px 1px #800000,
-   4px 16px 1px #900000,
-   4px 18px 1px #A00000,
-   4px 20px 1px #B00000,
-   4px 22px 1px #C00000,
-   4px 24px 1px #D00000,
+   color: #fff;
+   -webkit-text-stroke-width: 2px;
+   -webkit-text-stroke-color: #333;
+
+   font-size: 3em;
+   letter-spacing: 3px;
+
+   text-shadow: 3px 3px 0 #0199d9, 4px 4px 0 #0199d9, 5px 5px 0 #0199d9, 6px 6px 0 #0199d9, 7px 7px 0 #0199d9, 8px 8px 0 #0199d9, 9px 9px 0 #0199d9, 10px 10px 0 #0199d9, 11px 11px 0 #0199d9, 12px 12px 0 #0199d9, 13px 13px 0 #0199d9, 14px 14px 0 #0199d9, 15px 15px 0 #0199d9, 16px 16px 0 #0199d9, 17px 17px 0 #0199d9, 18px 18px 0 #0199d9, 19px 19px 0 #0199d9, 20px 20px 0 #0199d9;
    
 }
 
@@ -40,6 +35,11 @@ body::-webkit-scrollbar {
   width: 65%;
   max-width: 960px;
   margin: 0 auto;
+
+  @include for-mobile { 
+    padding: 0 15px;
+    width: 100%;
+  }
 }
 
 .hero-title {
@@ -48,17 +48,17 @@ body::-webkit-scrollbar {
 }
 
 [class^="logo"] {
-  width: 100px;
+  width: 15%;
   height: 80px;
   fill: #fff;
 
   g {
       fill: #fff;
   }
-}
 
-.logo-1 {
-  width: 80px;
+  @include for-large-desktop() {
+    width: 20%;
+  }
 }
 
 .logo-3 {
@@ -119,13 +119,21 @@ body::-webkit-scrollbar {
 .top-summary-board {
   width: 80%;
   max-width: 700px;
+  position: relative;
+  z-index: 5;
   padding: 20px;
   margin: 0 auto;
-  background-color: rgba(125, 125, 125, .6);
+  background-color: rgba(125, 125, 125, .8);
   color: #fff;
+  opacity: 0;
   backdrop-filter: blur(2px);
   -webkit-backdrop-filter: blur(2px);
   border-radius: 3px;
+
+  animation: fadeInUp 1s ease 1 forwards;
+  animation-delay: .8s;
+
+  @include for-mobile { font-size: .8rem; }
 }
 
 .text-center {
@@ -152,20 +160,34 @@ body::-webkit-scrollbar {
   padding: 10px;
   background-color: #fff;
   box-shadow: 0 0 2px 1px rgba(100, 100, 100, 0.5);
+  
+  @include for-laptop-down {
+    font-size: .9rem;
+  }
+
   .board-title {
-      padding-bottom: .3em;
-      border-bottom: 1px solid #343434;
-      text-align: center;
-      font-size: 1.25em;
+    padding-bottom: .3em;
+    border-bottom: 1px solid #343434;
+    text-align: center;
+    font-size: f(medium, 'desktop');
+
+    @include for-mobile {
+      font-size: f(small, 'mobile');
+    }
+
   }
   .number {
       display: block;
       color: #213670;
       font-family: Oswald;
-      font-size: 3em;
+      font-size: 2em;
       text-align: center;
       small {
           font-size: 15%;
+      }
+
+      @include for-mobile {
+        font-size: f(normal, 'mobile');
       }
   }
 }

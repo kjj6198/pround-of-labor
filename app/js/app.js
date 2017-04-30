@@ -7,15 +7,17 @@ import "./elderRateChart";
 import { numToCurrency } from './utils';
 import "gallery.js";
 import { normalizeData, generateSVG, generateAxis, drawGuideArea, responsivefy, updateBoardDisplay } from './chartUtils';
+import { getDevice } from './media';
 import { SALARY_URL } from './constants';
 import { colors } from './colors';
 
 const margin = {
     top: 30,
     right: 20,
-    bottom: 30,
-    left: 80
+    bottom: 40,
+    left: getDevice('desktop') ? 80 : 30
 };
+
 const width = window.innerWidth - margin.left - margin.right;
 const height = window.innerHeight - margin.top - margin.bottom;
 
@@ -40,7 +42,7 @@ const bindMousemove = (xScale, yScale, datas) => (...args) => {
   d3.select('.guide-circle')
     .attr('r', 15)
     .attr('cx', xCoords)
-    .attr('cy', yScale(targetData['平均薪資']))
+    .attr('cy', yScale(targetData['平均薪資'] / 1000))
 
   d3.select('.guide-box')
     .attr('transform', `translate(${xCoords}, 0)`)
@@ -96,10 +98,10 @@ function hideDetail() {
 
 
 function drawLineChart(err, datas) {
-  const width = (window.innerWidth / 2) - margin.left - margin.right;
-  const height = 600 - margin.top - margin.bottom;
+  const width = window.innerWidth - margin.left - margin.right;
+  const height = getDevice('desktop') ? window.innerHeight + 100 - margin.top - margin.bottom : 400 - margin.top - margin.bottom;
 
-  const svg = generateSVG('#chartArea', width, height);
+  const svg = generateSVG('#chartArea', width, height, margin);
   const xScale = d3
     .scaleLinear()
     .clamp(true)
@@ -113,8 +115,8 @@ function drawLineChart(err, datas) {
     .scaleLinear()
     .clamp(true)
     .domain([
-      2000,
-      50000
+      2000 / 1000,
+      50000 / 1000
     ])
     .range([
       height,
@@ -125,16 +127,18 @@ function drawLineChart(err, datas) {
     .append('g')
       .attr('transform', `translate(0, ${height})`)
       .attr('class', 'x axis')
-    .call(d3.axisBottom(xScale).ticks(10).tickFormat(d3.format('d')).tickSize(-height))
+    .call(d3.axisBottom(xScale).ticks(getDevice('desktop') ? 10 : 5).tickFormat(d3.format('d')).tickSize(-height))
+    .selectAll('.tick text')
+    .attr('y', '15')
   
   svg
     .append('g')
     .attr('class', 'y axis')
-    .call(d3.axisLeft(yScale).ticks(15).tickSize(-width))
+    .call(d3.axisLeft(yScale).ticks(getDevice('desktop') ? 15 : 10).tickSize(-width))
     .append('text')
-    .text('（新台幣）')
+    .text('（千元）')
     .attr('y', 5)
-    .attr('x', 100)
+    .attr('x', 70)
     .style('fill', '#000')
     .style('font-size', '20px')
 
@@ -143,8 +147,8 @@ function drawLineChart(err, datas) {
     .attr('class', 'currentYear')
     .attr('transform', `translate(${width - 300}, ${height - 50})`)
     .append('text')
-      .attr('font-size', 200)
-      .attr('x', -200)
+      .attr('font-size', getDevice('desktop') ? 200 : 80)
+      .attr('x', getDevice('desktop') ? -200 : width - 150)
       .attr('font-family', 'PingFang TC')
       .attr('style', "fill: #aaa")
 
@@ -200,7 +204,7 @@ function drawLineChart(err, datas) {
 
   const line = d3.line()
     .x(d => xScale(+d['年份']))
-    .y(d => yScale(+d['平均薪資']));
+    .y(d => yScale(+d['平均薪資'] / 1000));
 
   const joblessLine = d3.line()
     .x(d => xScale(+d['年份']))
@@ -229,12 +233,12 @@ function drawRalatedLineChart(err, datas) {
   datas = datas.filter(d => +d['年份'] >= 1981);
 
   const margin = {
-          top: 30,
-          bottom: 40,
-          left: 50,
-          right: 50
+          top: getDevice('desktop') ? 30 : 10,
+          bottom: getDevice('desktop') ? 40 : 25,
+          left: getDevice('desktop') ? 50 : 25,
+          right: getDevice('desktop') ? 50 : 10
         },
-        width = $('#relatedChart').width() - margin.right - margin.left,
+        width = window.innerWidth - margin.right - margin.left,
         height = 600 - margin.bottom - margin.top;
   const xScale = d3
     .scaleLinear()
@@ -266,7 +270,7 @@ function drawRalatedLineChart(err, datas) {
     .y(d => yScale(d['成長幅度'].split('%')[0]))
 
   const svg = generateSVG('#relatedChart', width, height, margin);
-  generateAxis(xScale, yScale, '（%）', 20, 15)(svg, width, height);
+  generateAxis(xScale, yScale, '（%）', getDevice('desktop') ? 20 : 10, getDevice('desktop') ? 15 : 5)(svg, width, height);
   
   const options = {
     xScale,

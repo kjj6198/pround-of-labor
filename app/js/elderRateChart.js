@@ -2,6 +2,7 @@ import { formatNumber } from './utils';
 import { generateSVG, generateAxis } from './chartUtils';
 import { POPULATION_URL } from './constants';
 import { pipe } from 'ramda';
+import { getDevice } from './media';
 
 
 
@@ -24,12 +25,12 @@ function drawChart(datas) {
   const margin =  {
     top: 10,
     bottom: 50,
-    right: 40,
-    left: 100
+    right: getDevice('desktop') ? 40 : 20,
+    left: getDevice('desktop') ? 50 : 50,
   };
 
-  const width = 1600 - margin.left - margin.right;
-  const height = 900 - margin.bottom - margin.top;
+  const width = window.innerWidth - margin.left - margin.right;
+  const height = getDevice('desktop') ? 500 - margin.bottom - margin.top : 300 - margin.bottom - margin.top;
   
 
   const svg = generateSVG('#elderChart', width, height, margin);
@@ -42,7 +43,7 @@ function drawChart(datas) {
 
   const yScale = d3
     .scaleLinear()
-    .domain([0, 2200000])
+    .domain([0, 2200])
     .range([height, 0]);
 
   svg
@@ -50,6 +51,14 @@ function drawChart(datas) {
       .attr('transform', `translate(0, ${height})`)
       .attr('class', 'x axis')
     .call(d3.axisBottom(xScale).ticks(20).tickSize(10))
+    .append('text')
+    .attr('dx', 4)
+    .attr('x', width + 10)
+    .attr('y', 10)
+    .attr('text-anchor', 'end')
+    .style('fill', '#111')
+    .style('font-weight', 'bold')
+    .text('(歲)')
 
   svg
     .append('g')
@@ -61,6 +70,7 @@ function drawChart(datas) {
     .attr('text-anchor', 'start')
     .style('fill', '#111')
     .style('font-weight', 'bold')
+    .text('(仟人)')
   
   
   svg
@@ -80,8 +90,8 @@ function drawChart(datas) {
         }
       })
       .attr('x', d => xScale(d.key.split('歲')[0]))
-      .attr('y', d => yScale(d.value))
-      .attr('height', d => height - yScale(d.value))
+      .attr('y', d => yScale(d.value / 1000))
+      .attr('height', d => height - yScale(d.value / 1000))
       .attr('width', d => xScale.bandwidth())
 
   $('.topic-title.issue-3').waypoint({
@@ -110,8 +120,8 @@ function drawChart(datas) {
 
     update.transition(t)
       .delay(100)
-      .attr('y', d => yScale(d.value))
-      .attr('height', d => height - yScale(d.value));
+      .attr('y', d => yScale(d.value / 1000))
+      .attr('height', d => height - yScale(d.value / 1000));
 
 
     $('#displayYear').text(currentYear);

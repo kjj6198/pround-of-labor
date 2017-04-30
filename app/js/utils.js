@@ -1,5 +1,22 @@
 import { compose, prop } from 'ramda';
 
+
+export function scrollToTarget(target) {
+  $('html, body').animate({
+    scrollTop: target.offset().top
+  }, 1000, function() {    
+    var $target = $(target);
+    $target.focus();
+    if ($target.is(":focus")) { // Checking if the target was focused
+      return false;
+    } else {
+      $target.attr('tabindex','-1'); // Adding tabindex for elements not focusable
+      $target.focus(); // Set focus again
+    };
+  });
+  $(target).offset().top
+}
+
 export const formatNumber = (num) => {
   const numberString = num.toString()
   const numberParts = numberString.split('.')
