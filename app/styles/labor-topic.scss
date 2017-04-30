@@ -1,3 +1,12 @@
+.labor-procession {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  font-weight: bold;
+  font-size: 1.5em;
+}
+
 .labor-topic {
   position: relative;
   margin: 0;
@@ -14,6 +23,8 @@
       margin-top: 1em;
     }
   }
+
+
 
   .topic-title {
     display: inline-block;
