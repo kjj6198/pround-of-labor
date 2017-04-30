@@ -1,3 +1,4 @@
+import { numToCurrency } from 'utils';
 export const createCommentArea = (text, potision, options = { class: 'comment' }) => (svg) => {
   const comment = svg
     .append('g')
@@ -11,28 +12,62 @@ export const createCommentArea = (text, potision, options = { class: 'comment' }
     .text()
 }
 
-export const responsivefy = (svg) => {
-  const container = d3.select(svg.node().parentNode);
+export const normalizeData = (datas) => d3.nest().key(d => d["年份"]).entries(datas);
 
-  const width = parseInt(svg.style('width'));
-  const height = parseInt(svg.style('height'));
-  const aspect = width / height;
+export function updateBoardDisplay(data, datas) {  
+  const jobless = document.querySelector('#jobless > .number');
+  const hours   = document.querySelector('#hours > .number');
+  const price   = document.querySelector('#price > .number');
+  const prevYear = $('#chartArea').attr('data-current-year');
 
-  svg
-    .attr('viewBox', '0 0 ' + width + ' ' + height)
-    .attr('preserveAspectRadio', 'xMinYMid')
-    .call(resize);
+  const [prevData] = datas.filter(d => +d.key === +prevYear);
+  
+  if (!prevData || prevYear <= 62) { return ; }
 
+  d3.selectAll('.number')
+    .transition()
+    .duration(600)
+    .tween('number', () => {
+      const joblessRate = d3.interpolate(+prevData.values[0]['失業率'], +data['失業率']);
+      const workHours   = d3.interpolate(+prevData.values[0]['平均工時'], +data['平均工時']);
+      const salary      = d3.interpolateRound(+prevData.values[0]['平均薪資'], +data['平均薪資']);
 
-  function resize() {
-    const targetWidth = parseInt(container.style('width'));
-    svg
-      .attr('width', targetWidth)
-      .attr('height', Math.round(targetWidth / aspect));
-  };
-
-  d3.select(window).on('resize.' + 'chart', resize);
+      return function(t) {
+        jobless.textContent = joblessRate(t).toFixed(2) + '%';
+        hours.textContent = workHours(t).toFixed(1);
+        price.innerHTML = `${numToCurrency(salary(t))}<small>hr/月</small>`;
+      }
+    })
 }
+
+
+export function responsivefy(svg) {
+  // get container + svg aspect ratio
+  var container = d3.select(svg.node().parentNode),
+      width = parseInt(svg.style("width")),
+      height = parseInt(svg.style("height")),
+      aspect = width / height;
+      console.log(width, height)
+  // add viewBox and preserveAspectRatio properties,
+  // and call resize so that svg resizes on inital page load
+  svg.attr("viewBox", "0 0 " + width + " " + height)
+      .attr("preserveAspectRatio", "xMinYMid")
+      .call(resize);
+
+  // to register multiple listeners for same event type,
+  // you need to add namespace, i.e., 'click.foo'
+  // necessary if you call invoke this function for multiple svgs
+  // api docs: https://github.com/mbostock/d3/wiki/Selections#on
+  d3.select(window).on("resize." + container.attr("id"), resize);
+
+  // get width of container and resize svg to fit it
+  function resize() {
+      var targetWidth = parseInt(container.style("width"));
+      svg.attr("width", targetWidth);
+      svg.attr("height", Math.round(targetWidth / aspect));
+  }
+}
+
 
 export const generateSVG = (target, width, height, margin = {
   top: 10,
@@ -47,7 +82,7 @@ export const generateSVG = (target, width, height, margin = {
     .attr('height', height + margin.top + margin.bottom)
     .call(responsivefy)
     .append('g')
-    .attr('transform', `translate(${margin.left}, ${margin.bottom})`)
+    .attr('transform', `translate(${margin.left}, ${margin.top})`)
 }
 
 
@@ -104,15 +139,13 @@ export const moveGuideline = (datas, options) => (...args) => {
       const translateY = yScale(values[d.name]);
       return `translate(${Math.round(xScale(targetYear))}, ${translateY})`
     })
-    .attr('fill-opacity', 1)
-    .attr('stroke-opacity', .5)
     .attr('opacity', 1)
   
   d3
     .selectAll('.guide-line')
     .attr('transform', `translate(${Math.round(xScale(targetYear))}, 0)`)
     .style('stroke-width', '1px')
-    .attr('stroke', '#000')
+    .attr('stroke', '#333')
     .style('shape-rendering', 'crispEdges')
 
   d3.selectAll('.guide-text')
@@ -137,7 +170,7 @@ export const drawGuideArea = (width, height, options = {}) => (svg, datas) => {
     .attr('width', width)
     .attr('height', height)
     .on('mousemove', moveGuideline(datas, { xScale, yScale }))
-    .on('touchend', console.log);
+    .on('touchmove', moveGuideline(datas, { xScale, yScale }));
 
   const guideLine = guideGroup.append('line')
     .attr('class', 'guide-line')
@@ -169,9 +202,7 @@ export const drawGuideArea = (width, height, options = {}) => (svg, datas) => {
       .attr('class', d => `guide-points ${d.name}`)
       .attr('r', 5)
       .attr('opacity', 0)
-      .style('stroke', '#000')
-      .style('stroke-opacity', 0)
-      .style('fill', '#333')
+      
   
   const groupTexts = guideGroup
     .selectAll('.guide-text')

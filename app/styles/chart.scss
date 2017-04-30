@@ -1,5 +1,41 @@
 .taiwan-labor-info-chart { position: relative; }
 
+.legend {
+  position: absolute;
+  width: 35%;
+  right: 10px;
+  top: 10%;
+  pointer-events: none;
+  padding: 2em;
+
+  border: 2px solid #999;
+
+  border-radius: 4px;
+}
+
+.guide-points {
+  stroke-width: 2px;
+  stroke: #fff;
+  &.salaryRate {
+    fill: rgb(154, 206, 198);
+  }
+
+  &.priceRate {
+    fill: #cfad9b;
+  }
+
+  &.jobless {
+    fill: #e7420c;
+  }
+
+}
+
+#relatedChart {
+  position: relative;
+  width: 80%;
+  margin: 0 auto;
+}
+
 .story-chart {
   position: absolute;
   padding: 20px;
@@ -14,8 +50,12 @@
   }
 }
 
+.elder-chart {
+  width: 55%;
+}
+
 .tick text {
-  font-size: 20px;
+  font-size: 1.2em;
   font-weight: bold; 
   font-family: Oswald;
 }

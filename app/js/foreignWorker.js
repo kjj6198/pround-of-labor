@@ -17,8 +17,61 @@ function drawBarChart(chart) {
     .stack()
     .order(d3.stackOrderDescending)
     .keys(['越南', '菲律賓', '泰國', '印尼', '其他'])(chart.datas);
+  
+  function handleMouse(direction) {
 
-  // setMouseEvents()
+    if (direction === 'in') {
+
+      const tooltipBox = svg
+        .append('g')
+        .attr('class', 'tooltip')
+        .attr('opacity', 0)
+      
+      const tooltipRect = tooltipBox.append('rect')
+        .attr('width', 80)
+        .attr('height', 30)
+        .attr('fill', '#777')
+        .attr('fill-opacity', .8);
+
+      const tooltipText = tooltipBox
+        .append('text')
+        .attr('text-anchor', 'middle')
+        .attr('class', 'tooltip-text')
+        .attr('fill', '#fff')
+
+      
+      return function(data) {
+        const country = this.parentNode.getAttribute('data-name') || '';
+        const [xx, yy] = d3.mouse(this);
+
+        tooltipText
+          .text(`${country} ${data.data[country]}
+            總計：${data.data['總計']}
+          `);
+
+        const bbox = tooltipText.node().getBBox();
+        const { width, height } = bbox;
+
+        tooltipBox
+          .attr('opacity', 1)
+          .attr('transform', `translate(${xx - 15}, ${yy - height})`);
+        
+        tooltipRect
+          .attr('width', width + 20)
+          .attr('height', height + 10)
+          .attr('x', -(width + 20) / 2)
+          .attr('y', -(height + 20) / 2)
+
+      }
+
+    } else {
+      return function() {
+        d3.select('.tooltip').attr('opacity', 0);
+      }
+    }
+
+
+  }
 
   
   const group = barArea
@@ -42,6 +95,7 @@ function drawBarChart(chart) {
             return 'color-1';
         }
       })
+      .attr('data-name', d => d.key)
     .selectAll('rect')
     .data(d => d).enter()
     .append('rect')
@@ -49,8 +103,8 @@ function drawBarChart(chart) {
       .attr('y', d => yScale(d[1]))
       .attr('height', d => yScale(d[0]) - yScale(d[1]))
       .attr('width', d => xScale.bandwidth())
-    .call(console.log);
-
+    .on('mousemove', handleMouse('in'))
+    .on('mouseleave', handleMouse('out'))
 }
 
 function drawChartByYear(year) {
@@ -80,17 +134,32 @@ function drawChart(datas) {
     .domain([0, 700000])
     .range([height, 0]);
 
-  generateAxis(xScale, yScale, '', 10, 10)(svg, width, height);
+  const guidelineArea = svg
+        .append('rect')
+        .attr('w', 0)
+        .attr('h', 0)
+        .attr('width', width)
+        .attr('height', height)
+        .attr('opacity', 0)
+         
+
+  generateAxis(xScale, yScale, '', 10, 5)(svg, width, height);
 
   const chart = new Chart(xScale, yScale, datas, svg);
-  window.chart = chart;
   
   drawBarChart(chart);
 }
 
 d3.csv(FOREIGN_WORKER_URL, (err, datas) => {
+  $('.topic-title.issue-1').waypoint({
+      handler: function(direction) {
+        if (direction === 'up') {
+          drawChart(datas);
+        }
 
-  drawChart(datas);
+        this.destroy();
+      }
+  })
 })
 
 
