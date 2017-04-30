@@ -63,7 +63,7 @@ function drawChart(datas) {
   svg
     .append('g')
     .attr('class', 'y axis')
-    .call(d3.axisLeft(yScale).ticks(10).tickSize(-width))
+    .call(d3.axisLeft(yScale).ticks(getDevice('desktop') ? 10 : 5).tickSize(-width))
     .append('text')
     .attr('dx', 4)
     .attr('y', 6)
@@ -160,7 +160,7 @@ function drawChart(datas) {
       // .on('mouseout')
 
   $('.topic-title.issue-3').waypoint({
-    offset: '25%',
+    offset: getDevice('desktop') ? '25%' : 0,
     handler: function() {
       this.destroy();
       const animation = setInterval((() => {

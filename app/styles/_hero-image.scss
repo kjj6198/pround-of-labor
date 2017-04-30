@@ -30,6 +30,14 @@
   z-index: 3;
   opacity: 0;
   animation: fadeIn 1.5s ease 1 forwards;
+
+  & svg {
+    width: 1.5em;
+
+    &.logo-3 {
+      width: 3.25em;
+    }
+  }
 }
 
 .full-width {

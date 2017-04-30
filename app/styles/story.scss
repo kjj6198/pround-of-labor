@@ -79,7 +79,14 @@
 
       transition: transform .2s ease;
       
-      @include for-mobile { display: inline-block; }
+      @include for-mobile { 
+        display: inline-block;
+        margin: 0 .25em!important;
+        &:hover {
+          transform: none;
+        }
+      }
+
       &:hover {
         transform: translateX(-10%);
       }
