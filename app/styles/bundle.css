@@ -498,6 +498,10 @@ img {
   z-index: 3;
   opacity: 0;
   animation: fadeIn 1.5s ease 1 forwards; }
+  .hero-title svg {
+    width: 1.5em; }
+    .hero-title svg.logo-3 {
+      width: 3.25em; }
 
 .full-width {
   width: 100vw;
@@ -571,7 +575,10 @@ img {
       transition: transform .2s ease; }
       @media screen and (max-width: 500px) {
         .story-area .story-timeline p {
-          display: inline-block; } }
+          display: inline-block;
+          margin: 0 0.25em !important; }
+          .story-area .story-timeline p:hover {
+            transform: none; } }
       .story-area .story-timeline p:hover {
         transform: translateX(-10%); }
 
@@ -668,12 +675,18 @@ img {
   position: absolute;
   top: 1%;
   left: 5%;
-  width: 650px;
+  max-width: 650px;
   background-color: transparent;
   pointer-events: none; }
+  @media screen and (max-width: 500px) {
+    .worker-legend {
+      left: 20%; } }
   .worker-legend p {
     display: inline-block;
     margin: 1em; }
+    @media screen and (max-width: 500px) {
+      .worker-legend p {
+        margin: 0; } }
     .worker-legend p:before {
       content: "\25FC\FE0E";
       font-size: 1.3em; }
@@ -713,6 +726,10 @@ img {
   padding: 2em;
   border: 2px solid #999;
   border-radius: 4px; }
+  @media screen and (max-width: 500px) {
+    .legend {
+      padding: 5px;
+      font-size: 0.8rem; } }
   .legend p {
     margin: 0; }
 
@@ -755,6 +772,10 @@ img {
     height: 100vh;
     top: calc(100% - 100vh);
     overflow-y: scroll; }
+    @media screen and (max-width: 500px) {
+      .story-chart.unaffix {
+        position: static;
+        height: initial; } }
   @media screen and (max-width: 500px) {
     .story-chart {
       display: block;
@@ -770,6 +791,9 @@ img {
   .elder-chart text {
     fill: #333;
     font-size: 1rem !important; }
+  @media screen and (max-width: 500px) {
+    .elder-chart .legend {
+      top: 2%; } }
   .elder-chart .legend span {
     font-size: 1.4em; }
   @media screen and (max-width: 500px) {
@@ -906,7 +930,8 @@ img {
 
 .author-section {
   width: 100%;
-  min-height: 50vh;
+  min-height: 350px;
+  height: 35vh;
   background-color: #fff;
   display: flex;
   justify-content: center;
@@ -983,12 +1008,14 @@ img {
 .owl-prev,
 .owl-next {
   width: 3%;
+  min-width: 30px;
   height: 100%;
   top: 0;
   position: absolute;
   z-index: 15;
   display: inline-block;
   text-indent: -9999px;
+  overflow: hidden;
   background-repeat: no-repeat;
   background-size: 1em;
   background-position-y: center;
@@ -1003,6 +1030,16 @@ img {
 
 .owl-next {
   right: 0; }
+
+.twitter-timeline-container {
+  width: 45%;
+  margin: 0 auto; }
+  @media screen and (max-width: 500px) {
+    .twitter-timeline-container {
+      width: 95%; } }
+  .twitter-timeline-container > iframe {
+    width: 100% !important;
+    height: 1000px !important; }
 
 a {
   color: inherit; }
@@ -1039,6 +1076,13 @@ body::-webkit-scrollbar {
     .text-container {
       padding: 0 15px;
       width: 100%; } }
+  .text-container figcaption {
+    font-style: italic;
+    font-size: .8em;
+    color: #999;
+    text-align: center; }
+  .text-container img {
+    max-width: 100%; }
 
 .hero-title {
   padding: 1em;
