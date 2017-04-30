@@ -18,7 +18,7 @@ const assets = [
     id: 'elder',
   },
   {
-    text: '外籍勞工人口破 60 萬',
+    text: '外籍移工人口破 60 萬',
     image: './img/labor-image5.jpg',  
     id: 'foreignWorker',
   }
