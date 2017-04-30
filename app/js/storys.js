@@ -30,8 +30,6 @@ function strToEls(str) {
 function drawStoryTimeline(datas) {
   const yearSet = d3.set(datas.map(d => d['Year']));
   
-  console.log(yearSet.values())
-
   $('#storyTimeline').html(yearSet.values().map(y => `
     <p style="text-align:center;font-weight:bold;">
       ${y}
@@ -40,32 +38,50 @@ function drawStoryTimeline(datas) {
 }
 
 const storyTemplate = ({time, title, description, image_url, caption}) => {  
-  return `
-    <div class="story">
-      <time class="story-time" id="${time}">
-        ${time}
-      </time>
-      <h4 class="story-title">${title}</h4>
-      <p class="story-content">
-        ${simpleFormat(description)}
-      </p>
-      <figure>
-        <img class="story-image" src="${image_url}" />
-        <figcaption>${caption}</figcaption>
-      </figure>
 
-    </div>
-  `
+  if (image_url) {
+    
+    return `
+      <div class="story">
+        <time class="story-time" id="${time}">
+          ${time}
+        </time>
+        <h4 class="story-title">${title}</h4>
+        <p class="story-content">
+          ${simpleFormat(description)}
+        </p>
+        <figure>
+          <img class="story-image" src="${image_url}" />
+          <figcaption>${caption}</figcaption>
+        </figure>
+
+      </div>
+    `
+  } else {
+    return `
+      <div class="story">
+        <time class="story-time" id="${time}">
+          ${time}
+        </time>
+        <h4 class="story-title">${title}</h4>
+        <p class="story-content">
+          ${simpleFormat(description)}
+        </p>
+      </div>
+    `
+  }
+
+  
 };
 
-function drawEvents(events) {
+function drawEvents(events, presidentData) {
   const $storyArea = $('.js-story-timeline');
   events.map(event => {
     const story = strToEls(storyTemplate({
       time: `${event['Year']} / ${event['Month']} / ${event['Date']} `,
       description: event['Description'],
       title: event['Title'],
-      image_url: event['Image_url'],
+      image_url: event['Image_url'] || null,
       caption: event['caption']
     }))
     $storyArea.append(story);
@@ -73,9 +89,25 @@ function drawEvents(events) {
 
   $(document).on('click', '#storyTimeline', e=> {
     const $target = $('.js-story-timeline').find(`[id^="${e.target.textContent.trim()}"]`).first();
-    scrollToTarget($target);    
-
+    scrollToTarget($target);
   })
+
+  // $('.story').waypoint({
+  //   handler: function() {
+  //     const time = new Date(this.adapter.$element.find('.story-time').text().trim());
+      
+  //     const targetPresident = presidentData.filter(d => {
+  //       return time >= new Date(d['上任日'].trim()) && time <= new Date(d['卸任日'].trim())
+  //     })[0];
+
+  //     if (typeof targetPresident !== 'undefined') {
+  //       $('#chartArea > svg')
+  //         .attr('data-name', targetPresident['名稱'])
+  //         .css('background-image', `url(${targetPresident.image_url})`)
+
+  //     }
+  //   }
+  // });
 }
 
 
@@ -84,6 +116,6 @@ d3.queue()
   .defer(d3.csv, EVENTS_URL)
   .defer(d3.csv, PRESIDENT_URL)
   .await((err, eventData, presidentData) => {
-    drawEvents(eventData);
+    drawEvents(eventData, presidentData);
     drawStoryTimeline(eventData);
   })

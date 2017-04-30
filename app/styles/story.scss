@@ -6,6 +6,11 @@
 
   position: relative;
 
+  @include for-tablet {
+    width: 55%;
+    margin-left: 45%;
+  }
+
   @include for-mobile {
     width: 98%;
     margin: 0 auto;
@@ -174,7 +179,6 @@
 
 .labor-story {
   .chart {
-    
     width: 100%;
     padding: 10px;
     background-color: #fff;

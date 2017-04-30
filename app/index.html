@@ -130,7 +130,7 @@
     <section class="labor-topic">
       <div class="container">
         <div class="text-container">
-          <h4 class="topic-sub">ISSUE1</h4>
+          <h4 class="topic-sub">ISSUE 1</h4>
           <h3 class="topic-title issue-1" id="laborEnv">薪資凍漲</h3>
           
           <p>從 1997 年開始，薪資漲幅下滑到 5% 以下，在 2009 年出現了平均薪資下滑的情形。之後的台灣薪資漲幅就在 0 ~ 2% 中擺盪。為什麼薪資水準倒退十年？</p>
@@ -140,10 +140,12 @@
           <p>後來勞工意識逐漸抬頭，薪資逐漸上漲後，企業紛紛外移，租用更廉價的人力及資源設廠。為了因應勞工外移，開始引進外勞。</p>
 
           <h4>22K 計畫遺毒，企業習慣以低薪雇用新鮮人</h4>
-          <p>原本的 22K 計畫，造成企業開始以 22K 作為雇用新鮮人的標準。資方因節省成本而不願重視人才、大學文憑氾濫，而長期下來的資訊不對稱、不透明的狀況下，新鮮人常常在迫不得已之下接受低薪。</p>
+          <p>原本的 22K 計畫，造成企業開始以 22K 作為雇用新鮮人的標準。資方因節省成本而不願重視人才、大學文憑氾濫。
+          </p>
+          <p>長期下來的資訊不對稱、不透明的狀況下，新鮮人常常在迫不得已之下接受低薪。</p>
+          
           <p>低薪競爭的惡性循環導致企業不願給予更好的待遇，而畢業生則因沒有選擇被迫進入不合理的職場環境下工作。</p>
 
-          <h4>學用落差大</h4>
         </div>
         <div class="description">
           <div id="relatedChart">
@@ -163,14 +165,21 @@
     <section class="labor-topic">
       <div class="container">
         <div class="text-container">
-          <h4 class="topic-sub">ISSUE2</h4>
+          <h4 class="topic-sub">ISSUE 2</h4>
           <h3 class="topic-title issue-2" id="foreignWorker">外籍勞工</h3>
           <p>在人口外移以及面臨高齡化社會的衝擊下，引入大量外籍勞工已經是不可避免的趨勢，但目前的政策仍然不完善。而大量引進外勞也可能打亂市場，造成低價競爭。</p>
         </div>
       </div>
 
       <div class="description">
-        <div id="workerChart"></div>
+        <div id="workerChart">
+          <div class="worker-legend">
+            <p>印尼</p>
+            <p>越南</p>
+            <p>菲律賓</p>
+            <p>泰國</p>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -178,16 +187,36 @@
 
     <section class="labor-topic">
       <div class="text-container">
-        <h5 class="topic-sub">ISSUE3</h5>
+        <h5 class="topic-sub">ISSUE 3</h5>
         <h3 class="topic-title issue-3" id="elder">老年化人口</h3>
+
+        <p>台灣老年人口分佈已將近 13%，即將進入超高齡社會。出生率低、人口外移等影響，在十年內台灣就會進入高齡、超高齡化社會。
+        </p>
+
+        <p>
+        受到人口外移、出生率低的影響，台灣的扶養比逐漸增高，造成國家的財政破產、年金制度崩盤。
+        經濟成長停滯、薪資凍漲、就業率不佳，都會間接影響到老人福利以及醫療品質。
+        </p>
+
+        <p>
+          為因應高齡化的衝擊，未來將會有更多外勞來填補台灣不足的勞動力。
+        </p>
       </div>
       <div class="description">
-        <h3>台灣人口分布圖</h3>
-        <span id="displayYear" class="display-year number"></span>
-        <span id="displayRate" class="display-year number"></span>
-        <span id="displayElder" class="display-year number"></span>
-        <div class=""></div>
-        <div id="elderChart" class="elder-chart"></div>
+        <h4 id="displayYear" class="display-year number text-center"></h4>
+        
+        <div id="elderChart" class="elder-chart">
+          <div class="legend">
+            <p>
+              <span class="display-rate number" id="displayRate" data-label="總人口數"></span>
+            </p>
+            <p>
+              <span class="display-elder number" id="displayElder" data-label="老年人口比" >
+              </span>
+            </p>
+          </div>
+        </div>
+        <h5 class="text-center">台灣人口分布圖</h5>
       </div>
     </section>
 

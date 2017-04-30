@@ -23,8 +23,8 @@ function drawChart(datas) {
   const cols = datas.columns.filter(d => d.indexOf('歲') > -1);
 
   const margin =  {
-    top: 10,
-    bottom: 50,
+    top: 80,
+    bottom: 40,
     right: getDevice('desktop') ? 40 : 20,
     left: getDevice('desktop') ? 50 : 50,
   };
@@ -73,7 +73,47 @@ function drawChart(datas) {
     .text('(仟人)')
   
   
-  svg
+  const barArea = svg.append('g')
+    .attr('class', 'barArea')
+
+  const tooltip = svg
+    .append('g')
+    .attr('class', 'tooltip')
+    .attr('opacity', 0)
+
+  const toolRect = tooltip
+    .append('rect')
+    .attr('stroke-width', 3)
+    .attr('stroke', '#111')
+    .attr('fill', '#fff')
+    .attr('rx', 5)
+    .attr('ry', 5);
+  const toolTri = tooltip
+    .append('polygon')
+    .attr('fill', '#fff')
+    .attr('stroke', '#111')
+    .attr('stroke-width', 3)
+    .attr('points', '0,0 4,4 8,0')
+
+  const tooltipText = tooltip
+    .append('text')
+    .attr('class', 'tooltip-text')
+    .attr('text-anchor', 'middle')
+
+  tooltipText
+    .append('tspan')
+    .attr('class', 'key')
+    .attr('x', 0)
+    .attr('dy', '1.4em')
+
+  tooltipText
+    .append('tspan')
+    .attr('class', 'value')
+    .attr('x', 0)
+    .attr('dy', '1.4em')
+  
+    
+  barArea
     .selectAll('rect')
     .data(groupByYearData[0].values)
     .enter()
@@ -93,8 +133,34 @@ function drawChart(datas) {
       .attr('y', d => yScale(d.value / 1000))
       .attr('height', d => height - yScale(d.value / 1000))
       .attr('width', d => xScale.bandwidth())
+      .on('mousemove', function(data) {
+        const [x, y] = d3.mouse(this);
+
+        tooltip
+          .selectAll('.key')
+          .text(`年齡層： ${data.key}`)
+
+        tooltip
+          .selectAll('.value')
+          .text(`人口數：${formatNumber(data.value)}`)
+
+        const bbox = tooltipText.node().getBBox();
+
+        toolRect
+          .attr('width', bbox.width + 20)
+          .attr('height', bbox.height + 20)
+          .attr('x', `-${(bbox.width + 20) / 2}`)
+
+        tooltip
+          .attr('opacity', 1)
+          .attr('transform', `translate(${x}, ${yScale(data.value / 1000) - (bbox.height + 45)})`)
+
+        toolTri.attr('transform', `translate(0, ${bbox.height + 20})`)
+      })
+      // .on('mouseout')
 
   $('.topic-title.issue-3').waypoint({
+    offset: '25%',
     handler: function() {
       this.destroy();
       const animation = setInterval((() => {
@@ -114,7 +180,7 @@ function drawChart(datas) {
   function render(currentYear = 1974) {
     const t = d3.transition().duration(500);
     const data = groupByYearData.filter(d => +d.key === currentYear)[0].values;
-    const update = svg.selectAll('rect').data(data);
+    const update = svg.selectAll('g.barArea > rect').data(data);
     const sum = d3.sum(data, d => d.key === '年份' ? 0 : d.value);
     const sumElder = d3.sum(data, d => (d.key !== '年份' && +d.key.split('歲')[0].split('~')[0] >= 65) ? d.value : 0);
 

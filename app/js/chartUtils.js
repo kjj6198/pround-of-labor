@@ -102,7 +102,6 @@ export function generateAxis(xScale, yScale, label = '', xTicks = 10, yTicks = 1
       .call(d3.axisBottom(xScale).ticks(xTicks).tickFormat(d3.format('d')).tickSize(10))
     svg.selectAll('.x.axis text')
       .attr('y', 15)
-      .style('font-size', '12px')
 
     svg
       .append('g')
@@ -221,5 +220,4 @@ export const drawGuideArea = (width, height, options = {}) => (svg, datas) => {
       .attr('class','guide-text')
       .attr('text-anchor', 'middle')
       .attr('color', '#333')
-      .style('font-size', '14px')
 }
