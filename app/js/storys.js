@@ -92,22 +92,6 @@ function drawEvents(events, presidentData) {
     scrollToTarget($target);
   })
 
-  // $('.story').waypoint({
-  //   handler: function() {
-  //     const time = new Date(this.adapter.$element.find('.story-time').text().trim());
-      
-  //     const targetPresident = presidentData.filter(d => {
-  //       return time >= new Date(d['上任日'].trim()) && time <= new Date(d['卸任日'].trim())
-  //     })[0];
-
-  //     if (typeof targetPresident !== 'undefined') {
-  //       $('#chartArea > svg')
-  //         .attr('data-name', targetPresident['名稱'])
-  //         .css('background-image', `url(${targetPresident.image_url})`)
-
-  //     }
-  //   }
-  // });
 }
 
 
