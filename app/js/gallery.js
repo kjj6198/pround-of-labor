@@ -1,11 +1,11 @@
 import "owl.carousel";
 
 const assets = [
-  'labor-image.jpg',
-  'labor-image2.jpg',
-  'labor-image3.jpg',
-  'labor-image4.jpg',
-  'labor-image5.jpg',
+  './img/labor-image.jpg',
+  './img/labor-image2.jpg',
+  './img/labor-image3.jpg',
+  './img/labor-image4.jpg',
+  './img/labor-image5.jpg',
 ];
 
 assets
