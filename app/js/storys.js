@@ -70,6 +70,7 @@ function drawEvents(events) {
     }))
     $storyArea.append(story);
   });
+}
 
 
 d3.queue()
