@@ -1,6 +1,7 @@
 import { generateSVG, generateAxis } from './chartUtils';
 import { FOREIGN_WORKER_URL } from './constants';
 
+import { formatNumber } from './utils';
 import { getDevice } from './media';
 
 class Chart {
@@ -24,11 +25,8 @@ function drawBarChart(chart) {
 
     if (direction === 'in') {
 
-      const tooltipBox = svg
-        .append('g')
-        .attr('class', 'tooltip')
-        .attr('opacity', 0)
-      
+      const tooltipBox = d3.selectAll('.tooltip.foreign');
+
       const tooltipRect = tooltipBox.append('rect')
         .attr('width', 80)
         .attr('height', 30)
@@ -36,34 +34,44 @@ function drawBarChart(chart) {
         .attr('fill-opacity', .8);
 
       const tooltipText = tooltipBox
-        .append('text')
-        .attr('text-anchor', 'middle')
+        .append('text') 
+        .attr('text-anchor', 'start')
         .attr('class', 'tooltip-text')
         .attr('fill', '#fff')
+
+      const tooltipKey = tooltipText
+        .append('tspan')
+        .attr('class', 'text-key')
+        .attr('x', 10)
+        .attr('dy', '1.15em')
+        
+      const tooltipVal = tooltipText
+        .append('tspan')
+        .attr('class', 'text-value')
+        .attr('fill', '#fff')
+        .attr('dy', '1.15em')
+        .attr('x', 10)
 
       
       return function(data) {
         const country = this.parentNode.getAttribute('data-name') || '';
         const [xx, yy] = d3.mouse(this);
 
-        tooltipText
-          .text(`${country} ${data.data[country]}
-            總計：${data.data['總計']}
-          `);
+        tooltipKey.text(`${country} ${formatNumber(+data.data[country])}`)
+
+
+        tooltipVal.text(`總計：${formatNumber(+data.data['總計'])}`)
 
         const bbox = tooltipText.node().getBBox();
         const { width, height } = bbox;
 
         tooltipBox
           .attr('opacity', 1)
-          .attr('transform', `translate(${xx - 15}, ${yy - height})`);
+          .attr('transform', `translate(${xx - 15}, ${yy - (height + 40)})`);
         
         tooltipRect
           .attr('width', width + 20)
-          .attr('height', height + 10)
-          .attr('x', -(width + 20) / 2)
-          .attr('y', -(height + 20) / 2)
-
+          .attr('height', height + 20)
       }
 
     } else {
@@ -78,6 +86,12 @@ function drawBarChart(chart) {
   const t = d3
     .transition()
     .duration(500);
+
+  const tooltipBox = svg
+        .append('g')
+        .attr('class', 'tooltip foreign')
+        .attr('opacity', 0);
+
   
   const group = barArea
     .selectAll('g')
@@ -110,15 +124,15 @@ function drawBarChart(chart) {
       // .attr('y', d => height)
       .attr('height', 0)
       .attr('width', d => xScale.bandwidth())
+      .on('mousemove', handleMouse('in'))
+      .on('mouseleave', handleMouse('out'))
       .transition(t)
       .delay(300)
       .attr('y', d => yScale(d[1]))
       .attr('height', d => yScale(d[0]) - yScale(d[1]))
-    // debugger;
     
     
-    // .on('mousemove', handleMouse('in'))
-    // .on('mouseleave', handleMouse('out'))
+    
 }
 
 function drawChartByYear(year) {

@@ -184,24 +184,6 @@ function drawLineChart(err, datas) {
     .append('g')
     .attr('class', 'guide-box')
 
-  guideBox.append('text').attr('text-anchor', 'middle')
-  
-  guideBox
-    .append('rect')
-    .attr('width', 120)
-    .attr('height', 40)
-    .attr('fill-opacity', .5)
-    .attr('x', -40)
-    .attr('y', -32)
-    .attr('rx', 2)
-    .attr('ry', 2)
-  
-  guideBox
-    .append('polygon')
-    .attr('class', 'arrow-polygon')
-    .attr('transform', 'translate(-8,0)')
-    .attr('points', '8,8 0,0 16,0')
-
   const line = d3.line()
     .x(d => xScale(+d['年份']))
     .y(d => yScale(+d['平均薪資'] / 1000));
@@ -341,3 +323,5 @@ d3.csv('./data/salary.csv', (err, datas) => {
     });
   })();
 });
+
+

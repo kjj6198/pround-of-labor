@@ -37,8 +37,13 @@
   }
 }
 
+.labor-images__content {
+  position: relative;
+}
+
 .owl-stage-outer {
   overflow: hidden;
+
   
   // padding: 1em 3em;
 
@@ -70,3 +75,29 @@
   }
 }
 
+
+.owl-prev,
+.owl-next {
+  width: 3%;
+  height: 100%;
+  top: 0;
+  position: absolute;
+  z-index: 15;
+  display: inline-block;
+  text-indent: -9999px;
+  background-repeat: no-repeat;
+  background-size: 1em;
+  background-position-y: center;
+  background-position-x: center;
+  background-image: url('arrow-right.svg');
+  color: #fff;
+  background-color: transparent;
+}
+
+
+.owl-prev {
+  left: 0;
+  transform: rotate(180deg);
+}
+
+.owl-next { right: 0; }
