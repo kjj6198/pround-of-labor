@@ -513,6 +513,10 @@ img {
   padding: 5%;
   padding-top: 1em;
   position: relative; }
+  @media screen and (min-width: 501px) and (max-width: 900px) {
+    .story-area {
+      width: 55%;
+      margin-left: 45%; } }
   @media screen and (max-width: 500px) {
     .story-area {
       width: 98%;
@@ -660,21 +664,62 @@ img {
 .taiwan-labor-info-chart {
   position: relative; }
 
+.worker-legend {
+  position: absolute;
+  top: 1%;
+  left: 5%;
+  width: 650px;
+  background-color: transparent;
+  pointer-events: none; }
+  .worker-legend p {
+    display: inline-block;
+    margin: 1em; }
+    .worker-legend p:before {
+      content: "\25FC\FE0E";
+      font-size: 1.3em; }
+    .worker-legend p:nth-child(1):before {
+      color: #08bace; }
+    .worker-legend p:nth-child(2):before {
+      color: #7277ac; }
+    .worker-legend p:nth-child(3):before {
+      color: #6d9dc5; }
+    .worker-legend p:nth-child(4):before {
+      color: #80ded9; }
+
 .display-year {
   font-size: 2em; }
 
-#workerChart .x.axis g:nth-child(2n) text {
-  visibility: hidden; }
+#chartArea svg {
+  background-size: 25%;
+  background-repeat: no-repeat;
+  background-position: 6% 50%; }
+  #chartArea svg:before {
+    content: attr(data-name); }
+
+#workerChart {
+  position: relative; }
+  #workerChart text {
+    font-size: 1.1rem; }
+  @media screen and (max-width: 500px) {
+    #workerChart .x.axis g:nth-child(2n) text {
+      visibility: hidden; } }
 
 .legend {
   position: absolute;
-  width: 35%;
+  width: auto;
   right: 10px;
   top: 10%;
   pointer-events: none;
   padding: 2em;
   border: 2px solid #999;
   border-radius: 4px; }
+  .legend p {
+    margin: 0; }
+
+.guide-text {
+  font-size: .9rem;
+  fill-opacity: .8;
+  font-weight: bold; }
 
 .guide-line {
   stroke-width: 2; }
@@ -702,6 +747,9 @@ img {
   padding: 20px;
   top: 0;
   width: 55%; }
+  @media screen and (min-width: 501px) and (max-width: 900px) {
+    .story-chart {
+      width: 45%; } }
   .story-chart.unaffix {
     position: absolute;
     height: 100vh;
@@ -716,11 +764,14 @@ img {
         position: inherit; } }
 
 .elder-chart {
+  position: relative;
   width: 100%;
   margin: 0 auto; }
   .elder-chart text {
     fill: #333;
     font-size: 1rem !important; }
+  .elder-chart .legend span {
+    font-size: 1.4em; }
   @media screen and (max-width: 500px) {
     .elder-chart .x.axis g text {
       visibility: hidden; }
@@ -734,7 +785,7 @@ img {
   fill: #333; }
   @media screen and (min-width: 1300px) {
     .tick text {
-      font-size: 1.5rem; } }
+      font-size: 1.35rem; } }
 
 .tick line {
   stroke: #aaa;
@@ -749,9 +800,6 @@ img {
 .line {
   stroke-linecap: round;
   stroke-linejoin: round; }
-
-#relatedChart text {
-  font-size: 10px; }
 
 #relatedChart .x.axis g text {
   visibility: hidden; }
@@ -772,8 +820,32 @@ img {
   #relatedChart .x.axis g:last-child text {
     visibility: visible;
     font-family: 'Hiragino Kaku Gothic W3 JIS2004', 'Hiragino Kaku Gothic ProN', '\30D2\30E9\30AE\30CE\89D2\30B4   ProN W3', Meiryo, メイリオ, sans-serif;
-    font-size: 10px;
+    font-size: .8rem;
     color: #aaa; }
+
+.display-rate {
+  font-size: 1rem; }
+  @media screen and (max-width: 500px) {
+    .display-rate {
+      font-size: 1rem; } }
+  .display-rate:before {
+    content: "\25FC\FE0E" attr(data-label);
+    font-size: .8em;
+    color: #08bace;
+    display: inline-block;
+    margin-right: .5em; }
+
+.display-elder {
+  font-size: 1rem; }
+  @media screen and (max-width: 500px) {
+    .display-elder {
+      font-size: 1rem; } }
+  .display-elder:before {
+    content: "\25FC\FE0E" attr(data-label);
+    font-size: .8em;
+    color: #7277ac;
+    display: inline-block;
+    margin-right: .5em; }
 
 .labor-topic {
   position: relative;
@@ -883,6 +955,9 @@ img {
     display: inline-block;
     border-bottom: 3px solid #333; }
 
+.labor-images__content {
+  position: relative; }
+
 .owl-stage-outer {
   overflow: hidden; }
   .owl-stage-outer .owl-stage {
@@ -905,8 +980,35 @@ img {
   .gallery-image:hover {
     background-blend-mode: normal; }
 
+.owl-prev,
+.owl-next {
+  width: 3%;
+  height: 100%;
+  top: 0;
+  position: absolute;
+  z-index: 15;
+  display: inline-block;
+  text-indent: -9999px;
+  background-repeat: no-repeat;
+  background-size: 1em;
+  background-position-y: center;
+  background-position-x: center;
+  background-image: url("arrow-right.svg");
+  color: #fff;
+  background-color: transparent; }
+
+.owl-prev {
+  left: 0;
+  transform: rotate(180deg); }
+
+.owl-next {
+  right: 0; }
+
 a {
   color: inherit; }
+
+.number {
+  font-family: "Oswald"; }
 
 body::-webkit-scrollbar {
   display: none; }
@@ -918,6 +1020,16 @@ body::-webkit-scrollbar {
   font-size: 3em;
   letter-spacing: 3px;
   text-shadow: 3px 3px 0 #0199d9, 4px 4px 0 #0199d9, 5px 5px 0 #0199d9, 6px 6px 0 #0199d9, 7px 7px 0 #0199d9, 8px 8px 0 #0199d9, 9px 9px 0 #0199d9, 10px 10px 0 #0199d9, 11px 11px 0 #0199d9, 12px 12px 0 #0199d9, 13px 13px 0 #0199d9, 14px 14px 0 #0199d9, 15px 15px 0 #0199d9, 16px 16px 0 #0199d9, 17px 17px 0 #0199d9, 18px 18px 0 #0199d9, 19px 19px 0 #0199d9, 20px 20px 0 #0199d9; }
+  .bloody-text:after {
+    display: inline-block;
+    width: 2em;
+    height: 2em;
+    content: '';
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: bottom bottom;
+    background-image: url("labor-hand.svg");
+    transform: translateY(1em) rotate(35deg); }
 
 .text-container {
   width: 65%;
@@ -968,7 +1080,8 @@ body::-webkit-scrollbar {
   line-height: 1;
   font-family: Oswald;
   border-radius: 3px;
-  background-color: rgba(125, 125, 125, 0.6); }
+  background-color: rgba(125, 125, 125, 0.6);
+  pointer-events: none; }
   .detail .detail-item.jobless:before {
     color: #27cc95; }
   .detail .detail-item.salary:before {
@@ -1028,6 +1141,9 @@ body::-webkit-scrollbar {
     border-bottom: 1px solid #343434;
     text-align: center;
     font-size: 1.67rem; }
+    @media screen and (min-width: 501px) and (max-width: 900px) {
+      .board .board-title {
+        font-size: 1.05rem; } }
     @media screen and (max-width: 500px) {
       .board .board-title {
         font-size: 0.97rem; } }
@@ -1046,5 +1162,14 @@ body::-webkit-scrollbar {
 .section-seperator {
   border: 1px solid #333;
   margin: 4em 25%; }
+
+.text-center {
+  text-align: center; }
+
+#displayYear {
+  font-size: 2.25rem; }
+  @media screen and (max-width: 500px) {
+    #displayYear {
+      font-size: 1.4rem; } }
 
 /*# sourceMappingURL=bundle.css.map*/
