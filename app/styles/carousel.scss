@@ -1,7 +1,15 @@
+.labor-images-container {
+  background-color: #fff;
+}
+
+.labor-images__title {
+  padding: 3em;
+}
+
 .owl-stage-outer {
   overflow: hidden;
-  background-color: #fff;
-  padding: 1em 3em;
+  
+  // padding: 1em 3em;
 
   .owl-stage { 
     display: flex;
@@ -17,4 +25,15 @@
 .gallery-image {
   margin: 0 1em;
   background-position: center;
+  padding-bottom: 65%; 
+  background-size:cover;
+
+  border-radius: 10px;
+  cursor: pointer;
+
+  &:hover {
+    background-blend-mode: darken;
+    background-color: rgba(125,125,125,.8);
+  }
 }
+

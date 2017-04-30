@@ -319,7 +319,20 @@ d3.csv(SALARY_URL, (err, datas) => {
   drawLineChart(err, datas);
   drawRalatedLineChart(err, datas);
 
-  window.data = {
-    salary: datas,
-  }
+  (function () {
+    const $target = $('.story-timeline');
+    const $chart = $('#taiwanLaborEnv');
+    const unaffix = Math.round($('.js-story-timeline').offset().top + $('.js-story-timeline').height() - window.innerHeight);
+    $(window).on('scroll', e => {
+      const shouldUnAffix = window.pageYOffset >= unaffix;
+
+      if (shouldUnAffix) {
+        $target.removeClass('affix').addClass('unaffix');
+        $chart.removeClass('affix').addClass('unaffix');
+      } else if(window.pageYOffset <= unaffix && $target.hasClass('unaffix')) {
+        $target.removeClass('unaffix').addClass('affix');
+        $chart.removeClass('unaffix').addClass('affix');
+      }
+    });
+  })();
 });

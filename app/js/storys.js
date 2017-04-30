@@ -87,21 +87,4 @@ d3.queue()
   .await((err, eventData, presidentData) => {
     drawEvents(eventData);
     drawStoryTimeline(eventData);
-
-    (function () {
-      const $target = $('.story-timeline');
-      const $chart = $('#taiwanLaborEnv');
-      const unaffix = Math.round($('.js-story-timeline').offset().top + $('.js-story-timeline').height() + window.innerHeight * 2 + window.innerHeight / 2);
-      $(window).on('scroll', e => {
-        const shouldUnAffix = window.pageYOffset >= unaffix;
-
-        if (shouldUnAffix) {
-          $target.removeClass('affix').addClass('unaffix');
-          $chart.removeClass('affix').addClass('unaffix');
-        } else if(window.pageYOffset <= unaffix && $target.hasClass('unaffix')) {
-          $target.removeClass('unaffix').addClass('affix');
-          $chart.removeClass('unaffix').addClass('affix');
-        }
-      });
-    })();
   })

@@ -7,6 +7,7 @@ $colors: (
   color3: rgba(109, 157, 197, 1),
   color4: rgba(128, 222, 217, 1),
   color5: rgba(174, 236, 239, 1), 
+  color6: #ff6565
 );
 
 @function c($key) {
@@ -16,7 +17,7 @@ $colors: (
 }
 
 
-@for $i from 1 through 5 {
+@for $i from 1 through 6 {
   .color-#{$i} {
     fill: map-get($colors, color#{$i});
     background-color: map-get($colors, color#{$i});

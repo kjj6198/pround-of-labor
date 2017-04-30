@@ -73,6 +73,9 @@ function drawBarChart(chart) {
 
   }
 
+  const t = d3
+    .transition()
+    .duration(500);
   
   const group = barArea
     .selectAll('g')
@@ -95,16 +98,25 @@ function drawBarChart(chart) {
             return 'color-1';
         }
       })
-      .attr('data-name', d => d.key)
-    .selectAll('rect')
-    .data(d => d).enter()
+      .attr('data-name', d => d.key);
+
+  const bar = group.selectAll('rect')
+    .data(d => d)
+    .enter()
     .append('rect')
       .attr('x', d => xScale(d.data['年份']))
+      // .attr('y', d => height)
+      .attr('height', 0)
+      .attr('width', d => xScale.bandwidth())
+      .transition(t)
+      .delay(300)
       .attr('y', d => yScale(d[1]))
       .attr('height', d => yScale(d[0]) - yScale(d[1]))
-      .attr('width', d => xScale.bandwidth())
-    .on('mousemove', handleMouse('in'))
-    .on('mouseleave', handleMouse('out'))
+    // debugger;
+    
+    
+    // .on('mousemove', handleMouse('in'))
+    // .on('mouseleave', handleMouse('out'))
 }
 
 function drawChartByYear(year) {
@@ -151,15 +163,14 @@ function drawChart(datas) {
 }
 
 d3.csv(FOREIGN_WORKER_URL, (err, datas) => {
-  $('.topic-title.issue-1').waypoint({
+  $('.topic-title.issue-2').waypoint({
       handler: function(direction) {
-        if (direction === 'up') {
-          drawChart(datas);
-        }
-
+        drawChart(datas);
         this.destroy();
-      }
-  })
+      },
+      triggerOnce: true
+  },
+  )
 })
 
 
