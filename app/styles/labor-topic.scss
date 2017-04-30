@@ -4,19 +4,35 @@
   min-height: 100vh;
   background: #fff;
 
+  .topic-sub {
+    margin-top: 1.5em;
+    font-size: 2em;
+    font-weight: bold;
+    color: #bbb;
+
+    @include for-mobile {
+      margin-top: 1em;
+    }
+  }
+
   .topic-title {
     display: inline-block;
     position: relative;
     z-index: 1;
-    font-size: 2em;
+    
     font-weight: bold;
 
-    margin-bottom: 2em;
+    @include responsive-font-size(x-large);
+    
+    margin: 2rem 0;
+    margin-top: 0;
+    padding-left: .6em;
+    line-height: 1;
+    border-left: .18em solid currentColor;
 
     &:before {
       position: absolute;
       z-index: 0;
-      content: "ISSUE 1";
       text-align: center;
       width: 100%;
       top: 50%;
@@ -34,11 +50,13 @@
     position: absolute;
     z-index: 1;
     right: 20px;
-    top: 30%;
+    top: 6%;
     padding-right: 15px;
     background-color: rgba(#fff, .7);
     border: 2px solid c(word);
     border-radius: 6px;
+
+    pointer-events: none;
     
     ul { padding: 0; list-style: none; }
     li {

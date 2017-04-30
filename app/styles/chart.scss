@@ -4,6 +4,15 @@
   font-size: 2em;
 }
 
+#workerChart {
+  .x.axis {
+    g:nth-child(2n) {
+      text { visibility: hidden; }
+    }
+  }
+}
+
+
 .legend {
   position: absolute;
   width: 35%;
@@ -15,6 +24,10 @@
   border: 2px solid #999;
 
   border-radius: 4px;
+}
+
+.guide-line {
+  stroke-width: 2;
 }
 
 .guide-points {
@@ -38,6 +51,8 @@
   position: relative;
   width: 80%;
   margin: 0 auto;
+
+  @include for-mobile { width: 100%; }
 }
 
 .story-chart {
@@ -52,16 +67,52 @@
     top: calc(100% - 100vh);
     overflow-y: scroll;
   }
+
+  @include for-mobile { 
+    display: block;
+    width: 100%;
+    position: static;
+
+    &.affix {
+      position: inherit;
+    }
+  }
 }
 
 .elder-chart {
-  width: 55%;
+  width: 100%;
+  margin: 0 auto;
+  
+  text { 
+    fill: #333;
+    font-size: 1rem!important;
+  }
+
+  .x.axis {
+    @include for-mobile {
+      g { 
+        text { 
+          visibility: hidden;
+        }
+
+        &:nth-child(5n) {
+          text { 
+            visibility: visible;
+            font-size: .8rem!important;
+          }
+        }
+      }
+    }
+  }
 }
 
 .tick text {
-  font-size: 1.2em;
-  font-weight: bold; 
+  font-size: 1.2rem;
+  // font-weight: bold; 
   font-family: Oswald;
+  fill: #333;
+
+  @include for-large-desktop { font-size: 1.5rem; }
 }
 
 .tick line {

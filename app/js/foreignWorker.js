@@ -1,6 +1,8 @@
 import { generateSVG, generateAxis } from './chartUtils';
 import { FOREIGN_WORKER_URL } from './constants';
 
+import { getDevice } from './media';
+
 class Chart {
   constructor(xScale, yScale, datas, svg) {
     this.xScale = xScale;
@@ -124,15 +126,14 @@ function drawChartByYear(year) {
 }
 
 function drawChart(datas) {
-  console.table(datas);
-  const width = 1600;
-  const height = 400;
+  const width = window.innerWidth;
+  const height = getDevice('desktop') ? 400 : 500;
 
   const svg = generateSVG('#workerChart', width, height, {
     top: 10,
-    bottom: 50,
-    right: 90,
-    left: 90
+    bottom: getDevice('desktop') ? 50 : 30,
+    right: getDevice('desktop') ? 90 : 10,
+    left: getDevice('desktop') ? 90 : 70
   });
 
   const xScale = d3

@@ -1,4 +1,5 @@
 import { numToCurrency } from 'utils';
+
 export const createCommentArea = (text, potision, options = { class: 'comment' }) => (svg) => {
   const comment = svg
     .append('g')
@@ -68,6 +69,12 @@ export function responsivefy(svg) {
   }
 }
 
+export const calcWH = (w, h, margin) => {
+  return {
+    w: w - margin.left - margin.right,
+    h: h - margin.bottom - margin.top
+  }
+}
 
 export const generateSVG = (target, width, height, margin = {
   top: 10,
@@ -93,7 +100,7 @@ export function generateAxis(xScale, yScale, label = '', xTicks = 10, yTicks = 1
         .attr('transform', `translate(0, ${height})`)
         .attr('class', 'x axis')
       .call(d3.axisBottom(xScale).ticks(xTicks).tickFormat(d3.format('d')).tickSize(10))
-    d3.selectAll('.x.axis text')
+    svg.selectAll('.x.axis text')
       .attr('y', 15)
       .style('font-size', '12px')
 
@@ -113,9 +120,10 @@ export function generateAxis(xScale, yScale, label = '', xTicks = 10, yTicks = 1
 }
 
 export const drawDisplayBoard = (data) => {
+  const growRate = (+data["成長幅度"].split('%')[0]).toFixed(2) + '%';
   $('.chart-legend .jobless').text(data['失業率'])
   $('.chart-legend .price-rate').text(data['物價指數'])
-  $('.chart-legend .salary-rate').text(data['成長幅度'])
+  $('.chart-legend .salary-rate').text(growRate)
 }
 
 export const moveGuideline = (datas, options) => (...args) => {
@@ -130,7 +138,7 @@ export const moveGuideline = (datas, options) => (...args) => {
   const values = {
     jobless: data['失業率'],
     priceRate: data['物價指數'],
-    salaryRate: data['成長幅度'].split('%')[0],
+    salaryRate: (+data["成長幅度"].split('%')[0]).toFixed(2),
   };
   
   const points = d3

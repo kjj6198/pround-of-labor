@@ -2,8 +2,39 @@
   background-color: #fff;
 }
 
+.gallery-title {
+  position: absolute;
+  top: calc(50% - .9em);
+  width: 100%;
+  color: #fff;
+  margin: 0;
+
+  letter-spacing: -1px;
+  text-align: center;
+
+  @include responsive-font-size(medium);
+
+  &:before {
+    position: absolute;
+    top: -100%;
+    width: 100%;
+    text-align: center;
+    display: block;
+    content: "ISSUE";    
+  }
+}
+
 .labor-images__title {
-  padding: 3em;
+  padding: 1em 0;
+  
+  text-align: center;
+  margin: 1rem;
+  margin-top: 0;
+
+  span {
+    display: inline-block;
+    border-bottom: 3px solid #333;
+  }
 }
 
 .owl-stage-outer {
@@ -23,6 +54,7 @@
 }
 
 .gallery-image {
+  position: relative;
   margin: 0 1em;
   background-position: center;
   padding-bottom: 65%; 
@@ -30,10 +62,11 @@
 
   border-radius: 10px;
   cursor: pointer;
+  background-blend-mode: darken;
+  background-color: rgba(125,125,125,.8);
 
   &:hover {
-    background-blend-mode: darken;
-    background-color: rgba(125,125,125,.8);
+    background-blend-mode: normal;
   }
 }
 

@@ -86,12 +86,12 @@ module.exports = (env) => {
           exclude: /settings/,
           loaders: env.production ? ExtractTextPlugin.extract({
             use: [
-              'css-loader?sourceMap=true',
+              'css-loader?url=false&sourceMap=true',
               'sass-loader?sourceMap=true'  
             ]
           }) : [
             'style-loader?sourceMap=true',
-            'css-loader?sourceMap=true',
+            'css-loader?url=false&sourceMap=true',
             'sass-loader?sourceMap=true'
           ]
         }

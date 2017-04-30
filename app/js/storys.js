@@ -70,6 +70,12 @@ function drawEvents(events) {
     }))
     $storyArea.append(story);
   });
+
+  $(document).on('click', '#storyTimeline', e=> {
+    const $target = $('.js-story-timeline').find(`[id^="${e.target.textContent.trim()}"]`).first();
+    scrollToTarget($target);    
+
+  })
 }
 
 
@@ -79,11 +85,4 @@ d3.queue()
   .await((err, eventData, presidentData) => {
     drawEvents(eventData);
     drawStoryTimeline(eventData);
-
-    $(document).on('click', '#storyTimeline', e=> {
-      const $target = $('.js-story-timeline').find(`[id^="${e.target.textContent.trim()}"]`).first();
-      // debugger
-      scrollToTarget($target);    
-
-    })
   })

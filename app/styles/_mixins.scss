@@ -30,7 +30,7 @@
   @media screen and (min-width: nth($breakpoint, 1)) { @content; } 
 }
 
-@mixin for-large-desktop($breakpoint: map-get($breakpoints, 'large-destkop')) {
+@mixin for-large-desktop($breakpoint: map-get($breakpoints, 'large-desktop')) {
   @media screen and (min-width: $breakpoint) { @content; }
 }
 
