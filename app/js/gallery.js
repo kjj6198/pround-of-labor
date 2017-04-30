@@ -14,7 +14,7 @@ const assets = [
   },
   {
     text: '高齡化社會',
-    image: 'labor-image4.jpg',
+    image: './img/labor-image4.jpg',
     id: 'elder',
   },
   {
