@@ -1,3 +1,18 @@
+.owl-lazy {
+  background-position: center;
+  background-size: cover;
+
+  @include for-laptop-up {
+    padding-bottom: 25vw;
+  }
+
+  @include for-laptop-down {
+    padding-bottom: 50vw;
+  }
+
+  @include for-mobile { padding-bottom: 250px; }
+}
+
 .labor-images-container {
   background-color: #fff;
 }
