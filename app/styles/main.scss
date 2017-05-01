@@ -79,6 +79,10 @@ body::-webkit-scrollbar {
 
 .container {
   padding: 0 15px;
+
+  @include for-mobile {
+    padding: 0 8px;
+  }
 }
 
 .clearfix {
