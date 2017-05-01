@@ -8,7 +8,6 @@ import { getDevice } from './media';
 
 
 function drawChart(datas) {
-  // debugger;
   const groupByYearData = d3.nest().key(d => d['年份']).entries(datas).map(d => {
     d.values = d3
       .entries(d.values[0])
@@ -158,7 +157,6 @@ function drawChart(datas) {
         toolTri.attr('transform', `translate(0, ${bbox.height + 20})`)
       })
       // .on('mouseout')
-
   $('.topic-title.issue-3').waypoint({
     offset: getDevice('desktop') ? '25%' : 0,
     handler: function() {
@@ -166,7 +164,8 @@ function drawChart(datas) {
       const animation = setInterval((() => {
         let currentYear = 1974;
         return () => {
-          render(currentYear);
+          render(currentYear, datas.filter(d => +d['年份'] === currentYear)[0]);
+
           currentYear++;
 
           if (currentYear === 2016) {
@@ -177,7 +176,7 @@ function drawChart(datas) {
     }
   })
 
-  function render(currentYear = 1974) {
+  function render(currentYear = 1974, datum) {
     const t = d3.transition().duration(500);
     const data = groupByYearData.filter(d => +d.key === currentYear)[0].values;
     const update = svg.selectAll('g.barArea > rect').data(data);
@@ -192,6 +191,8 @@ function drawChart(datas) {
 
     $('#displayYear').text(currentYear);
     $('#displayElder').text(((sumElder / sum) * 100).toFixed(2) + '%');
+   
+    $('#displayBorn').text((datum['出生率'] * 100).toFixed(2) + '%');
 
     d3
       .select('#displayRate')
