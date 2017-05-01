@@ -211,6 +211,27 @@ function drawLineChart(err, datas) {
 
 };
 
+function drawEvent(width, height, transform, text, center) {
+  const eventArea = d3.selectAll('.event-area');
+
+  eventArea
+    .append('rect')
+    .attr('width', width)
+    .attr('transform', `translate(${transform}, 0)`)
+    .attr('height', height)
+    .attr('fill-opacity', .5)
+    .style('fill', 'url(#highlight)');
+  
+  eventArea
+    .append('text')
+    .text(text)
+    .attr('x', center)
+    .attr('y', height)
+    .attr('dy', -22)
+    .attr('text-anchor', 'middle')
+    .attr('class', 'event-text')
+}
+
 function drawRalatedLineChart(err, datas) {
   datas = datas.filter(d => +d['年份'] >= 1981);
 
@@ -257,7 +278,16 @@ function drawRalatedLineChart(err, datas) {
   const options = {
     xScale,
     yScale
-  }
+  };
+
+  const eventArea = svg
+    .append('g')
+    .attr('class', 'event-area');
+
+  drawEvent(xScale(1990) - xScale(1984), height, xScale(1984), '台灣經濟起飛期', xScale(1987));
+  drawEvent(xScale(1999) - xScale(1995), height, xScale(1995), '惡性關廠倒閉', xScale(1997));
+  drawEvent(xScale(2010) - xScale(2008), height, xScale(2008), '金融風暴、22K計畫', xScale(2009));
+
 
   svg
     .append('path')
