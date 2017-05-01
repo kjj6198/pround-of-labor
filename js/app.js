@@ -309,7 +309,13 @@ d3.csv('./data/salary.csv', (err, datas) => {
   (function () {
     const $target = $('.story-timeline');
     const $chart = $('#taiwanLaborEnv');
-    const unaffix = Math.round($target.offset().top + $target.height() - window.innerHeight);
+
+    let unaffix = Math.round($('.js-story-timeline').offset().top + $('.js-story-timeline').height() - window.innerHeight);
+
+    window.onresize = (e) => {
+      unaffix = Math.round($('.js-story-timeline').offset().top + $('.js-story-timeline').height() - window.innerHeight);
+    }
+
     $(window).on('scroll', e => {
       const shouldUnAffix = window.pageYOffset >= unaffix;
 
