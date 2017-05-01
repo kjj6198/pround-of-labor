@@ -2,13 +2,13 @@ import "owl.carousel";
 import { scrollToTarget } from './utils';
 
 const processions = [
-  'procession-1.jpg',
-  'procession-2.jpg',
-  'procession-3.jpg',
-  'procession-4.jpg',
-  'procession-5.jpg',
-  'procession-6.jpg',
-  'procession-7.jpg',
+  './img/procession-1.jpg',
+  './img/procession-2.jpg',
+  './img/procession-3.jpg',
+  './img/procession-4.jpg',
+  './img/procession-5.jpg',
+  './img/procession-6.jpg',
+  './img/procession-7.jpg',
 ];
 
 const assets = [
