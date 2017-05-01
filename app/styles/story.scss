@@ -21,6 +21,7 @@
     right: 0;
     top: 0;
     width: 5vw;
+    min-width: calc(1em + 30px); 
     color: #fff;
     background-color: #27cc95;
     height: 100%;
@@ -28,6 +29,10 @@
     
     @include for-mobile {
       &.affix-top { opacity: 0; }
+    }
+
+    @include for-laptop-down {
+      p { font-size: 14px; }
     }
     
 
