@@ -37,7 +37,7 @@ app.use(require('webpack-hot-middleware')(compiler, {
 }));
 
 app.get('*', function(req, res) {
-  res.sendFile(path.join(__dirname, 'app', 'index.html'));
+  res.sendFile(path.join(__dirname, 'app', 'force.html'));
 });
 
 app.listen(5000, host, function(err) {
