@@ -6,7 +6,15 @@ import "./foreignWorker"
 import "./elderRateChart";
 import { numToCurrency } from './utils';
 import "gallery.js";
-import { normalizeData, generateSVG, generateAxis, drawGuideArea, responsivefy, updateBoardDisplay } from './chartUtils';
+import {
+  normalizeData,
+  generateSVG,
+  generateAxis,
+  drawGuideArea,
+  responsivefy,
+  updateBoardDisplay,
+  initBoardDisplay,
+} from './chartUtils';
 import { getDevice } from './media';
 import { SALARY_URL } from './constants';
 import { colors } from './colors';
@@ -64,6 +72,7 @@ function moveGuideline(year) {
 
 function initFirstDisplay(data, datas, display) {
   updateBoardDisplay(data, normalizeData(datas));
+  initBoardDisplay(datas[0]);
   showSalaryDetail('', data);
   display.text(`${data['年份']}`);
 }
@@ -176,9 +185,7 @@ function drawLineChart(err, datas) {
   const guideCircle = guideGroup
     .append('circle')
     .attr('class', 'guide-circle')
-    .attr('stroke-width', 2)
-    .attr('stroke', 'red')
-    .attr('fill', '#fff');
+    .attr('fill', 'black');
   
   const guideBox = guideGroup
     .append('g')
@@ -205,10 +212,7 @@ function drawLineChart(err, datas) {
     .style('stroke-width', 5)
     .style('fill', 'none')
 
-   
-
     initFirstDisplay(datas.slice(-1)[0], datas, cuurentYearDisplay);
-
 };
 
 function drawEvent(width, height, transform, text, center) {

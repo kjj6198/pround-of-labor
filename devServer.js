@@ -29,15 +29,14 @@ app.use(require('webpack-dev-middleware')(compiler, {
   publicPath: config.output.publicPath
 }));
 
-app.use(express.static(path.join(__dirname, 'app', 'data')));
-app.use(express.static(path.join(__dirname, 'app', 'img')));
+app.use(express.static(path.join(__dirname, 'app')));
 
 app.use(require('webpack-hot-middleware')(compiler, {
   log: () => {}
 }));
 
 app.get('*', function(req, res) {
-  res.sendFile(path.join(__dirname, 'app', 'force.html'));
+  res.sendFile(path.join(__dirname, 'app', 'index.html'));
 });
 
 app.listen(5000, host, function(err) {

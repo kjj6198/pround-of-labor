@@ -6,16 +6,7 @@ import { normalizeData } from './chartUtils';
 function scrollToTarget(target) {
   $('html, body').animate({
     scrollTop: target.offset().top
-  }, 1000, function() {    
-    var $target = $(target);
-    $target.focus();
-    if ($target.is(":focus")) { // Checking if the target was focused
-      return false;
-    } else {
-      $target.attr('tabindex','-1'); // Adding tabindex for elements not focusable
-      $target.focus(); // Set focus again
-    };
-  });
+  }, 500);
   $(target).offset().top
 }
 
@@ -37,7 +28,7 @@ function drawStoryTimeline(datas) {
   `).join(''));
 }
 
-const storyTemplate = ({time, title, description, image_url, caption}) => {  
+const storyTemplate = ({time, title, description, image_url, caption, media }) => {  
 
   if (image_url) {
     
@@ -63,7 +54,9 @@ const storyTemplate = ({time, title, description, image_url, caption}) => {
         <time class="story-time" id="${time}">
           ${time}
         </time>
-        <h4 class="story-title">${title}</h4>
+        <h4 class="story-title">
+          ${media ? `<a href=${media} target="_blank">${title}</a>` : title}
+        </h4>
         <p class="story-content">
           ${simpleFormat(description)}
         </p>
@@ -82,7 +75,8 @@ function drawEvents(events, presidentData) {
       description: event['Description'],
       title: event['Title'],
       image_url: event['Image_url'] || null,
-      caption: event['caption']
+      caption: event['caption'],
+      media: event['Media'],
     }))
     $storyArea.append(story);
   });

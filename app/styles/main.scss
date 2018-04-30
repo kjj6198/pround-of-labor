@@ -173,16 +173,14 @@ body::-webkit-scrollbar {
 }
 
 .board-container {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
 }
 
 .board {
-  width: 31%;
   padding: 10px;
   background-color: #fff;
-  box-shadow: 0 0 2px 1px rgba(100, 100, 100, 0.5);
-  
+  width: 100%;
   @include for-laptop-down {
     font-size: .9rem;
   }
@@ -191,10 +189,10 @@ body::-webkit-scrollbar {
     padding-bottom: .3em;
     border-bottom: 1px solid #343434;
     text-align: center;
-    font-size: f(medium, 'desktop');
+    font-size: 1.25rem;
     
     @include for-tablet {
-      font-size: 1.05rem;
+      font-size: 1rem;
     }
 
     @include for-mobile {

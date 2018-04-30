@@ -158,7 +158,7 @@ function drawChart(datas) {
       })
       // .on('mouseout')
   $('.topic-title.issue-3').waypoint({
-    offset: getDevice('desktop') ? '25%' : 0,
+    offset: getDevice('desktop') ? '30%' : 0,
     handler: function() {
       this.destroy();
       const animation = setInterval((() => {

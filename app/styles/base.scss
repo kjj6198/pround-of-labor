@@ -43,5 +43,10 @@ img {
     background-color: #bbb;
     border: 2px dotted #444;
     content: "url" "(" attr(src) ")";
+    word-break: break-all;
   }
+}
+
+p {
+  font-size: 1.2em;
 }

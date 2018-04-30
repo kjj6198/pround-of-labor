@@ -15,10 +15,23 @@ export const createCommentArea = (text, potision, options = { class: 'comment' }
 
 export const normalizeData = (datas) => d3.nest().key(d => d["年份"]).entries(datas);
 
+export function initBoardDisplay(data) {
+  const jobless = document.querySelector('#jobless > .number');
+  const hours   = document.querySelector('#hours > .number');
+  const price   = document.querySelector('#price > .number');
+  const medium   = document.querySelector('#medium > .number');
+
+  jobless.textContent = parseFloat(data['失業率'], 10) || '無資料';
+  hours.innerHTML = `${parseInt(data['平均工時'])}<small>hr/月</small>`;
+  price.innerHTML = `${numToCurrency(data['平均薪資'])}`;
+  medium.textContent = `${parseInt(data['薪資中位數'], 10) || '無資料'}`;
+}
+
 export function updateBoardDisplay(data, datas) {  
   const jobless = document.querySelector('#jobless > .number');
   const hours   = document.querySelector('#hours > .number');
   const price   = document.querySelector('#price > .number');
+  const medium   = document.querySelector('#medium > .number');
   const prevYear = $('#chartArea').attr('data-current-year');
 
   const [prevData] = datas.filter(d => +d.key === +prevYear);
@@ -32,11 +45,12 @@ export function updateBoardDisplay(data, datas) {
       const joblessRate = d3.interpolate(+prevData.values[0]['失業率'], +data['失業率']);
       const workHours   = d3.interpolate(+prevData.values[0]['平均工時'], +data['平均工時']);
       const salary      = d3.interpolateRound(+prevData.values[0]['平均薪資'], +data['平均薪資']);
-
+      const mediumSalary      = d3.interpolateRound(+prevData.values[0]['薪資中位數'], +data['薪資中位數']);
       return function(t) {
         jobless.textContent = joblessRate(t).toFixed(2) + '%';
-        hours.textContent = workHours(t).toFixed(1);
-        price.innerHTML = `${numToCurrency(salary(t))}<small>hr/月</small>`;
+        hours.innerHTML = `${workHours(t).toFixed(1)}<small>hr/月</small>`;
+        price.innerHTML = `${numToCurrency(salary(t))}`;
+        medium.textContent = `${numToCurrency(mediumSalary(t))}`
       }
     })
 }
