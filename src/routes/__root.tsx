@@ -1,19 +1,40 @@
 import { HeadContent, Scripts, Outlet, createRootRoute } from "@tanstack/react-router";
 import stylesheet from "../styles.css?url";
+import { seo, structuredData } from "../lib/seo";
 const base = import.meta.env.BASE_URL;
+const jsonLd = JSON.stringify(structuredData).replaceAll("<", "\\u003c");
 export const Route = createRootRoute({
   head: () => ({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "勞工大代誌｜工作，值得更好的日常" },
-      {
-        name: "description",
-        content: "從薪資、工時到移工與高齡勞動，用最新官方統計，看見台灣工作的真實樣貌。",
-      },
+      { title: seo.title },
+      { name: "description", content: seo.description },
+      { name: "author", content: seo.author },
+      { name: "robots", content: "index, follow, max-image-preview:large, max-snippet:-1" },
+      { name: "theme-color", content: "oklch(0.966 0.015 94.198)" },
+      { property: "og:type", content: "website" },
+      { property: "og:site_name", content: seo.name },
+      { property: "og:locale", content: seo.locale },
+      { property: "og:url", content: seo.url },
+      { property: "og:title", content: seo.title },
+      { property: "og:description", content: seo.description },
+      { property: "og:image", content: seo.image },
+      { property: "og:image:type", content: "image/png" },
+      { property: "og:image:width", content: "1200" },
+      { property: "og:image:height", content: "630" },
+      { property: "og:image:alt", content: seo.imageAlt },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:site", content: seo.twitter },
+      { name: "twitter:creator", content: seo.twitter },
+      { name: "twitter:title", content: seo.title },
+      { name: "twitter:description", content: seo.description },
+      { name: "twitter:image", content: seo.image },
+      { name: "twitter:image:alt", content: seo.imageAlt },
     ],
     links: [
       { rel: "stylesheet", href: stylesheet },
+      { rel: "canonical", href: seo.url },
       { rel: "icon", href: `${base}brand/labor-hand.svg`, type: "image/svg+xml" },
       {
         rel: "preload",
@@ -28,6 +49,7 @@ export const Route = createRootRoute({
     <html lang="zh-Hant-TW">
       <head>
         <HeadContent />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd }} />
       </head>
       <body>
         <Outlet />
