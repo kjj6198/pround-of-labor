@@ -1,6 +1,6 @@
 # 勞工大代誌
 
-台灣勞動資料專題，重新設計與實作的 2026 版。使用 React 19、TanStack Start、Tailwind CSS 4、Chart.js、Motion for React、Remix icons 與 Vite+。Nitro 提供開發與 Node 伺服器，TanStack Start 在建置時預先產生 HTML，亦可部署至靜態主機。
+台灣勞動資料專題，重新設計與實作的 2026 版。使用 React 19、TanStack Start、Tailwind CSS 4、Chart.js、Motion for React、Remix icons 與 Vite+。以 Cloudflare Workers 部署，TanStack Start 在建置時預先產生 HTML，亦可部署至靜態主機。
 
 ## 開發
 
@@ -79,9 +79,21 @@ npm run data:build
 npm test
 ```
 
+## Cloudflare Workers 部署
+
+`wrangler.jsonc` 設定 Worker 名稱與 `nodejs_compat`，`@cloudflare/vite-plugin` 讓開發與 preview 都跑在 workerd。`npm run build` 產生 `dist/client/`（靜態資產與預先產生的 HTML）與 `dist/server/`（Worker）。
+
+```sh
+npx wrangler login
+npm run deploy      # build + wrangler deploy
+npm run cf-typegen  # 產生 binding 型別
+```
+
+網址不是 GitHub Pages 時，設定 `VITE_SITE_URL` 讓 SEO 的正規網址跟著改。
+
 ## 靜態部署
 
-一般靜態主機可直接使用 `npm run build` 產生的 `.output/public/`。Node SSR 可執行 `node .output/server/index.mjs`。
+一般靜態主機可直接使用 `npm run build` 產生的 `dist/client/`。
 
 GitHub Pages 原網址為 `/pround-of-labor/app/`。使用以下指令建置並整理至 `site/pround-of-labor/app/`，保留原網址。`.github/workflows/pages.yml` 只支援手動執行，不會在每次 push 自動發布。
 

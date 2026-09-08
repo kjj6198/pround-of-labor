@@ -16,7 +16,9 @@
     "fmt": "vp fmt",
     "build:pages": "node scripts/build-pages.mjs",
     "build:og": "node scripts/build-og.mjs",
-    "test:browser": "node scripts/browser-check.mjs"
+    "test:browser": "node scripts/browser-check.mjs",
+    "deploy": "npm run build && wrangler deploy",
+    "cf-typegen": "wrangler types"
   },
   "dependencies": {
     "@remixicon/react": "^4.6.0",
@@ -29,17 +31,18 @@
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.13.0",
+    "@cloudflare/vite-plugin": "^1.54.5",
     "@playwright/test": "^1.58.0",
     "@tailwindcss/vite": "^4.2.0",
     "@types/node": "^24.0.0",
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
     "@vitejs/plugin-react": "^6.0.0",
-    "nitro": "^3.0.260903-beta",
     "tailwindcss": "^4.2.0",
     "typescript": "^5.9.3",
     "vite": "npm:@voidzero-dev/vite-plus-core@0.3.0",
-    "vite-plus": "0.3.0"
+    "vite-plus": "0.3.0",
+    "wrangler": "^4.129.1"
   },
   "overrides": {
     "vite": "npm:@voidzero-dev/vite-plus-core@0.3.0",
@@ -47,5 +50,9 @@
   },
   "engines": {
     "node": ">=22.12.0"
+  },
+  "allowScripts": {
+    "esbuild@0.28.1": true,
+    "workerd@1.20260907.1": true
   }
 }
