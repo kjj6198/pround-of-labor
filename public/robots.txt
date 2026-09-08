@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://kjj6198.github.io/pround-of-labor/app/sitemap.xml
