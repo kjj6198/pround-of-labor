@@ -1,0 +1,13 @@
+{
+  "checkedAt": "2026-09-08",
+  "observations": 507,
+  "checks": [
+    "source SHA-256",
+    "migrant total = valid + invalid",
+    "valid = industry + welfare",
+    "nationalities sum to sector totals",
+    "release spot checks",
+    "population total"
+  ],
+  "status": "passed"
+}
