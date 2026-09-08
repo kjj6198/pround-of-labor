@@ -89,6 +89,18 @@ python -m http.server 4174 --directory site
 # 開啟 http://localhost:4174/pround-of-labor/app/
 ```
 
+## SEO
+
+`src/lib/seo.ts` 存放標題、描述、正規網址與 JSON-LD（`WebSite`、`WebPage`、`Dataset`、`Person`）。`Dataset` 的 `dateModified` 取自 `data/clean.json` 的查核日，`isBasedOn` 取自來源清單，因此資料更新後自動同步。網址預設為 GitHub Pages 的 `https://kjj6198.github.io/pround-of-labor/app/`，改用其他主機時設定 `VITE_SITE_URL` 環境變數。
+
+分享圖為 `public/og-cover.png`（1200×630）。字標、握拳圖或標語變更後重新產生：
+
+```sh
+npm run build:og
+```
+
+`public/sitemap.xml` 的 `lastmod` 需要跟著查核日一起更新。`public/robots.txt` 只在網站位於網域根目錄時生效；GitHub Pages 專案網站的 robots.txt 由 `kjj6198.github.io` 根目錄決定，此檔在該情況下不會被讀取，sitemap 請直接提交至 Search Console。
+
 ## 設計與原作
 
 透過 Orca 檢視 `assault-vdata` 的實際頁面，參考其章節導覽、可互動統計、表格與來源說明。此版使用紙色底、深綠文字與朱紅重點，重新安排原作字標及握拳圖。
