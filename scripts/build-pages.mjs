@@ -9,7 +9,7 @@ execFileSync("npm", ["run", "build"], {
 const destination = "site/pround-of-labor";
 await rm(destination, { recursive: true, force: true });
 await mkdir(`${destination}/app`, { recursive: true });
-await cp(".output/public", `${destination}/app`, { recursive: true });
+await cp("dist/client", `${destination}/app`, { recursive: true });
 await writeFile(`${destination}/.nojekyll`, "");
 await writeFile(
   `${destination}/index.html`,

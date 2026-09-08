@@ -1,7 +1,7 @@
 import { defineConfig } from "vite-plus";
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
+import { cloudflare } from "@cloudflare/vite-plugin";
 import react from "@vitejs/plugin-react";
-import { nitro } from "nitro/vite";
 import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig(({ mode }) => ({
@@ -11,8 +11,8 @@ export default defineConfig(({ mode }) => ({
       ? []
       : [
           tailwindcss(),
+          cloudflare({ viteEnvironment: { name: "ssr" } }),
           tanstackStart({ prerender: { enabled: true, crawlLinks: false } }),
-          nitro({ preset: "node-server" }),
           react(),
         ],
   lint: {
