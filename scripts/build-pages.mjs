@@ -13,7 +13,7 @@ await cp(".output/public", `${destination}/app`, { recursive: true });
 await writeFile(`${destination}/.nojekyll`, "");
 await writeFile(
   `${destination}/index.html`,
-  '<!doctype html><html lang="zh-Hant"><meta charset="utf-8"><meta http-equiv="refresh" content="0;url=app/"><title>勞工大代誌</title><a href="app/">前往勞工大代誌</a></html>',
+  '<!doctype html><html lang="zh-Hant"><meta charset="utf-8"><meta http-equiv="refresh" content="0;url=app/"><meta name="robots" content="noindex,follow"><link rel="canonical" href="https://kjj6198.github.io/pround-of-labor/app/"><title>勞工大代誌</title><a href="app/">前往勞工大代誌</a></html>',
 );
 console.log(
   "Pages artifact: site/pround-of-labor/. Serve site/ locally and visit /pround-of-labor/app/.",
