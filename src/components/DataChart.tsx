@@ -71,7 +71,7 @@ export function DataChart({
               plugins: {
                 legend: { display: false },
                 tooltip: {
-                  backgroundColor: "#292b27",
+                  backgroundColor: "oklch(0.286 0.008 128.764)",
                   padding: 12,
                   callbacks: {
                     label: (c) =>
@@ -84,19 +84,19 @@ export function DataChart({
                   grid: { display: false },
                   border: { display: false },
                   ticks: {
-                    color: "#66675f",
+                    color: "oklch(0.51 0.012 112.616)",
                     maxTicksLimit: 7,
-                    font: { family: "LINE Seed TW", size: 11 },
+                    font: { family: "Space Grotesk", size: 11 },
                     maxRotation: 0,
                   },
                 },
                 y: {
                   beginAtZero: kind === "bar",
                   border: { display: false },
-                  grid: { color: "#dedbd0" },
+                  grid: { color: "oklch(0.891 0.015 94.215)" },
                   ticks: {
-                    color: "#66675f",
-                    font: { family: "LINE Seed TW", size: 11 },
+                    color: "oklch(0.51 0.012 112.616)",
+                    font: { family: "Space Grotesk", size: 11 },
                     maxTicksLimit: 5,
                     callback: (v) => Number(v).toLocaleString("zh-TW"),
                   },

@@ -1,14 +1,12 @@
 import type { ReactNode } from "react";
 import { RiArrowRightUpLine, RiDownloadLine } from "@remixicon/react";
-import { data } from "../lib/data";
-export function Source({ id, children }: { id: string; children?: ReactNode }) {
-  const source = data.sources.find((s) => s.id === id);
-  return source ? (
-    <a className="source-link" href={source.page} target="_blank" rel="noreferrer">
-      {children ?? source.title}
+export function SourceLink({ href, children }: { href: string; children: ReactNode }) {
+  return (
+    <a className="source-link" href={href} target="_blank" rel="noreferrer">
+      {children}
       <RiArrowRightUpLine size={13} />
     </a>
-  ) : null;
+  );
 }
 export function Chapter({
   number,

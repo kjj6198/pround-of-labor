@@ -18,10 +18,48 @@ try {
   const page = await context.newPage();
   page.on("pageerror", (e) => errors.push(e.message));
   await page.goto(base, { waitUntil: "networkidle" });
+  async function verifyStoryCards(columns) {
+    const cards = page.locator(".story-card");
+    for (const card of await cards.all()) {
+      await card.scrollIntoViewIfNeeded();
+      await expect
+        .poll(() => card.locator("img").evaluate((img) => img.complete && img.naturalWidth > 0))
+        .toBe(true);
+    }
+    const boxes = await cards.evaluateAll((elements) =>
+      elements.map((element) => {
+        const { x, y, width, height } = element.getBoundingClientRect();
+        return { x, y, width, height };
+      }),
+    );
+    assert.equal(boxes.filter((box) => Math.abs(box.y - boxes[0].y) < 1).length, columns);
+    assert.ok(
+      boxes.every((box) => Math.abs(box.width - boxes[0].width) < 1),
+      "Equal card widths",
+    );
+    if (columns > 1)
+      assert.ok(
+        boxes.every((box) => Math.abs(box.height - boxes[0].height) < 1),
+        "Equal card heights",
+      );
+    assert.ok(
+      await page
+        .locator(".story-title")
+        .evaluateAll((elements) =>
+          elements.every(
+            (element) =>
+              element.scrollHeight <= element.clientHeight &&
+              element.scrollWidth <= element.clientWidth,
+          ),
+        ),
+      "Unclipped card titles",
+    );
+  }
+  await verifyStoryCards(3);
   await expect(page.locator(".stats-strip")).toContainText("29,500");
   await expect(page.locator(".stats-strip")).toContainText("時薪 196 元");
   assert.equal(await page.locator("#frequency").count(), 0);
-  await expect(page.locator("#start-year")).toHaveValue("2012");
+  assert.equal(await page.locator("#start-year").count(), 0);
   assert.equal(await page.locator("canvas").count(), 3);
   await page.locator("#trends details summary").click();
   await expect(page.locator("#trends table")).toContainText("2012");
@@ -33,8 +71,7 @@ try {
   await page.getByRole("button", { name: "最低工資", exact: true }).click();
   await expect(page.locator("#trends table")).toContainText("28,590");
   await expect(page.locator("#trends .featured-value")).toContainText("29,500");
-  await page.locator("#start-year").selectOption("2020");
-  assert.equal(await page.locator("#trends tbody tr").count(), 6);
+  assert.equal(await page.locator("#trends tbody tr").count(), 14);
   await page.getByLabel("移工統計年度").selectOption("2012");
   await expect(page.locator(".mini-trend")).toContainText("2012 年以來");
   await page.getByLabel("移工統計年度").selectOption("2025");
@@ -57,10 +94,20 @@ try {
   assert.match(csvText, /2025,annual,rate,4.62/);
   assert.match(csvText, /minimumPolicy,2026-01-01,effective-date,minimum,29500/);
   assert.doesNotMatch(csvText, /,monthly,/);
-  await page.getByRole("button", { name: "近年新增" }).click();
-  await expect(page.locator(".stories-count")).toContainText("12 則");
-  await page.getByRole("button", { name: "再看 6 則故事" }).click();
-  assert.equal(await page.locator(".story-card").count(), 12);
+  assert.equal(await page.locator(".story-card").count(), 10);
+  await expect(page.locator(".story-card h3")).toHaveText([
+    "外送專法正式上路",
+    "最低工資有了專法",
+    "明揚工廠爆炸事故",
+    "勞動事件法上路",
+    "華航空服員罷工",
+    "求職天眼通插件推出",
+    "國道收費員的工作轉型抗爭",
+    "捷運工人的潛水夫症",
+    "台鐵司機員罷工",
+    "勞動基準法公布",
+  ]);
+  await verifyStoryCards(3);
   const first = page.getByRole("button", { name: "閱讀：外送專法正式上路" });
   await first.focus();
   await page.keyboard.press("Enter");
@@ -72,7 +119,7 @@ try {
     true,
   );
   await page.keyboard.press("Shift+Tab");
-  await expect(page.getByRole("button", { name: "讀完了，回到故事集" })).toBeFocused();
+  await expect(page.getByRole("button", { name: "回到故事列表" })).toBeFocused();
   await page.keyboard.press("Tab");
   await expect(page.getByRole("button", { name: "關閉故事", exact: true })).toBeFocused();
   await expect(dialog).toContainText("7 月 21 日施行");
@@ -95,30 +142,21 @@ try {
   await expect(dialog).toBeVisible();
   await page.locator(".story-overlay").click({ position: { x: 3, y: 3 } });
   await expect(dialog).toHaveCount(0);
-  await page.getByRole("button", { name: "原作故事" }).click();
-  await expect(page.locator(".stories-count")).toContainText("19 則");
-  while (await page.getByRole("button", { name: /再看.*則故事/ }).count())
-    await page.getByRole("button", { name: /再看.*則故事/ }).click();
-  assert.equal(await page.locator(".story-card").count(), 19);
-  assert.deepEqual((await new AxeBuilder({ page }).analyze()).violations, []);
-  await page.getByLabel("搜尋故事").fill("乾草");
-  assert.equal(await page.locator(".story-card").count(), 1);
-  await page.locator(".story-card").click();
-  await expect(dialog).toContainText("1886.05.04");
+  await page.getByRole("button", { name: "閱讀：勞動基準法公布" }).click();
+  await expect(dialog).toContainText("1984.07.30");
   await dialog.getByText("閱讀原作全文", { exact: true }).click();
-  await expect(dialog).toContainText("1866 / 5 / 1");
-  await expect(dialog).toContainText("總有一日，我們的沈默");
+  await expect(dialog).toContainText("1984 / 7 / 30");
+  await expect(dialog).toContainText("平均每月工時都在 200 小時以上");
   await dialog.evaluate((e) => {
     e.scrollTop = e.scrollHeight;
   });
   assert.ok(await dialog.evaluate((e) => e.scrollTop > 0));
-  await page.getByRole("button", { name: "讀完了，回到故事集" }).click();
+  await page.getByRole("button", { name: "回到故事列表" }).click();
   await expect(dialog).toHaveCount(0);
-  await page.getByLabel("搜尋故事").fill("無此事件XYZ");
-  await expect(page.locator(".stories-empty")).toBeVisible();
-  for (const width of [375, 768, 1440]) {
+  for (const width of [375, 540, 768, 1024, 1440]) {
     await page.setViewportSize({ width, height: 900 });
     await page.goto(base, { waitUntil: "networkidle" });
+    await verifyStoryCards(width <= 540 ? 1 : width <= 800 ? 2 : 3);
     assert.ok(
       await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
       `Overflow at ${width}`,
@@ -168,7 +206,7 @@ try {
   assert.equal(await page.locator("main").evaluate((e) => e.inert), false);
   assert.deepEqual(errors, []);
   console.log(
-    "Browser checks passed: annual data, current minimum, births, filters, tables, CSV, story search and archive, modal focus/scroll/Escape/outside close, mobile, reduced motion, axe accessibility, no runtime errors.",
+    "Browser checks passed: annual data, current minimum, births, filters, tables, CSV, story archive, modal focus/scroll/Escape/outside close, mobile, reduced motion, axe accessibility, no runtime errors.",
   );
 } finally {
   await browser.close();

@@ -1,6 +1,6 @@
 <svg width="87px" height="130px" viewBox="0 0 87 130" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
     <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-        <g id="logo-5" fill-rule="nonzero" fill="#DD5C3E">
+        <g id="logo-5" fill-rule="nonzero" fill="oklch(0.635 0.168 34.478)">
             <polygon id="Shape" points="28.35 20.82 15.83 0.39 7.3 5.61 15.96 19.75 0.53 19.75 0.53 29.75 28.35 29.75"></polygon>
             <polygon id="Shape" points="53.52 54.81 38.52 54.81 38.52 64.81 78.53 64.81 78.53 54.81 63.52 54.81 63.52 34.75 80.53 34.75 80.53 24.75 63.52 24.75 63.52 1.84 53.52 1.84 53.52 24.75 36.52 24.75 36.52 34.75 53.52 34.75"></polygon>
             <path d="M52.28,72.65 L43,72.65 L26.75,88.08 L26.75,71.8 L1,71.8 L1,129.68 L26.72,129.68 L26.72,90.86 L32.23,96.65 L42.23,87.11 L42.23,128.68 L77.48,128.68 L77.48,118.68 L52.28,118.68 L52.28,72.65 Z M16.75,119.65 L11,119.65 L11,81.8 L16.72,81.8 L16.75,119.65 Z" id="Shape"></path>
