@@ -1,0 +1,508 @@
+﻿dataset,period,frequency,measure,value,source,row,column,status
+wages,2012,annual,mean,37195,indicators.xls,7,24,published
+wages,2012,annual,median,,wages.ods,,,not-in-source
+wages,2013,annual,mean,37557,indicators.xls,8,24,published
+wages,2013,annual,median,,wages.ods,,,not-in-source
+wages,2014,annual,mean,38220,indicators.xls,9,24,published
+wages,2014,annual,median,,wages.ods,,,not-in-source
+wages,2015,annual,mean,38717,indicators.xls,10,24,published
+wages,2015,annual,median,,wages.ods,,,not-in-source
+wages,2016,annual,mean,39217,indicators.xls,11,24,published
+wages,2016,annual,median,,wages.ods,,,not-in-source
+wages,2017,annual,mean,39937,indicators.xls,12,24,published
+wages,2017,annual,median,,wages.ods,,,not-in-source
+wages,2018,annual,mean,40949,indicators.xls,13,24,published
+wages,2018,annual,median,,wages.ods,,,not-in-source
+wages,2019,annual,mean,41700,indicators.xls,14,24,published
+wages,2019,annual,median,,wages.ods,,,not-in-source
+wages,2020,annual,mean,42281,wages.ods,5,2,published
+wages,2020,annual,median,33910,wages.ods,6,2,published
+wages,2021,annual,mean,43045,wages.ods,8,2,published
+wages,2021,annual,median,34531,wages.ods,9,2,published
+wages,2022,annual,mean,44210,wages.ods,11,2,published
+wages,2022,annual,median,35167,wages.ods,12,2,published
+wages,2023,annual,mean,45197,wages.ods,14,2,published
+wages,2023,annual,median,36085,wages.ods,15,2,published
+wages,2024,annual,mean,46450,wages.ods,17,2,published
+wages,2024,annual,median,37275,wages.ods,18,2,published
+wages,2025,annual,mean,47885,wages.ods,20,2,published
+wages,2025,annual,median,38407,wages.ods,21,2,published
+indicators,2012,annual,cpi,1.93,indicators.xls,7,19,published
+indicators,2012,annual,minimum,18780,indicators.xls,7,20,published
+indicators,2012,annual,hourlyMinimum,103,indicators.xls,7,21,published
+indicators,2012,annual,totalSalary,46075,indicators.xls,7,22,published
+indicators,2012,annual,mean,37195,indicators.xls,7,24,published
+indicators,2012,annual,hours,178.4,indicators.xls,7,30,published
+indicators,2012,annual,normalHours,170.4,indicators.xls,7,32,published
+indicators,2013,annual,cpi,0.8,indicators.xls,8,19,published
+indicators,2013,annual,minimum,19047,indicators.xls,8,20,published
+indicators,2013,annual,hourlyMinimum,109,indicators.xls,8,21,published
+indicators,2013,annual,totalSalary,46087,indicators.xls,8,22,published
+indicators,2013,annual,mean,37557,indicators.xls,8,24,published
+indicators,2013,annual,hours,177,indicators.xls,8,30,published
+indicators,2013,annual,normalHours,168.6,indicators.xls,8,32,published
+indicators,2014,annual,cpi,1.2,indicators.xls,9,19,published
+indicators,2014,annual,minimum,19273,indicators.xls,9,20,published
+indicators,2014,annual,hourlyMinimum,115,indicators.xls,9,21,published
+indicators,2014,annual,totalSalary,47744,indicators.xls,9,22,published
+indicators,2014,annual,mean,38220,indicators.xls,9,24,published
+indicators,2014,annual,hours,177.9,indicators.xls,9,30,published
+indicators,2014,annual,normalHours,169.3,indicators.xls,9,32,published
+indicators,2015,annual,cpi,-0.31,indicators.xls,10,19,published
+indicators,2015,annual,minimum,20008,indicators.xls,10,20,published
+indicators,2015,annual,hourlyMinimum,120,indicators.xls,10,21,published
+indicators,2015,annual,totalSalary,48956,indicators.xls,10,22,published
+indicators,2015,annual,mean,38717,indicators.xls,10,24,published
+indicators,2015,annual,hours,175.4,indicators.xls,10,30,published
+indicators,2015,annual,normalHours,167.1,indicators.xls,10,32,published
+indicators,2016,annual,cpi,1.4,indicators.xls,11,19,published
+indicators,2016,annual,minimum,20008,indicators.xls,11,20,published
+indicators,2016,annual,hourlyMinimum,126,indicators.xls,11,21,published
+indicators,2016,annual,totalSalary,49257,indicators.xls,11,22,published
+indicators,2016,annual,mean,39217,indicators.xls,11,24,published
+indicators,2016,annual,hours,169.6,indicators.xls,11,30,published
+indicators,2016,annual,normalHours,161.1,indicators.xls,11,32,published
+indicators,2017,annual,cpi,0.62,indicators.xls,12,19,published
+indicators,2017,annual,minimum,21009,indicators.xls,12,20,published
+indicators,2017,annual,hourlyMinimum,133,indicators.xls,12,21,published
+indicators,2017,annual,totalSalary,50634,indicators.xls,12,22,published
+indicators,2017,annual,mean,39937,indicators.xls,12,24,published
+indicators,2017,annual,hours,169.5,indicators.xls,12,30,published
+indicators,2017,annual,normalHours,161.6,indicators.xls,12,32,published
+indicators,2018,annual,cpi,1.36,indicators.xls,13,19,published
+indicators,2018,annual,minimum,22000,indicators.xls,13,20,published
+indicators,2018,annual,hourlyMinimum,140,indicators.xls,13,21,published
+indicators,2018,annual,totalSalary,52468,indicators.xls,13,22,published
+indicators,2018,annual,mean,40949,indicators.xls,13,24,published
+indicators,2018,annual,hours,169.4,indicators.xls,13,30,published
+indicators,2018,annual,normalHours,161.4,indicators.xls,13,32,published
+indicators,2019,annual,cpi,0.55,indicators.xls,14,19,published
+indicators,2019,annual,minimum,23100,indicators.xls,14,20,published
+indicators,2019,annual,hourlyMinimum,150,indicators.xls,14,21,published
+indicators,2019,annual,totalSalary,53551,indicators.xls,14,22,published
+indicators,2019,annual,mean,41700,indicators.xls,14,24,published
+indicators,2019,annual,hours,168.8,indicators.xls,14,30,published
+indicators,2019,annual,normalHours,161.1,indicators.xls,14,32,published
+indicators,2020,annual,cpi,-0.23,indicators.xls,15,19,published
+indicators,2020,annual,minimum,23800,indicators.xls,15,20,published
+indicators,2020,annual,hourlyMinimum,158,indicators.xls,15,21,published
+indicators,2020,annual,totalSalary,54278,indicators.xls,15,22,published
+indicators,2020,annual,mean,42281,indicators.xls,15,24,published
+indicators,2020,annual,hours,168.3,indicators.xls,15,30,published
+indicators,2020,annual,normalHours,161,indicators.xls,15,32,published
+indicators,2021,annual,cpi,1.97,indicators.xls,16,19,published
+indicators,2021,annual,minimum,24000,indicators.xls,16,20,published
+indicators,2021,annual,hourlyMinimum,160,indicators.xls,16,21,published
+indicators,2021,annual,totalSalary,56127,indicators.xls,16,22,published
+indicators,2021,annual,mean,43045,indicators.xls,16,24,published
+indicators,2021,annual,hours,166.6,indicators.xls,16,30,published
+indicators,2021,annual,normalHours,158.7,indicators.xls,16,32,published
+indicators,2022,annual,cpi,2.95,indicators.xls,17,19,published
+indicators,2022,annual,minimum,25250,indicators.xls,17,20,published
+indicators,2022,annual,hourlyMinimum,168,indicators.xls,17,21,published
+indicators,2022,annual,totalSalary,58042,indicators.xls,17,22,published
+indicators,2022,annual,mean,44210,indicators.xls,17,24,published
+indicators,2022,annual,hours,167.1,indicators.xls,17,30,published
+indicators,2022,annual,normalHours,159.4,indicators.xls,17,32,published
+indicators,2023,annual,cpi,2.49,indicators.xls,18,19,published
+indicators,2023,annual,minimum,26400,indicators.xls,18,20,published
+indicators,2023,annual,hourlyMinimum,176,indicators.xls,18,21,published
+indicators,2023,annual,totalSalary,58420,indicators.xls,18,22,published
+indicators,2023,annual,mean,45197,indicators.xls,18,24,published
+indicators,2023,annual,hours,168.3,indicators.xls,18,30,published
+indicators,2023,annual,normalHours,160.3,indicators.xls,18,32,published
+indicators,2024,annual,cpi,2.18,indicators.xls,19,19,published
+indicators,2024,annual,minimum,27470,indicators.xls,19,20,published
+indicators,2024,annual,hourlyMinimum,183,indicators.xls,19,21,published
+indicators,2024,annual,totalSalary,61002,indicators.xls,19,22,published
+indicators,2024,annual,mean,46450,indicators.xls,19,24,published
+indicators,2024,annual,hours,169.2,indicators.xls,19,30,published
+indicators,2024,annual,normalHours,160.7,indicators.xls,19,32,published
+indicators,2025,annual,cpi,1.66,indicators.xls,20,19,published
+indicators,2025,annual,minimum,28590,indicators.xls,20,20,published
+indicators,2025,annual,hourlyMinimum,190,indicators.xls,20,21,published
+indicators,2025,annual,totalSalary,63383,indicators.xls,20,22,published
+indicators,2025,annual,mean,47885,indicators.xls,20,24,published
+indicators,2025,annual,hours,168.9,indicators.xls,20,30,published
+indicators,2025,annual,normalHours,160.1,indicators.xls,20,32,published
+unemployment,2012,annual,total,4.24,unemployment.xls,8,3,published
+unemployment,2012,annual,youth,12.66,unemployment.xls,8,11,published
+unemployment,2012,annual,male,4.49,unemployment.xls,8,15,published
+unemployment,2012,annual,female,3.92,unemployment.xls,8,16,published
+unemployment,2013,annual,total,4.18,unemployment.xls,9,3,published
+unemployment,2013,annual,youth,13.17,unemployment.xls,9,11,published
+unemployment,2013,annual,male,4.47,unemployment.xls,9,15,published
+unemployment,2013,annual,female,3.8,unemployment.xls,9,16,published
+unemployment,2014,annual,total,3.96,unemployment.xls,10,3,published
+unemployment,2014,annual,youth,12.63,unemployment.xls,10,11,published
+unemployment,2014,annual,male,4.27,unemployment.xls,10,15,published
+unemployment,2014,annual,female,3.56,unemployment.xls,10,16,published
+unemployment,2015,annual,total,3.78,unemployment.xls,11,3,published
+unemployment,2015,annual,youth,12.05,unemployment.xls,11,11,published
+unemployment,2015,annual,male,4.05,unemployment.xls,11,15,published
+unemployment,2015,annual,female,3.44,unemployment.xls,11,16,published
+unemployment,2016,annual,total,3.92,unemployment.xls,12,3,published
+unemployment,2016,annual,youth,12.12,unemployment.xls,12,11,published
+unemployment,2016,annual,male,4.19,unemployment.xls,12,15,published
+unemployment,2016,annual,female,3.57,unemployment.xls,12,16,published
+unemployment,2017,annual,total,3.76,unemployment.xls,13,3,published
+unemployment,2017,annual,youth,11.92,unemployment.xls,13,11,published
+unemployment,2017,annual,male,4,unemployment.xls,13,15,published
+unemployment,2017,annual,female,3.45,unemployment.xls,13,16,published
+unemployment,2018,annual,total,3.71,unemployment.xls,14,3,published
+unemployment,2018,annual,youth,11.54,unemployment.xls,14,11,published
+unemployment,2018,annual,male,3.89,unemployment.xls,14,15,published
+unemployment,2018,annual,female,3.48,unemployment.xls,14,16,published
+unemployment,2019,annual,total,3.73,unemployment.xls,15,3,published
+unemployment,2019,annual,youth,11.88,unemployment.xls,15,11,published
+unemployment,2019,annual,male,3.85,unemployment.xls,15,15,published
+unemployment,2019,annual,female,3.58,unemployment.xls,15,16,published
+unemployment,2020,annual,total,3.85,unemployment.xls,16,3,published
+unemployment,2020,annual,youth,11.61,unemployment.xls,16,11,published
+unemployment,2020,annual,male,3.92,unemployment.xls,16,15,published
+unemployment,2020,annual,female,3.76,unemployment.xls,16,16,published
+unemployment,2021,annual,total,3.95,unemployment.xls,17,3,published
+unemployment,2021,annual,youth,12.11,unemployment.xls,17,11,published
+unemployment,2021,annual,male,3.98,unemployment.xls,17,15,published
+unemployment,2021,annual,female,3.92,unemployment.xls,17,16,published
+unemployment,2022,annual,total,3.67,unemployment.xls,18,3,published
+unemployment,2022,annual,youth,11.97,unemployment.xls,18,11,published
+unemployment,2022,annual,male,3.68,unemployment.xls,18,15,published
+unemployment,2022,annual,female,3.64,unemployment.xls,18,16,published
+unemployment,2023,annual,total,3.48,unemployment.xls,19,3,published
+unemployment,2023,annual,youth,11.39,unemployment.xls,19,11,published
+unemployment,2023,annual,male,3.49,unemployment.xls,19,15,published
+unemployment,2023,annual,female,3.47,unemployment.xls,19,16,published
+unemployment,2024,annual,total,3.38,unemployment.xls,20,3,published
+unemployment,2024,annual,youth,11.27,unemployment.xls,20,11,published
+unemployment,2024,annual,male,3.37,unemployment.xls,20,15,published
+unemployment,2024,annual,female,3.4,unemployment.xls,20,16,published
+unemployment,2025,annual,total,3.35,unemployment.xls,21,3,published
+unemployment,2025,annual,youth,11.32,unemployment.xls,21,11,published
+unemployment,2025,annual,male,3.37,unemployment.xls,21,15,published
+unemployment,2025,annual,female,3.33,unemployment.xls,21,16,published
+migrants,2012,annual,"{'value': 242885, 'source': 'migrants.xls', 'row': 8, 'column': 6, 'status': 'published'}",445579,migrants.xls,8,4,published
+migrants,2012,annual,"{'value': 242885, 'source': 'migrants.xls', 'row': 8, 'column': 6, 'status': 'published'}",445579,migrants.xls,8,5,published
+migrants,2012,annual,"{'value': 242885, 'source': 'migrants.xls', 'row': 8, 'column': 6, 'status': 'published'}",242885,migrants.xls,8,6,published
+migrants,2012,annual,"{'value': 242885, 'source': 'migrants.xls', 'row': 8, 'column': 6, 'status': 'published'}",202694,migrants.xls,8,12,published
+migrants,2012,annual,"{'value': 242885, 'source': 'migrants.xls', 'row': 8, 'column': 6, 'status': 'published'}",0,migrants.xls,8,18,published
+migrants,2012,annual,"{'value': 242885, 'source': 'migrants.xls', 'row': 8, 'column': 6, 'status': 'published'}",33724,migrants.xls,8,7,published
+migrants,2012,annual,"{'value': 242885, 'source': 'migrants.xls', 'row': 8, 'column': 6, 'status': 'published'}",63865,migrants.xls,8,8,published
+migrants,2012,annual,"{'value': 242885, 'source': 'migrants.xls', 'row': 8, 'column': 6, 'status': 'published'}",66741,migrants.xls,8,9,published
+migrants,2012,annual,"{'value': 242885, 'source': 'migrants.xls', 'row': 8, 'column': 6, 'status': 'published'}",78551,migrants.xls,8,10,published
+migrants,2012,annual,"{'value': 242885, 'source': 'migrants.xls', 'row': 8, 'column': 6, 'status': 'published'}",4,migrants.xls,8,11,published
+migrants,2012,annual,"{'value': 242885, 'source': 'migrants.xls', 'row': 8, 'column': 6, 'status': 'published'}",157403,migrants.xls,8,13,published
+migrants,2012,annual,"{'value': 242885, 'source': 'migrants.xls', 'row': 8, 'column': 6, 'status': 'published'}",22921,migrants.xls,8,14,published
+migrants,2012,annual,"{'value': 242885, 'source': 'migrants.xls', 'row': 8, 'column': 6, 'status': 'published'}",870,migrants.xls,8,15,published
+migrants,2012,annual,"{'value': 242885, 'source': 'migrants.xls', 'row': 8, 'column': 6, 'status': 'published'}",21499,migrants.xls,8,16,published
+migrants,2012,annual,"{'value': 242885, 'source': 'migrants.xls', 'row': 8, 'column': 6, 'status': 'published'}",1,migrants.xls,8,17,published
+migrants,2013,annual,"{'value': 278919, 'source': 'migrants.xls', 'row': 9, 'column': 6, 'status': 'published'}",489134,migrants.xls,9,4,published
+migrants,2013,annual,"{'value': 278919, 'source': 'migrants.xls', 'row': 9, 'column': 6, 'status': 'published'}",489134,migrants.xls,9,5,published
+migrants,2013,annual,"{'value': 278919, 'source': 'migrants.xls', 'row': 9, 'column': 6, 'status': 'published'}",278919,migrants.xls,9,6,published
+migrants,2013,annual,"{'value': 278919, 'source': 'migrants.xls', 'row': 9, 'column': 6, 'status': 'published'}",210215,migrants.xls,9,12,published
+migrants,2013,annual,"{'value': 278919, 'source': 'migrants.xls', 'row': 9, 'column': 6, 'status': 'published'}",0,migrants.xls,9,18,published
+migrants,2013,annual,"{'value': 278919, 'source': 'migrants.xls', 'row': 9, 'column': 6, 'status': 'published'}",45919,migrants.xls,9,7,published
+migrants,2013,annual,"{'value': 278919, 'source': 'migrants.xls', 'row': 9, 'column': 6, 'status': 'published'}",67442,migrants.xls,9,8,published
+migrants,2013,annual,"{'value': 278919, 'source': 'migrants.xls', 'row': 9, 'column': 6, 'status': 'published'}",60964,migrants.xls,9,9,published
+migrants,2013,annual,"{'value': 278919, 'source': 'migrants.xls', 'row': 9, 'column': 6, 'status': 'published'}",104590,migrants.xls,9,10,published
+migrants,2013,annual,"{'value': 278919, 'source': 'migrants.xls', 'row': 9, 'column': 6, 'status': 'published'}",4,migrants.xls,9,11,published
+migrants,2013,annual,"{'value': 278919, 'source': 'migrants.xls', 'row': 9, 'column': 6, 'status': 'published'}",167315,migrants.xls,9,13,published
+migrants,2013,annual,"{'value': 278919, 'source': 'migrants.xls', 'row': 9, 'column': 6, 'status': 'published'}",21582,migrants.xls,9,14,published
+migrants,2013,annual,"{'value': 278919, 'source': 'migrants.xls', 'row': 9, 'column': 6, 'status': 'published'}",745,migrants.xls,9,15,published
+migrants,2013,annual,"{'value': 278919, 'source': 'migrants.xls', 'row': 9, 'column': 6, 'status': 'published'}",20572,migrants.xls,9,16,published
+migrants,2013,annual,"{'value': 278919, 'source': 'migrants.xls', 'row': 9, 'column': 6, 'status': 'published'}",1,migrants.xls,9,17,published
+migrants,2014,annual,"{'value': 331585, 'source': 'migrants.xls', 'row': 10, 'column': 6, 'status': 'published'}",551596,migrants.xls,10,4,published
+migrants,2014,annual,"{'value': 331585, 'source': 'migrants.xls', 'row': 10, 'column': 6, 'status': 'published'}",551596,migrants.xls,10,5,published
+migrants,2014,annual,"{'value': 331585, 'source': 'migrants.xls', 'row': 10, 'column': 6, 'status': 'published'}",331585,migrants.xls,10,6,published
+migrants,2014,annual,"{'value': 331585, 'source': 'migrants.xls', 'row': 10, 'column': 6, 'status': 'published'}",220011,migrants.xls,10,12,published
+migrants,2014,annual,"{'value': 331585, 'source': 'migrants.xls', 'row': 10, 'column': 6, 'status': 'published'}",0,migrants.xls,10,18,published
+migrants,2014,annual,"{'value': 331585, 'source': 'migrants.xls', 'row': 10, 'column': 6, 'status': 'published'}",54907,migrants.xls,10,7,published
+migrants,2014,annual,"{'value': 331585, 'source': 'migrants.xls', 'row': 10, 'column': 6, 'status': 'published'}",86749,migrants.xls,10,8,published
+migrants,2014,annual,"{'value': 331585, 'source': 'migrants.xls', 'row': 10, 'column': 6, 'status': 'published'}",59267,migrants.xls,10,9,published
+migrants,2014,annual,"{'value': 331585, 'source': 'migrants.xls', 'row': 10, 'column': 6, 'status': 'published'}",130658,migrants.xls,10,10,published
+migrants,2014,annual,"{'value': 331585, 'source': 'migrants.xls', 'row': 10, 'column': 6, 'status': 'published'}",4,migrants.xls,10,11,published
+migrants,2014,annual,"{'value': 331585, 'source': 'migrants.xls', 'row': 10, 'column': 6, 'status': 'published'}",174584,migrants.xls,10,13,published
+migrants,2014,annual,"{'value': 331585, 'source': 'migrants.xls', 'row': 10, 'column': 6, 'status': 'published'}",24784,migrants.xls,10,14,published
+migrants,2014,annual,"{'value': 331585, 'source': 'migrants.xls', 'row': 10, 'column': 6, 'status': 'published'}",666,migrants.xls,10,15,published
+migrants,2014,annual,"{'value': 331585, 'source': 'migrants.xls', 'row': 10, 'column': 6, 'status': 'published'}",19974,migrants.xls,10,16,published
+migrants,2014,annual,"{'value': 331585, 'source': 'migrants.xls', 'row': 10, 'column': 6, 'status': 'published'}",3,migrants.xls,10,17,published
+migrants,2015,annual,"{'value': 336363, 'source': 'migrants.xls', 'row': 11, 'column': 6, 'status': 'published'}",587940,migrants.xls,11,4,published
+migrants,2015,annual,"{'value': 336363, 'source': 'migrants.xls', 'row': 11, 'column': 6, 'status': 'published'}",528095,migrants.xls,11,5,published
+migrants,2015,annual,"{'value': 336363, 'source': 'migrants.xls', 'row': 11, 'column': 6, 'status': 'published'}",336363,migrants.xls,11,6,published
+migrants,2015,annual,"{'value': 336363, 'source': 'migrants.xls', 'row': 11, 'column': 6, 'status': 'published'}",191732,migrants.xls,11,12,published
+migrants,2015,annual,"{'value': 336363, 'source': 'migrants.xls', 'row': 11, 'column': 6, 'status': 'published'}",59845,migrants.xls,11,18,published
+migrants,2015,annual,"{'value': 336363, 'source': 'migrants.xls', 'row': 11, 'column': 6, 'status': 'published'}",54618,migrants.xls,11,7,published
+migrants,2015,annual,"{'value': 336363, 'source': 'migrants.xls', 'row': 11, 'column': 6, 'status': 'published'}",94876,migrants.xls,11,8,published
+migrants,2015,annual,"{'value': 336363, 'source': 'migrants.xls', 'row': 11, 'column': 6, 'status': 'published'}",56821,migrants.xls,11,9,published
+migrants,2015,annual,"{'value': 336363, 'source': 'migrants.xls', 'row': 11, 'column': 6, 'status': 'published'}",130048,migrants.xls,11,10,published
+migrants,2015,annual,"{'value': 336363, 'source': 'migrants.xls', 'row': 11, 'column': 6, 'status': 'published'}",0,migrants.xls,11,11,published
+migrants,2015,annual,"{'value': 336363, 'source': 'migrants.xls', 'row': 11, 'column': 6, 'status': 'published'}",154023,migrants.xls,11,13,published
+migrants,2015,annual,"{'value': 336363, 'source': 'migrants.xls', 'row': 11, 'column': 6, 'status': 'published'}",24267,migrants.xls,11,14,published
+migrants,2015,annual,"{'value': 336363, 'source': 'migrants.xls', 'row': 11, 'column': 6, 'status': 'published'}",479,migrants.xls,11,15,published
+migrants,2015,annual,"{'value': 336363, 'source': 'migrants.xls', 'row': 11, 'column': 6, 'status': 'published'}",12961,migrants.xls,11,16,published
+migrants,2015,annual,"{'value': 336363, 'source': 'migrants.xls', 'row': 11, 'column': 6, 'status': 'published'}",2,migrants.xls,11,17,published
+migrants,2016,annual,"{'value': 357997, 'source': 'migrants.xls', 'row': 12, 'column': 6, 'status': 'published'}",624768,migrants.xls,12,4,published
+migrants,2016,annual,"{'value': 357997, 'source': 'migrants.xls', 'row': 12, 'column': 6, 'status': 'published'}",562017,migrants.xls,12,5,published
+migrants,2016,annual,"{'value': 357997, 'source': 'migrants.xls', 'row': 12, 'column': 6, 'status': 'published'}",357997,migrants.xls,12,6,published
+migrants,2016,annual,"{'value': 357997, 'source': 'migrants.xls', 'row': 12, 'column': 6, 'status': 'published'}",204020,migrants.xls,12,12,published
+migrants,2016,annual,"{'value': 357997, 'source': 'migrants.xls', 'row': 12, 'column': 6, 'status': 'published'}",62751,migrants.xls,12,18,published
+migrants,2016,annual,"{'value': 357997, 'source': 'migrants.xls', 'row': 12, 'column': 6, 'status': 'published'}",56793,migrants.xls,12,7,published
+migrants,2016,annual,"{'value': 357997, 'source': 'migrants.xls', 'row': 12, 'column': 6, 'status': 'published'}",104946,migrants.xls,12,8,published
+migrants,2016,annual,"{'value': 357997, 'source': 'migrants.xls', 'row': 12, 'column': 6, 'status': 'published'}",57308,migrants.xls,12,9,published
+migrants,2016,annual,"{'value': 357997, 'source': 'migrants.xls', 'row': 12, 'column': 6, 'status': 'published'}",138950,migrants.xls,12,10,published
+migrants,2016,annual,"{'value': 357997, 'source': 'migrants.xls', 'row': 12, 'column': 6, 'status': 'published'}",0,migrants.xls,12,11,published
+migrants,2016,annual,"{'value': 357997, 'source': 'migrants.xls', 'row': 12, 'column': 6, 'status': 'published'}",159555,migrants.xls,12,13,published
+migrants,2016,annual,"{'value': 357997, 'source': 'migrants.xls', 'row': 12, 'column': 6, 'status': 'published'}",27077,migrants.xls,12,14,published
+migrants,2016,annual,"{'value': 357997, 'source': 'migrants.xls', 'row': 12, 'column': 6, 'status': 'published'}",478,migrants.xls,12,15,published
+migrants,2016,annual,"{'value': 357997, 'source': 'migrants.xls', 'row': 12, 'column': 6, 'status': 'published'}",16909,migrants.xls,12,16,published
+migrants,2016,annual,"{'value': 357997, 'source': 'migrants.xls', 'row': 12, 'column': 6, 'status': 'published'}",1,migrants.xls,12,17,published
+migrants,2017,annual,"{'value': 398295, 'source': 'migrants.xls', 'row': 13, 'column': 6, 'status': 'published'}",676142,migrants.xls,13,4,published
+migrants,2017,annual,"{'value': 398295, 'source': 'migrants.xls', 'row': 13, 'column': 6, 'status': 'published'}",615168,migrants.xls,13,5,published
+migrants,2017,annual,"{'value': 398295, 'source': 'migrants.xls', 'row': 13, 'column': 6, 'status': 'published'}",398295,migrants.xls,13,6,published
+migrants,2017,annual,"{'value': 398295, 'source': 'migrants.xls', 'row': 13, 'column': 6, 'status': 'published'}",216873,migrants.xls,13,12,published
+migrants,2017,annual,"{'value': 398295, 'source': 'migrants.xls', 'row': 13, 'column': 6, 'status': 'published'}",60974,migrants.xls,13,18,published
+migrants,2017,annual,"{'value': 398295, 'source': 'migrants.xls', 'row': 13, 'column': 6, 'status': 'published'}",62246,migrants.xls,13,7,published
+migrants,2017,annual,"{'value': 398295, 'source': 'migrants.xls', 'row': 13, 'column': 6, 'status': 'published'}",116998,migrants.xls,13,8,published
+migrants,2017,annual,"{'value': 398295, 'source': 'migrants.xls', 'row': 13, 'column': 6, 'status': 'published'}",59709,migrants.xls,13,9,published
+migrants,2017,annual,"{'value': 398295, 'source': 'migrants.xls', 'row': 13, 'column': 6, 'status': 'published'}",159342,migrants.xls,13,10,published
+migrants,2017,annual,"{'value': 398295, 'source': 'migrants.xls', 'row': 13, 'column': 6, 'status': 'published'}",0,migrants.xls,13,11,published
+migrants,2017,annual,"{'value': 398295, 'source': 'migrants.xls', 'row': 13, 'column': 6, 'status': 'published'}",167229,migrants.xls,13,13,published
+migrants,2017,annual,"{'value': 398295, 'source': 'migrants.xls', 'row': 13, 'column': 6, 'status': 'published'}",28074,migrants.xls,13,14,published
+migrants,2017,annual,"{'value': 398295, 'source': 'migrants.xls', 'row': 13, 'column': 6, 'status': 'published'}",449,migrants.xls,13,15,published
+migrants,2017,annual,"{'value': 398295, 'source': 'migrants.xls', 'row': 13, 'column': 6, 'status': 'published'}",21121,migrants.xls,13,16,published
+migrants,2017,annual,"{'value': 398295, 'source': 'migrants.xls', 'row': 13, 'column': 6, 'status': 'published'}",0,migrants.xls,13,17,published
+migrants,2018,annual,"{'value': 422256, 'source': 'migrants.xls', 'row': 14, 'column': 6, 'status': 'published'}",706850,migrants.xls,14,4,published
+migrants,2018,annual,"{'value': 422256, 'source': 'migrants.xls', 'row': 14, 'column': 6, 'status': 'published'}",646474,migrants.xls,14,5,published
+migrants,2018,annual,"{'value': 422256, 'source': 'migrants.xls', 'row': 14, 'column': 6, 'status': 'published'}",422256,migrants.xls,14,6,published
+migrants,2018,annual,"{'value': 422256, 'source': 'migrants.xls', 'row': 14, 'column': 6, 'status': 'published'}",224218,migrants.xls,14,12,published
+migrants,2018,annual,"{'value': 422256, 'source': 'migrants.xls', 'row': 14, 'column': 6, 'status': 'published'}",60376,migrants.xls,14,18,published
+migrants,2018,annual,"{'value': 422256, 'source': 'migrants.xls', 'row': 14, 'column': 6, 'status': 'published'}",66493,migrants.xls,14,7,published
+migrants,2018,annual,"{'value': 422256, 'source': 'migrants.xls', 'row': 14, 'column': 6, 'status': 'published'}",122041,migrants.xls,14,8,published
+migrants,2018,annual,"{'value': 422256, 'source': 'migrants.xls', 'row': 14, 'column': 6, 'status': 'published'}",59337,migrants.xls,14,9,published
+migrants,2018,annual,"{'value': 422256, 'source': 'migrants.xls', 'row': 14, 'column': 6, 'status': 'published'}",174385,migrants.xls,14,10,published
+migrants,2018,annual,"{'value': 422256, 'source': 'migrants.xls', 'row': 14, 'column': 6, 'status': 'published'}",0,migrants.xls,14,11,published
+migrants,2018,annual,"{'value': 422256, 'source': 'migrants.xls', 'row': 14, 'column': 6, 'status': 'published'}",173029,migrants.xls,14,13,published
+migrants,2018,annual,"{'value': 422256, 'source': 'migrants.xls', 'row': 14, 'column': 6, 'status': 'published'}",28418,migrants.xls,14,14,published
+migrants,2018,annual,"{'value': 422256, 'source': 'migrants.xls', 'row': 14, 'column': 6, 'status': 'published'}",401,migrants.xls,14,15,published
+migrants,2018,annual,"{'value': 422256, 'source': 'migrants.xls', 'row': 14, 'column': 6, 'status': 'published'}",22370,migrants.xls,14,16,published
+migrants,2018,annual,"{'value': 422256, 'source': 'migrants.xls', 'row': 14, 'column': 6, 'status': 'published'}",0,migrants.xls,14,17,published
+migrants,2019,annual,"{'value': 433054, 'source': 'migrants.xls', 'row': 15, 'column': 6, 'status': 'published'}",718058,migrants.xls,15,4,published
+migrants,2019,annual,"{'value': 433054, 'source': 'migrants.xls', 'row': 15, 'column': 6, 'status': 'published'}",662788,migrants.xls,15,5,published
+migrants,2019,annual,"{'value': 433054, 'source': 'migrants.xls', 'row': 15, 'column': 6, 'status': 'published'}",433054,migrants.xls,15,6,published
+migrants,2019,annual,"{'value': 433054, 'source': 'migrants.xls', 'row': 15, 'column': 6, 'status': 'published'}",229734,migrants.xls,15,12,published
+migrants,2019,annual,"{'value': 433054, 'source': 'migrants.xls', 'row': 15, 'column': 6, 'status': 'published'}",55270,migrants.xls,15,18,published
+migrants,2019,annual,"{'value': 433054, 'source': 'migrants.xls', 'row': 15, 'column': 6, 'status': 'published'}",70057,migrants.xls,15,7,published
+migrants,2019,annual,"{'value': 433054, 'source': 'migrants.xls', 'row': 15, 'column': 6, 'status': 'published'}",126076,migrants.xls,15,8,published
+migrants,2019,annual,"{'value': 433054, 'source': 'migrants.xls', 'row': 15, 'column': 6, 'status': 'published'}",58112,migrants.xls,15,9,published
+migrants,2019,annual,"{'value': 433054, 'source': 'migrants.xls', 'row': 15, 'column': 6, 'status': 'published'}",178809,migrants.xls,15,10,published
+migrants,2019,annual,"{'value': 433054, 'source': 'migrants.xls', 'row': 15, 'column': 6, 'status': 'published'}",0,migrants.xls,15,11,published
+migrants,2019,annual,"{'value': 433054, 'source': 'migrants.xls', 'row': 15, 'column': 6, 'status': 'published'}",179042,migrants.xls,15,13,published
+migrants,2019,annual,"{'value': 433054, 'source': 'migrants.xls', 'row': 15, 'column': 6, 'status': 'published'}",28118,migrants.xls,15,14,published
+migrants,2019,annual,"{'value': 433054, 'source': 'migrants.xls', 'row': 15, 'column': 6, 'status': 'published'}",363,migrants.xls,15,15,published
+migrants,2019,annual,"{'value': 433054, 'source': 'migrants.xls', 'row': 15, 'column': 6, 'status': 'published'}",22210,migrants.xls,15,16,published
+migrants,2019,annual,"{'value': 433054, 'source': 'migrants.xls', 'row': 15, 'column': 6, 'status': 'published'}",1,migrants.xls,15,17,published
+migrants,2020,annual,"{'value': 426495, 'source': 'migrants.xls', 'row': 16, 'column': 6, 'status': 'published'}",709123,migrants.xls,16,4,published
+migrants,2020,annual,"{'value': 426495, 'source': 'migrants.xls', 'row': 16, 'column': 6, 'status': 'published'}",644014,migrants.xls,16,5,published
+migrants,2020,annual,"{'value': 426495, 'source': 'migrants.xls', 'row': 16, 'column': 6, 'status': 'published'}",426495,migrants.xls,16,6,published
+migrants,2020,annual,"{'value': 426495, 'source': 'migrants.xls', 'row': 16, 'column': 6, 'status': 'published'}",217519,migrants.xls,16,12,published
+migrants,2020,annual,"{'value': 426495, 'source': 'migrants.xls', 'row': 16, 'column': 6, 'status': 'published'}",65109,migrants.xls,16,18,published
+migrants,2020,annual,"{'value': 426495, 'source': 'migrants.xls', 'row': 16, 'column': 6, 'status': 'published'}",66157,migrants.xls,16,7,published
+migrants,2020,annual,"{'value': 426495, 'source': 'migrants.xls', 'row': 16, 'column': 6, 'status': 'published'}",121245,migrants.xls,16,8,published
+migrants,2020,annual,"{'value': 426495, 'source': 'migrants.xls', 'row': 16, 'column': 6, 'status': 'published'}",56709,migrants.xls,16,9,published
+migrants,2020,annual,"{'value': 426495, 'source': 'migrants.xls', 'row': 16, 'column': 6, 'status': 'published'}",182377,migrants.xls,16,10,published
+migrants,2020,annual,"{'value': 426495, 'source': 'migrants.xls', 'row': 16, 'column': 6, 'status': 'published'}",7,migrants.xls,16,11,published
+migrants,2020,annual,"{'value': 426495, 'source': 'migrants.xls', 'row': 16, 'column': 6, 'status': 'published'}",168360,migrants.xls,16,13,published
+migrants,2020,annual,"{'value': 426495, 'source': 'migrants.xls', 'row': 16, 'column': 6, 'status': 'published'}",26210,migrants.xls,16,14,published
+migrants,2020,annual,"{'value': 426495, 'source': 'migrants.xls', 'row': 16, 'column': 6, 'status': 'published'}",344,migrants.xls,16,15,published
+migrants,2020,annual,"{'value': 426495, 'source': 'migrants.xls', 'row': 16, 'column': 6, 'status': 'published'}",22604,migrants.xls,16,16,published
+migrants,2020,annual,"{'value': 426495, 'source': 'migrants.xls', 'row': 16, 'column': 6, 'status': 'published'}",1,migrants.xls,16,17,published
+migrants,2021,annual,"{'value': 405419, 'source': 'migrants.xls', 'row': 17, 'column': 6, 'status': 'published'}",669992,migrants.xls,17,4,published
+migrants,2021,annual,"{'value': 405419, 'source': 'migrants.xls', 'row': 17, 'column': 6, 'status': 'published'}",598247,migrants.xls,17,5,published
+migrants,2021,annual,"{'value': 405419, 'source': 'migrants.xls', 'row': 17, 'column': 6, 'status': 'published'}",405419,migrants.xls,17,6,published
+migrants,2021,annual,"{'value': 405419, 'source': 'migrants.xls', 'row': 17, 'column': 6, 'status': 'published'}",192828,migrants.xls,17,12,published
+migrants,2021,annual,"{'value': 405419, 'source': 'migrants.xls', 'row': 17, 'column': 6, 'status': 'published'}",71745,migrants.xls,17,18,published
+migrants,2021,annual,"{'value': 405419, 'source': 'migrants.xls', 'row': 17, 'column': 6, 'status': 'published'}",60927,migrants.xls,17,7,published
+migrants,2021,annual,"{'value': 405419, 'source': 'migrants.xls', 'row': 17, 'column': 6, 'status': 'published'}",115026,migrants.xls,17,8,published
+migrants,2021,annual,"{'value': 405419, 'source': 'migrants.xls', 'row': 17, 'column': 6, 'status': 'published'}",55341,migrants.xls,17,9,published
+migrants,2021,annual,"{'value': 405419, 'source': 'migrants.xls', 'row': 17, 'column': 6, 'status': 'published'}",174119,migrants.xls,17,10,published
+migrants,2021,annual,"{'value': 405419, 'source': 'migrants.xls', 'row': 17, 'column': 6, 'status': 'published'}",6,migrants.xls,17,11,published
+migrants,2021,annual,"{'value': 405419, 'source': 'migrants.xls', 'row': 17, 'column': 6, 'status': 'published'}",149185,migrants.xls,17,13,published
+migrants,2021,annual,"{'value': 405419, 'source': 'migrants.xls', 'row': 17, 'column': 6, 'status': 'published'}",23566,migrants.xls,17,14,published
+migrants,2021,annual,"{'value': 405419, 'source': 'migrants.xls', 'row': 17, 'column': 6, 'status': 'published'}",304,migrants.xls,17,15,published
+migrants,2021,annual,"{'value': 405419, 'source': 'migrants.xls', 'row': 17, 'column': 6, 'status': 'published'}",19772,migrants.xls,17,16,published
+migrants,2021,annual,"{'value': 405419, 'source': 'migrants.xls', 'row': 17, 'column': 6, 'status': 'published'}",1,migrants.xls,17,17,published
+migrants,2022,annual,"{'value': 458203, 'source': 'migrants.xls', 'row': 18, 'column': 6, 'status': 'published'}",728081,migrants.xls,18,4,published
+migrants,2022,annual,"{'value': 458203, 'source': 'migrants.xls', 'row': 18, 'column': 6, 'status': 'published'}",646165,migrants.xls,18,5,published
+migrants,2022,annual,"{'value': 458203, 'source': 'migrants.xls', 'row': 18, 'column': 6, 'status': 'published'}",458203,migrants.xls,18,6,published
+migrants,2022,annual,"{'value': 458203, 'source': 'migrants.xls', 'row': 18, 'column': 6, 'status': 'published'}",187962,migrants.xls,18,12,published
+migrants,2022,annual,"{'value': 458203, 'source': 'migrants.xls', 'row': 18, 'column': 6, 'status': 'published'}",81916,migrants.xls,18,18,published
+migrants,2022,annual,"{'value': 458203, 'source': 'migrants.xls', 'row': 18, 'column': 6, 'status': 'published'}",79216,migrants.xls,18,7,published
+migrants,2022,annual,"{'value': 458203, 'source': 'migrants.xls', 'row': 18, 'column': 6, 'status': 'published'}",125854,migrants.xls,18,8,published
+migrants,2022,annual,"{'value': 458203, 'source': 'migrants.xls', 'row': 18, 'column': 6, 'status': 'published'}",64749,migrants.xls,18,9,published
+migrants,2022,annual,"{'value': 458203, 'source': 'migrants.xls', 'row': 18, 'column': 6, 'status': 'published'}",188382,migrants.xls,18,10,published
+migrants,2022,annual,"{'value': 458203, 'source': 'migrants.xls', 'row': 18, 'column': 6, 'status': 'published'}",2,migrants.xls,18,11,published
+migrants,2022,annual,"{'value': 458203, 'source': 'migrants.xls', 'row': 18, 'column': 6, 'status': 'published'}",143513,migrants.xls,18,13,published
+migrants,2022,annual,"{'value': 458203, 'source': 'migrants.xls', 'row': 18, 'column': 6, 'status': 'published'}",25601,migrants.xls,18,14,published
+migrants,2022,annual,"{'value': 458203, 'source': 'migrants.xls', 'row': 18, 'column': 6, 'status': 'published'}",387,migrants.xls,18,15,published
+migrants,2022,annual,"{'value': 458203, 'source': 'migrants.xls', 'row': 18, 'column': 6, 'status': 'published'}",18461,migrants.xls,18,16,published
+migrants,2022,annual,"{'value': 458203, 'source': 'migrants.xls', 'row': 18, 'column': 6, 'status': 'published'}",0,migrants.xls,18,17,published
+migrants,2023,annual,"{'value': 463229, 'source': 'migrants.xls', 'row': 19, 'column': 6, 'status': 'published'}",753430,migrants.xls,19,4,published
+migrants,2023,annual,"{'value': 463229, 'source': 'migrants.xls', 'row': 19, 'column': 6, 'status': 'published'}",664214,migrants.xls,19,5,published
+migrants,2023,annual,"{'value': 463229, 'source': 'migrants.xls', 'row': 19, 'column': 6, 'status': 'published'}",463229,migrants.xls,19,6,published
+migrants,2023,annual,"{'value': 463229, 'source': 'migrants.xls', 'row': 19, 'column': 6, 'status': 'published'}",200985,migrants.xls,19,12,published
+migrants,2023,annual,"{'value': 463229, 'source': 'migrants.xls', 'row': 19, 'column': 6, 'status': 'published'}",89216,migrants.xls,19,18,published
+migrants,2023,annual,"{'value': 463229, 'source': 'migrants.xls', 'row': 19, 'column': 6, 'status': 'published'}",87148,migrants.xls,19,7,published
+migrants,2023,annual,"{'value': 463229, 'source': 'migrants.xls', 'row': 19, 'column': 6, 'status': 'published'}",121283,migrants.xls,19,8,published
+migrants,2023,annual,"{'value': 463229, 'source': 'migrants.xls', 'row': 19, 'column': 6, 'status': 'published'}",65667,migrants.xls,19,9,published
+migrants,2023,annual,"{'value': 463229, 'source': 'migrants.xls', 'row': 19, 'column': 6, 'status': 'published'}",189130,migrants.xls,19,10,published
+migrants,2023,annual,"{'value': 463229, 'source': 'migrants.xls', 'row': 19, 'column': 6, 'status': 'published'}",1,migrants.xls,19,11,published
+migrants,2023,annual,"{'value': 463229, 'source': 'migrants.xls', 'row': 19, 'column': 6, 'status': 'published'}",156994,migrants.xls,19,13,published
+migrants,2023,annual,"{'value': 463229, 'source': 'migrants.xls', 'row': 19, 'column': 6, 'status': 'published'}",24674,migrants.xls,19,14,published
+migrants,2023,annual,"{'value': 463229, 'source': 'migrants.xls', 'row': 19, 'column': 6, 'status': 'published'}",315,migrants.xls,19,15,published
+migrants,2023,annual,"{'value': 463229, 'source': 'migrants.xls', 'row': 19, 'column': 6, 'status': 'published'}",19002,migrants.xls,19,16,published
+migrants,2023,annual,"{'value': 463229, 'source': 'migrants.xls', 'row': 19, 'column': 6, 'status': 'published'}",0,migrants.xls,19,17,published
+migrants,2024,annual,"{'value': 510138, 'source': 'migrants.xls', 'row': 20, 'column': 6, 'status': 'published'}",820083,migrants.xls,20,4,published
+migrants,2024,annual,"{'value': 510138, 'source': 'migrants.xls', 'row': 20, 'column': 6, 'status': 'published'}",724805,migrants.xls,20,5,published
+migrants,2024,annual,"{'value': 510138, 'source': 'migrants.xls', 'row': 20, 'column': 6, 'status': 'published'}",510138,migrants.xls,20,6,published
+migrants,2024,annual,"{'value': 510138, 'source': 'migrants.xls', 'row': 20, 'column': 6, 'status': 'published'}",214667,migrants.xls,20,12,published
+migrants,2024,annual,"{'value': 510138, 'source': 'migrants.xls', 'row': 20, 'column': 6, 'status': 'published'}",95278,migrants.xls,20,18,published
+migrants,2024,annual,"{'value': 510138, 'source': 'migrants.xls', 'row': 20, 'column': 6, 'status': 'published'}",100574,migrants.xls,20,7,published
+migrants,2024,annual,"{'value': 510138, 'source': 'migrants.xls', 'row': 20, 'column': 6, 'status': 'published'}",133685,migrants.xls,20,8,published
+migrants,2024,annual,"{'value': 510138, 'source': 'migrants.xls', 'row': 20, 'column': 6, 'status': 'published'}",70651,migrants.xls,20,9,published
+migrants,2024,annual,"{'value': 510138, 'source': 'migrants.xls', 'row': 20, 'column': 6, 'status': 'published'}",205227,migrants.xls,20,10,published
+migrants,2024,annual,"{'value': 510138, 'source': 'migrants.xls', 'row': 20, 'column': 6, 'status': 'published'}",1,migrants.xls,20,11,published
+migrants,2024,annual,"{'value': 510138, 'source': 'migrants.xls', 'row': 20, 'column': 6, 'status': 'published'}",171730,migrants.xls,20,13,published
+migrants,2024,annual,"{'value': 510138, 'source': 'migrants.xls', 'row': 20, 'column': 6, 'status': 'published'}",23342,migrants.xls,20,14,published
+migrants,2024,annual,"{'value': 510138, 'source': 'migrants.xls', 'row': 20, 'column': 6, 'status': 'published'}",280,migrants.xls,20,15,published
+migrants,2024,annual,"{'value': 510138, 'source': 'migrants.xls', 'row': 20, 'column': 6, 'status': 'published'}",19315,migrants.xls,20,16,published
+migrants,2024,annual,"{'value': 510138, 'source': 'migrants.xls', 'row': 20, 'column': 6, 'status': 'published'}",0,migrants.xls,20,17,published
+migrants,2025,annual,"{'value': 540662, 'source': 'migrants.xls', 'row': 21, 'column': 6, 'status': 'published'}",866275,migrants.xls,21,4,published
+migrants,2025,annual,"{'value': 540662, 'source': 'migrants.xls', 'row': 21, 'column': 6, 'status': 'published'}",766212,migrants.xls,21,5,published
+migrants,2025,annual,"{'value': 540662, 'source': 'migrants.xls', 'row': 21, 'column': 6, 'status': 'published'}",540662,migrants.xls,21,6,published
+migrants,2025,annual,"{'value': 540662, 'source': 'migrants.xls', 'row': 21, 'column': 6, 'status': 'published'}",225550,migrants.xls,21,12,published
+migrants,2025,annual,"{'value': 540662, 'source': 'migrants.xls', 'row': 21, 'column': 6, 'status': 'published'}",100063,migrants.xls,21,18,published
+migrants,2025,annual,"{'value': 540662, 'source': 'migrants.xls', 'row': 21, 'column': 6, 'status': 'published'}",108696,migrants.xls,21,7,published
+migrants,2025,annual,"{'value': 540662, 'source': 'migrants.xls', 'row': 21, 'column': 6, 'status': 'published'}",148794,migrants.xls,21,8,published
+migrants,2025,annual,"{'value': 540662, 'source': 'migrants.xls', 'row': 21, 'column': 6, 'status': 'published'}",68822,migrants.xls,21,9,published
+migrants,2025,annual,"{'value': 540662, 'source': 'migrants.xls', 'row': 21, 'column': 6, 'status': 'published'}",214349,migrants.xls,21,10,published
+migrants,2025,annual,"{'value': 540662, 'source': 'migrants.xls', 'row': 21, 'column': 6, 'status': 'published'}",1,migrants.xls,21,11,published
+migrants,2025,annual,"{'value': 540662, 'source': 'migrants.xls', 'row': 21, 'column': 6, 'status': 'published'}",184890,migrants.xls,21,13,published
+migrants,2025,annual,"{'value': 540662, 'source': 'migrants.xls', 'row': 21, 'column': 6, 'status': 'published'}",21458,migrants.xls,21,14,published
+migrants,2025,annual,"{'value': 540662, 'source': 'migrants.xls', 'row': 21, 'column': 6, 'status': 'published'}",238,migrants.xls,21,15,published
+migrants,2025,annual,"{'value': 540662, 'source': 'migrants.xls', 'row': 21, 'column': 6, 'status': 'published'}",18964,migrants.xls,21,16,published
+migrants,2025,annual,"{'value': 540662, 'source': 'migrants.xls', 'row': 21, 'column': 6, 'status': 'published'}",0,migrants.xls,21,17,published
+industries,2021,annual,礦業及土石採取業,170.5,hours.ods,8,3,published
+industries,2021,annual,製造業,175.7,hours.ods,8,4,published
+industries,2021,annual,電力及燃氣供應業,177.3,hours.ods,8,7,published
+industries,2021,annual,用水供應及污染整治業,170,hours.ods,8,8,published
+industries,2021,annual,營建工程業,165.6,hours.ods,8,9,published
+industries,2021,annual,批發及零售業,158.3,hours.ods,8,11,published
+industries,2021,annual,運輸及倉儲業,170,hours.ods,8,12,published
+industries,2021,annual,住宿及餐飲業,155.5,hours.ods,8,13,published
+industries,2021,annual,出版影音及資通訊業,161.4,hours.ods,8,14,published
+industries,2021,annual,金融及保險業,165.6,hours.ods,8,15,published
+industries,2021,annual,不動產業,166.8,hours.ods,8,16,published
+industries,2021,annual,專業、科學及技術服務業,162.3,hours.ods,8,17,published
+industries,2021,annual,支援服務業,180,hours.ods,8,18,published
+industries,2021,annual,教育業(不含小學以上各級公私立學校等),141.2,hours.ods,8,19,published
+industries,2021,annual,醫療保健及社會工作服務業,158.2,hours.ods,8,20,published
+industries,2021,annual,藝術、娛樂及休閒服務業,137.6,hours.ods,8,21,published
+industries,2021,annual,其他服務業,160.5,hours.ods,8,22,published
+industries,2022,annual,礦業及土石採取業,169.1,hours.ods,9,3,published
+industries,2022,annual,製造業,174.6,hours.ods,9,4,published
+industries,2022,annual,電力及燃氣供應業,178,hours.ods,9,7,published
+industries,2022,annual,用水供應及污染整治業,169.9,hours.ods,9,8,published
+industries,2022,annual,營建工程業,166.2,hours.ods,9,9,published
+industries,2022,annual,批發及零售業,160.5,hours.ods,9,11,published
+industries,2022,annual,運輸及倉儲業,170.3,hours.ods,9,12,published
+industries,2022,annual,住宿及餐飲業,157.4,hours.ods,9,13,published
+industries,2022,annual,出版影音及資通訊業,162.5,hours.ods,9,14,published
+industries,2022,annual,金融及保險業,166.2,hours.ods,9,15,published
+industries,2022,annual,不動產業,168.2,hours.ods,9,16,published
+industries,2022,annual,專業、科學及技術服務業,162.9,hours.ods,9,17,published
+industries,2022,annual,支援服務業,177.2,hours.ods,9,18,published
+industries,2022,annual,教育業(不含小學以上各級公私立學校等),146.7,hours.ods,9,19,published
+industries,2022,annual,醫療保健及社會工作服務業,160.1,hours.ods,9,20,published
+industries,2022,annual,藝術、娛樂及休閒服務業,152.8,hours.ods,9,21,published
+industries,2022,annual,其他服務業,165.7,hours.ods,9,22,published
+industries,2023,annual,礦業及土石採取業,168,hours.ods,10,3,published
+industries,2023,annual,製造業,174.4,hours.ods,10,4,published
+industries,2023,annual,電力及燃氣供應業,178,hours.ods,10,7,published
+industries,2023,annual,用水供應及污染整治業,168.7,hours.ods,10,8,published
+industries,2023,annual,營建工程業,166.1,hours.ods,10,9,published
+industries,2023,annual,批發及零售業,163.2,hours.ods,10,11,published
+industries,2023,annual,運輸及倉儲業,171,hours.ods,10,12,published
+industries,2023,annual,住宿及餐飲業,161,hours.ods,10,13,published
+industries,2023,annual,出版影音及資通訊業,162.2,hours.ods,10,14,published
+industries,2023,annual,金融及保險業,165.6,hours.ods,10,15,published
+industries,2023,annual,不動產業,170.1,hours.ods,10,16,published
+industries,2023,annual,專業、科學及技術服務業,163.9,hours.ods,10,17,published
+industries,2023,annual,支援服務業,177.2,hours.ods,10,18,published
+industries,2023,annual,教育業(不含小學以上各級公私立學校等),145.7,hours.ods,10,19,published
+industries,2023,annual,醫療保健及社會工作服務業,165.9,hours.ods,10,20,published
+industries,2023,annual,藝術、娛樂及休閒服務業,162.7,hours.ods,10,21,published
+industries,2023,annual,其他服務業,168.6,hours.ods,10,22,published
+industries,2024,annual,礦業及土石採取業,166.6,hours.ods,11,3,published
+industries,2024,annual,製造業,177.1,hours.ods,11,4,published
+industries,2024,annual,電力及燃氣供應業,175.9,hours.ods,11,7,published
+industries,2024,annual,用水供應及污染整治業,167.9,hours.ods,11,8,published
+industries,2024,annual,營建工程業,167.3,hours.ods,11,9,published
+industries,2024,annual,批發及零售業,163.6,hours.ods,11,11,published
+industries,2024,annual,運輸及倉儲業,170.5,hours.ods,11,12,published
+industries,2024,annual,住宿及餐飲業,162.7,hours.ods,11,13,published
+industries,2024,annual,出版影音及資通訊業,162.2,hours.ods,11,14,published
+industries,2024,annual,金融及保險業,164.3,hours.ods,11,15,published
+industries,2024,annual,不動產業,166.4,hours.ods,11,16,published
+industries,2024,annual,專業、科學及技術服務業,163.5,hours.ods,11,17,published
+industries,2024,annual,支援服務業,176.5,hours.ods,11,18,published
+industries,2024,annual,教育業(不含小學以上各級公私立學校等),144.4,hours.ods,11,19,published
+industries,2024,annual,醫療保健及社會工作服務業,165.7,hours.ods,11,20,published
+industries,2024,annual,藝術、娛樂及休閒服務業,163.8,hours.ods,11,21,published
+industries,2024,annual,其他服務業,167.3,hours.ods,11,22,published
+industries,2025,annual,礦業及土石採取業,166,hours.ods,12,3,published
+industries,2025,annual,製造業,176.7,hours.ods,12,4,published
+industries,2025,annual,電力及燃氣供應業,172,hours.ods,12,7,published
+industries,2025,annual,用水供應及污染整治業,168.1,hours.ods,12,8,published
+industries,2025,annual,營建工程業,167.5,hours.ods,12,9,published
+industries,2025,annual,批發及零售業,163.4,hours.ods,12,11,published
+industries,2025,annual,運輸及倉儲業,169.3,hours.ods,12,12,published
+industries,2025,annual,住宿及餐飲業,162.7,hours.ods,12,13,published
+industries,2025,annual,出版影音及資通訊業,160,hours.ods,12,14,published
+industries,2025,annual,金融及保險業,164.1,hours.ods,12,15,published
+industries,2025,annual,不動產業,165.9,hours.ods,12,16,published
+industries,2025,annual,專業、科學及技術服務業,162.7,hours.ods,12,17,published
+industries,2025,annual,支援服務業,176.3,hours.ods,12,18,published
+industries,2025,annual,教育業(不含小學以上各級公私立學校等),145.1,hours.ods,12,19,published
+industries,2025,annual,醫療保健及社會工作服務業,166.6,hours.ods,12,20,published
+industries,2025,annual,藝術、娛樂及休閒服務業,163.2,hours.ods,12,21,published
+industries,2025,annual,其他服務業,166.5,hours.ods,12,22,published
+births,2012,annual,births,229481,births.ods,59,3,published
+births,2012,annual,rate,9.86,births.ods,59,7,published
+births,2013,annual,births,199113,births.ods,60,3,published
+births,2013,annual,rate,8.53,births.ods,60,7,published
+births,2014,annual,births,210383,births.ods,61,3,published
+births,2014,annual,rate,8.99,births.ods,61,7,published
+births,2015,annual,births,213598,births.ods,62,3,published
+births,2015,annual,rate,9.1,births.ods,62,7,published
+births,2016,annual,births,208440,births.ods,63,3,published
+births,2016,annual,rate,8.86,births.ods,63,7,published
+births,2017,annual,births,193844,births.ods,64,3,published
+births,2017,annual,rate,8.229238312554447,births.ods,64,7,published
+births,2018,annual,births,181601,births.ods,65,3,published
+births,2018,annual,rate,7.701458343259615,births.ods,65,7,published
+births,2019,annual,births,177767,births.ods,66,3,published
+births,2019,annual,rate,7.53376845037871,births.ods,66,7,published
+births,2020,annual,births,165249,births.ods,67,3,published
+births,2020,annual,rate,7.007367873158962,births.ods,67,7,published
+births,2021,annual,births,153820,births.ods,68,3,published
+births,2021,annual,rate,6.554380328336872,births.ods,68,7,published
+births,2022,annual,births,138986,births.ods,69,3,published
+births,2022,annual,rate,5.95995442019518,births.ods,69,7,published
+births,2023,annual,births,135571,births.ods,70,3,published
+births,2023,annual,rate,5.80789383640796,births.ods,70,7,published
+births,2024,annual,births,134856,births.ods,71,3,published
+births,2024,annual,rate,5.76,births.ods,71,7,published
+births,2025,annual,births,107812,births.ods,72,3,published
+births,2025,annual,rate,4.62,births.ods,72,7,published
+minimumPolicy,2026-01-01,effective-date,minimum,29500,minimum-wage.html,,,published
+minimumPolicy,2026-01-01,effective-date,hourlyMinimum,196,minimum-wage.html,,,published

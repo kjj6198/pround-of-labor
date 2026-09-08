@@ -1,0 +1,128 @@
+[
+  {
+    "id": "earnings-release.html",
+    "title": "主計總處薪資與生產力統計",
+    "url": "https://www.dgbas.gov.tw/News.aspx?_CSN=135&n=4437&sms=10980",
+    "page": "https://www.dgbas.gov.tw/News.aspx?_CSN=135&n=4437&sms=10980",
+    "sha256": "f15665de05f89cbcf97026ef22f4e89ff47fee9e97c8e69f3e6acd90b11c701e",
+    "fetchedAt": "2026-09-08T09:36:25.958280+00:00",
+    "tlsVerification": "verified"
+  },
+  {
+    "id": "earnings.ods",
+    "title": "主計總處 表1",
+    "url": "https://ws.dgbas.gov.tw/Download.ashx?u=LzAwMS9VcGxvYWQvNDYzL3JlbGZpbGUvMTA5ODAvMjM2NTU4L%2bihqDEub2Rz&n=6KGoMS5vZHM%3d&icon=..ods",
+    "page": "https://www.dgbas.gov.tw/News.aspx?_CSN=135&n=4437&sms=10980",
+    "sha256": "4fd3dc771cc897f85f60255b889313953174d367c2f80cfcaa5f6a2b7bb141e7",
+    "fetchedAt": "2026-09-08T09:36:26.241897+00:00",
+    "tlsVerification": "skipped-incomplete-chain"
+  },
+  {
+    "id": "wages.ods",
+    "title": "主計總處 表5",
+    "url": "https://ws.dgbas.gov.tw/Download.ashx?u=LzAwMS9VcGxvYWQvNDYzL3JlbGZpbGUvMTA5ODAvMjM2NTU4L%2bihqDUub2Rz&n=6KGoNS5vZHM%3d&icon=..ods",
+    "page": "https://www.dgbas.gov.tw/News.aspx?_CSN=135&n=4437&sms=10980",
+    "sha256": "82b9d3b13057a402d7c08207ff7eb9cf141bd5476521e83039f541df0367d78f",
+    "fetchedAt": "2026-09-08T09:36:26.492305+00:00",
+    "tlsVerification": "skipped-incomplete-chain"
+  },
+  {
+    "id": "hours.ods",
+    "title": "主計總處 表10",
+    "url": "https://ws.dgbas.gov.tw/Download.ashx?u=LzAwMS9VcGxvYWQvNDYzL3JlbGZpbGUvMTA5ODAvMjM2NTU4L%2bihqDEwLm9kcw%3d%3d&n=6KGoMTAub2Rz&icon=..ods",
+    "page": "https://www.dgbas.gov.tw/News.aspx?_CSN=135&n=4437&sms=10980",
+    "sha256": "96cd4e688afea9438aa532b4e04cb417f18d53a62528b38d4dda6677bd6454d1",
+    "fetchedAt": "2026-09-08T09:36:26.752201+00:00",
+    "tlsVerification": "skipped-incomplete-chain"
+  },
+  {
+    "id": "migrants.html",
+    "title": "引進移工在臺人數－按國籍分",
+    "url": "https://statdb.mol.gov.tw/html/mon/212030.htm",
+    "page": "https://statdb.mol.gov.tw/html/mon/212030.htm",
+    "sha256": "8945c07733f0ab0937195873b73ff61565981cd5b120e76cc170ea3b42c046fc",
+    "fetchedAt": "2026-09-08T09:36:26.963438+00:00",
+    "tlsVerification": "verified"
+  },
+  {
+    "id": "migrants.xls",
+    "title": "引進移工在臺人數－按國籍分",
+    "url": "https://statdb.mol.gov.tw/html/mon/212030.xlsx",
+    "page": "https://statdb.mol.gov.tw/html/mon/212030.htm",
+    "sha256": "47badc051820c633cdbdec85066d964d551f6d20c32e7a0791e66f3983beb8a7",
+    "fetchedAt": "2026-09-08T09:36:27.236462+00:00",
+    "tlsVerification": "verified"
+  },
+  {
+    "id": "indicators.html",
+    "title": "主要勞動經濟指標",
+    "url": "https://statdb.mol.gov.tw/html/mon/21010.htm",
+    "page": "https://statdb.mol.gov.tw/html/mon/21010.htm",
+    "sha256": "a90c43332160bf44829f42e80ace5ce5def009ca4d729bdab4326fd3445141fd",
+    "fetchedAt": "2026-09-08T09:36:27.447903+00:00",
+    "tlsVerification": "verified"
+  },
+  {
+    "id": "indicators.xls",
+    "title": "主要勞動經濟指標",
+    "url": "https://statdb.mol.gov.tw/html/mon/21010.xlsx",
+    "page": "https://statdb.mol.gov.tw/html/mon/21010.htm",
+    "sha256": "85a9b5118c9ad54959cae93544de4d6696671bc2d04d3b98d304c269c6ac320e",
+    "fetchedAt": "2026-09-08T09:36:27.780345+00:00",
+    "tlsVerification": "verified"
+  },
+  {
+    "id": "minimum-wage.html",
+    "title": "歷年最低工資／基本工資調整",
+    "url": "https://www.mol.gov.tw/1607/28162/28166/28180/70460/76761/76833/post",
+    "page": "https://www.mol.gov.tw/1607/28162/28166/28180/70460/76761/76833/post",
+    "sha256": "6401faf13221cb79fd308839958ce762af11aa05ccb621014fb74b92b8c0fa40",
+    "fetchedAt": "2026-09-08T09:36:29.693351+00:00",
+    "tlsVerification": "verified"
+  },
+  {
+    "id": "population.html",
+    "title": "內政部 114 年 12 月戶口統計資料分析",
+    "url": "https://www.moi.gov.tw/News_Content.aspx?n=9&s=335870&sms=9009",
+    "page": "https://www.moi.gov.tw/News_Content.aspx?n=9&s=335870&sms=9009",
+    "sha256": "2760cbb8d3363ba6e462f421c181ed56d4bb92a6d2caaa971e382ea6c88b5b4c",
+    "fetchedAt": "2026-09-08T09:59:16.612621+00:00",
+    "tlsVerification": "verified"
+  },
+  {
+    "id": "employment.html",
+    "title": "主計總處 115 年 7 月就業失業統計",
+    "url": "https://www.dgbas.gov.tw/News_Content.aspx?n=3602&s=236629",
+    "page": "https://www.dgbas.gov.tw/News_Content.aspx?n=3602&s=236629",
+    "sha256": "879097adb37e0cb7d1162718448143a6dc54d2b41919549a10eb965123377c42",
+    "fetchedAt": "2026-09-08T09:36:56.726505+00:00",
+    "tlsVerification": "verified"
+  },
+  {
+    "id": "unemployment.html",
+    "title": "失業率－按教育程度、年齡及性別分",
+    "url": "https://statdb.mol.gov.tw/html/mon/22050.htm",
+    "page": "https://statdb.mol.gov.tw/html/mon/22050.htm",
+    "sha256": "93321ad65c596a07b93103d8474c6ffddf2e9c5cc2723957dbfc4faa54d56425",
+    "fetchedAt": "2026-09-08T09:37:36.995229+00:00",
+    "tlsVerification": "verified"
+  },
+  {
+    "id": "unemployment.xls",
+    "title": "失業率－按教育程度、年齡及性別分",
+    "url": "https://statdb.mol.gov.tw/html/mon/22050.xlsx",
+    "page": "https://statdb.mol.gov.tw/html/mon/22050.htm",
+    "sha256": "574228678cada5f54746ce9ad487792c1e5d4fce4bb0a6dc9db6c9db878e1044",
+    "fetchedAt": "2026-09-08T09:37:37.347552+00:00",
+    "tlsVerification": "verified"
+  },
+  {
+    "id": "births.ods",
+    "title": "戶政司 出生數按性別及粗出生率（按登記日期）",
+    "url": "https://www.ris.gov.tw/info-popudata/app/awFastDownload/view?type=ods&m4c=y2s1&d5c=",
+    "page": "https://www.ris.gov.tw/info-popudata/app/awFastDownload/toMain_panel",
+    "sha256": "c1b319a8dbfac9385a25f16aa8de8cf3f4b3961ad0669176c3d1e047af60e329",
+    "tlsVerification": "verified",
+    "fetchedAt": "2026-09-08T10:02:46.547418+00:00"
+  }
+]
