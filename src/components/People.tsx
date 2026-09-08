@@ -1,13 +1,22 @@
 import { useState } from "react";
-import { data, format, periodLabel, latestMigrant, required, red, ink } from "../lib/data";
-import { Chapter, Source, Table } from "./Shared";
+import {
+  data,
+  format,
+  japanAging,
+  periodLabel,
+  latestMigrant,
+  required,
+  red,
+  ink,
+} from "../lib/data";
+import { Chapter, Table } from "./Shared";
 import { DataChart } from "./DataChart";
 const countries = [
-  { key: "Indonesia", name: "印尼", en: "INDONESIA" },
-  { key: "Vietnam", name: "越南", en: "VIETNAM" },
-  { key: "Philippines", name: "菲律賓", en: "PHILIPPINES" },
-  { key: "Thailand", name: "泰國", en: "THAILAND" },
-  { key: "Other", name: "其他", en: "OTHERS" },
+  { key: "Indonesia", name: "印尼", en: "INDONESIA", flag: "\u{1F1EE}\u{1F1E9}" },
+  { key: "Vietnam", name: "越南", en: "VIETNAM", flag: "\u{1F1FB}\u{1F1F3}" },
+  { key: "Philippines", name: "菲律賓", en: "PHILIPPINES", flag: "\u{1F1F5}\u{1F1ED}" },
+  { key: "Thailand", name: "泰國", en: "THAILAND", flag: "\u{1F1F9}\u{1F1ED}" },
+  { key: "Other", name: "其他", en: "OTHERS", flag: "\u{1F30F}" },
 ];
 export function Migrants() {
   const [period, setPeriod] = useState(latestMigrant.period);
@@ -31,8 +40,8 @@ export function Migrants() {
         <Chapter
           number="02"
           english="PEOPLE BEHIND THE WORK"
-          title="一起工作的人，來自不同的地方。"
-          description="從工廠、營建現場到家庭照顧，移工也是台灣勞動日常的一部分。"
+          title="在台灣工作的移工"
+          description="查看歷年移工人數，以及產業、社福移工的國籍分布。"
         />
         <div className="migrant-layout">
           <div>
@@ -41,7 +50,7 @@ export function Migrants() {
               <small>人</small>
             </div>
             <p>
-              引進移工在臺人數{" "}
+              外籍移工在臺人數{" "}
               <span className="caption">
                 ／ {periodLabel(period)}
                 {record.frequency === "annual" ? "底" : ""}
@@ -58,9 +67,8 @@ export function Migrants() {
               </p>
             </div>
             <p className="body-copy">
-              右側國籍統計以有效聘僱許可移工為範圍。把分母說清楚，才能看見每一群人的真實處境。
+              國籍統計僅計入持有效聘僱許可的移工，因此人數會少於在臺總人數。
             </p>
-            <Source id="migrants.xls" />
             <div className="mini-trend">
               <h3>2012 年以來的變化</h3>
               <DataChart
@@ -80,7 +88,7 @@ export function Migrants() {
             </div>
           </div>
           <div className="nationality-panel">
-            <div className="flex flex-wrap justify-between gap-4 items-end">
+            <div className="flex flex-wrap justify-between gap-4 items-start">
               <h3>他們從哪裡來？</h3>
               <label className="select-inline">
                 統計年度
@@ -116,6 +124,9 @@ export function Migrants() {
               <div className="country-row" key={country.key}>
                 <div>
                   <h4>
+                    <span className="country-flag" aria-hidden="true">
+                      {country.flag}
+                    </span>
                     {country.name}
                     <small>{country.en}</small>
                   </h4>
@@ -139,13 +150,14 @@ export function Migrants() {
 export function Aging() {
   const { groups, total, period } = data.population;
   const senior = required(groups.find((g) => g.label === "65歲以上"));
+  const seniorShare = (senior.value / total) * 100;
   return (
     <section id="aging" className="section page-shell">
       <Chapter
         number="03"
         english="A CHANGING WORKFORCE"
-        title="當台灣變老，工作也需要改變。"
-        description="更長的職涯、更重的照顧需求。人口結構的改變，已經發生在我們身邊。"
+        title="台灣人口的年齡分布"
+        description="65 歲以上人口占多少？以下依戶籍統計，呈現各年齡層人數與出生趨勢。"
       />
       <div className="aging-layout">
         <div className="population-visual">
@@ -161,7 +173,10 @@ export function Aging() {
             {groups.map((g, i) => (
               <div
                 key={g.label}
-                style={{ flex: g.value, background: ["#9a762f", "#444c3f", red][i] }}
+                style={{
+                  flex: g.value,
+                  background: ["oklch(0.588 0.099 81.518)", "oklch(0.405 0.024 133.356)", red][i],
+                }}
               >
                 <span>
                   {((g.value / total) * 100).toFixed(1)}
@@ -174,7 +189,13 @@ export function Aging() {
             {groups.map((g, i) => (
               <div key={g.label}>
                 <p>
-                  <i style={{ background: ["#9a762f", "#444c3f", red][i] }} />
+                  <i
+                    style={{
+                      background: ["oklch(0.588 0.099 81.518)", "oklch(0.405 0.024 133.356)", red][
+                        i
+                      ],
+                    }}
+                  />
                   {g.label}
                 </p>
                 <strong>
@@ -188,12 +209,11 @@ export function Aging() {
             戶籍人口共 {format(total)}{" "}
             人。此處為人口年齡分布，不是就業人口分布。百分比由原始人數計算後四捨五入。
           </p>
-          <Source id="population.html" />
         </div>
         <div className="aging-story">
           <p className="eyebrow">65 歲以上人口</p>
           <div className="featured-value">
-            <span>{((senior.value / total) * 100).toFixed(2)}</span>
+            <span>{seniorShare.toFixed(2)}</span>
             <small>%</small>
           </div>
           <h3>
@@ -202,8 +222,41 @@ export function Aging() {
             就有一位已滿 65 歲。
           </h3>
           <p className="body-copy">
-            職場能否容納不同年齡的工作者？照顧家人的人，能否保有自己的工作？高齡化不只是人口數字，也關乎工作設計與照顧支持。
+            年長者繼續工作，需要合適的工時與工作安排。照顧家人的工作者，也需要請假與托顧支援。
           </p>
+          <div className="aging-compare">
+            <p className="eyebrow">與日本比較</p>
+            <div className="compare-rows">
+              <div>
+                <p>
+                  <span className="compare-flag" aria-hidden="true">
+                    {"\u{1F1F9}\u{1F1FC}"}
+                  </span>
+                  台灣
+                </p>
+                <div className="compare-track">
+                  <div style={{ width: `${(seniorShare / japanAging.share) * 100}%` }} />
+                </div>
+                <strong>{seniorShare.toFixed(1)}%</strong>
+              </div>
+              <div>
+                <p>
+                  <span className="compare-flag" aria-hidden="true">
+                    {"\u{1F1EF}\u{1F1F5}"}
+                  </span>
+                  日本
+                </p>
+                <div className="compare-track">
+                  <div style={{ width: "100%" }} />
+                </div>
+                <strong>{japanAging.share.toFixed(1)}%</strong>
+              </div>
+            </div>
+            <p className="caption">
+              日本 65 歲以上人口占 {japanAging.share}%，是人口 4,000 萬以上國家中最高的。台灣採 2025
+              年底戶籍人口，日本採 2025 年 9 月 15 日人口推計，兩者口徑不同。
+            </p>
+          </div>
         </div>
       </div>
       <Births />
@@ -219,7 +272,7 @@ function Births() {
     <div className="birth-panel">
       <div className="birth-intro">
         <p className="eyebrow">FEWER BIRTHS, CHANGING LIVES</p>
-        <h3>新生命，正在變少。</h3>
+        <h3>每年有多少孩子出生？</h3>
         <div className="birth-statistics">
           <div>
             <span>
@@ -236,11 +289,6 @@ function Births() {
             <p>2025 年出生登記人數</p>
           </div>
         </div>
-        <p className="body-copy">
-          粗出生率是當年出生登記人數除以年中人口數，再乘以 1,000。4.62‰ 相當於每千人口約 4.62
-          位新生兒，或 0.462%；它與平均每位婦女生育子女數的「總生育率」不同。
-        </p>
-        <Source id="births.ods" />
       </div>
       <div className="birth-chart">
         <div className="segment-control" role="group" aria-label="出生統計指標">
@@ -269,9 +317,6 @@ function Births() {
           headers={["年度", "出生登記人數（人）", "粗出生率（‰）"]}
           rows={data.births.map((r) => [r.period, format(r.births.value), format(r.rate.value, 2)])}
         />
-        <p className="caption mt-4">
-          2012–2025 年完整年度資料，按戶籍登記日期統計。未以單月折算年率代替全年數值。
-        </p>
       </div>
     </div>
   );

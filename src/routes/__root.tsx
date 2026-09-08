@@ -43,6 +43,13 @@ export const Route = createRootRoute({
         type: "font/woff2",
         crossOrigin: "anonymous",
       },
+      {
+        rel: "preload",
+        href: `${base}fonts/SpaceGrotesk-Variable.woff2`,
+        as: "font",
+        type: "font/woff2",
+        crossOrigin: "anonymous",
+      },
     ],
   }),
   component: () => (

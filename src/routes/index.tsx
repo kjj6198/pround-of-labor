@@ -2,27 +2,98 @@ import { useEffect, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import {
   RiArrowDownLine,
-  RiArrowRightLine,
-  RiArrowRightUpLine,
   RiGithubLine,
   RiMenuLine,
   RiCloseLine,
+  RiThreadsLine,
+  RiTwitterXLine,
 } from "@remixicon/react";
 import { Stories } from "../components/Stories";
 import { Brand } from "../components/Brand";
 import { Trends, IndustryHours } from "../components/Trends";
 import { Migrants, Aging } from "../components/People";
-import { Chapter, Source, Download } from "../components/Shared";
+import { Chapter, SourceLink, Download } from "../components/Shared";
 import {
   data,
   format,
+  japanAging,
   periodLabel,
+  sourcePage,
   latestWage,
   latestHours,
   latestUnemployment,
   currentMinimum,
 } from "../lib/data";
 export const Route = createFileRoute("/")({ component: Home });
+const socials = [
+  { href: "https://x.com/kalanyei", label: "X @kalanyei", Icon: RiTwitterXLine },
+  {
+    href: "https://www.threads.com/@kalan_jp_log",
+    label: "Threads @kalan_jp_log",
+    Icon: RiThreadsLine,
+  },
+  {
+    href: "https://github.com/kjj6198/pround-of-labor",
+    label: "GitHub 原始碼",
+    Icon: RiGithubLine,
+  },
+];
+const sources = [
+  {
+    href: sourcePage("wages.ods"),
+    name: "經常性薪資平均數與中位數",
+    agency: "行政院主計總處",
+    range: "2012–2025；薪資中位數自 2020 年起",
+  },
+  {
+    href: sourcePage("earnings.ods"),
+    name: "每月總工時與正常工時",
+    agency: "行政院主計總處",
+    range: "2012–2025 年",
+  },
+  {
+    href: sourcePage("hours.ods"),
+    name: "各產業每月總工時",
+    agency: "行政院主計總處",
+    range: "2021–2025 年",
+  },
+  {
+    href: sourcePage("unemployment.xls"),
+    name: "失業率與青年失業率",
+    agency: "勞動部統計月報",
+    range: "2012–2025 年",
+  },
+  {
+    href: sourcePage("minimum-wage.html"),
+    name: "歷年最低工資調整",
+    agency: "勞動部",
+    range: "2026 年 1 月現行標準",
+  },
+  {
+    href: sourcePage("migrants.xls"),
+    name: "外籍移工在臺人數",
+    agency: "勞動部",
+    range: "2012–2025 年底",
+  },
+  {
+    href: sourcePage("births.ods"),
+    name: "出生人數與粗出生率",
+    agency: "內政部戶政司",
+    range: "2012–2025 年；按登記日期",
+  },
+  {
+    href: sourcePage("population.html"),
+    name: "戶籍人口年齡結構",
+    agency: "內政部戶政司",
+    range: "2025 年底",
+  },
+  {
+    href: japanAging.href,
+    name: japanAging.name,
+    agency: japanAging.agency,
+    range: japanAging.range,
+  },
+];
 const chapters = [
   { id: "overview", label: "勞動現況" },
   { id: "trends", label: "薪資與工時" },
@@ -56,11 +127,7 @@ function Home() {
           <a href="#top" aria-label="勞工大代誌，回到頁首">
             <Brand />
           </a>
-          <span className="header-description">台灣勞動觀察・資料專題</span>
           <nav aria-label="網站導覽" className="header-links">
-            <a href="#sources">
-              資料與方法 <RiArrowRightUpLine size={14} />
-            </a>
             <a
               href="https://github.com/kjj6198/pround-of-labor"
               target="_blank"
@@ -87,58 +154,36 @@ function Home() {
                 {c.label}
               </a>
             ))}
-            <a href="#sources" onClick={() => setMenu(false)}>
-              資料與方法
-            </a>
           </nav>
         ) : null}
       </header>
       <main id="top">
         <section className="hero">
           <div className="page-shell hero-inner">
-            <div className="hero-topline">
-              <span>TAIWAN LABOR OBSERVATORY</span>
-              <span>
-                2026 更新版 <i />
-              </span>
-            </div>
             <div className="hero-main">
               <div className="hero-copy">
-                <p className="hero-kicker">每一份工作，都值得被好好對待。</p>
                 <h1>
                   <Brand hero />
                 </h1>
-                <p className="hero-title">工作，值得更好的日常。</p>
+                <p className="hero-title">在台灣工作，是什麼樣子？</p>
                 <p className="hero-description">
-                  薪水、工時、生活，都是我們的大代誌。
+                  整理台灣的薪資、工時與就業統計，
                   <br />
-                  從數字出發，看見台灣勞動的真實樣貌。
+                  也記錄罷工、職災與勞動權益的變化。
                 </p>
-                <a href="#overview" className="hero-cta">
-                  一起看見勞動現場 <RiArrowDownLine size={18} />
-                </a>
               </div>
               <div className="hero-art" aria-label="原作握拳插畫" role="img">
                 <div className="art-ring ring-one" />
                 <div className="art-ring ring-two" />
                 <div className="art-sun" />
                 <div className="art-rules" />
-                <span className="art-vertical">勞動有價・生活有尊嚴</span>
                 <img
                   src={`${import.meta.env.BASE_URL}brand/labor-hand.svg`}
                   alt=""
                   width="430"
                   height="365"
                 />
-                <span className="art-caption">OUR WORK. OUR LIVES.</span>
               </div>
-            </div>
-            <div className="hero-bottom">
-              <span>自 2017 年起，記錄台灣勞動的大小事。</span>
-              <span>
-                資料查核{" "}
-                <time dateTime={data.checkedAt}>{data.checkedAt.replaceAll("-", ".")}</time>
-              </span>
             </div>
           </div>
         </section>
@@ -154,17 +199,15 @@ function Home() {
                 {c.label}
               </a>
             ))}
-            <a href="#sources" className="sources-nav">
-              資料來源
-              <RiArrowRightUpLine size={15} />
-            </a>
           </nav>
         </div>
-        <section id="overview" className="overview page-shell">
-          <div className="overview-title">
-            <h2>先看看，現在的勞動現場。</h2>
-            <span className="caption">2025 年度統計・最低工資為 2026 現行標準</span>
-          </div>
+        <section id="overview" className="section overview page-shell">
+          <Chapter
+            number="00"
+            english="THE STATE OF WORK"
+            title="台灣勞動現況"
+            description="年度統計採 2025 年，最低工資為 2026 年 1 月起的現行標準。"
+          />
           <div className="stats-strip">
             {[
               {
@@ -173,7 +216,6 @@ function Home() {
                 unit: "元／月",
                 period: latestWage.period,
                 detail: "全體受僱員工・全年平均",
-                source: "wages.ods",
               },
               {
                 label: "每人每月總工時",
@@ -181,7 +223,6 @@ function Home() {
                 unit: "小時",
                 period: latestHours.period,
                 detail: "工業及服務業・全年平均",
-                source: "earnings.ods",
               },
               {
                 label: "失業率",
@@ -189,7 +230,6 @@ function Home() {
                 unit: "%",
                 period: latestUnemployment.period,
                 detail: "戶籍人口・未季調",
-                source: "unemployment.xls",
               },
               {
                 label: "現行最低工資",
@@ -197,7 +237,6 @@ function Home() {
                 unit: "元／月",
                 period: "2026-01",
                 detail: `時薪 ${currentMinimum.hourlyMinimum.value} 元`,
-                source: "minimum-wage.html",
               },
             ].map((s, i) => (
               <article className="stat" key={s.label}>
@@ -213,7 +252,6 @@ function Home() {
                   {periodLabel(s.period)}
                   {i === 3 ? " 起" : ""}・{s.detail}
                 </p>
-                <Source id={s.source}>查看來源</Source>
               </article>
             ))}
           </div>
@@ -229,44 +267,13 @@ function Home() {
           <Chapter
             number="05"
             english="OPEN DATA, CLEAR CONTEXT"
-            title="數字有出處，理解有依據。"
-            description="資料可以下載，口徑可以核對。每一次閱讀，都從知道數字怎麼來開始。"
+            title="資料來源與統計方法"
+            description="列出各項統計的來源、期間與計算方式，也提供完整資料下載。"
           />
           <div className="sources-layout">
             <div>
-              {[
-                {
-                  id: "wages.ods",
-                  name: "薪資與工時",
-                  agency: "行政院主計總處",
-                  range: "2012–2025；薪資中位數自 2020 年起",
-                },
-                {
-                  id: "unemployment.xls",
-                  name: "失業率與物價",
-                  agency: "主計總處・勞動部統計月報",
-                  range: "2012–2025 年",
-                },
-                {
-                  id: "migrants.xls",
-                  name: "引進移工在臺人數",
-                  agency: "勞動部",
-                  range: "2012–2025 年底",
-                },
-                {
-                  id: "births.ods",
-                  name: "出生人數與粗出生率",
-                  agency: "內政部戶政司",
-                  range: "2012–2025 年；按登記日期",
-                },
-                {
-                  id: "population.html",
-                  name: "戶籍人口年齡結構",
-                  agency: "內政部戶政司",
-                  range: "2025 年底",
-                },
-              ].map((s, i) => (
-                <div className="source-row" key={s.id}>
+              {sources.map((s, i) => (
+                <div className="source-row" key={s.name}>
                   <span>0{i + 1}</span>
                   <div>
                     <h3>{s.name}</h3>
@@ -274,7 +281,7 @@ function Home() {
                       {s.agency}・{s.range}
                     </p>
                   </div>
-                  <Source id={s.id}>原始資料</Source>
+                  <SourceLink href={s.href}>原始資料</SourceLink>
                 </div>
               ))}
               <div className="flex flex-wrap gap-6 mt-7">
@@ -290,7 +297,7 @@ function Home() {
               </div>
             </div>
             <div className="methodology">
-              <h3>閱讀之前，先知道這些事。</h3>
+              <h3>這些數字怎麼整理？</h3>
               <p>
                 民國年轉為西元年。只提供 2012 年起的年度平均或年底人數；2026
                 年尚未結束，不將累計值當作全年結果。
@@ -305,34 +312,25 @@ function Home() {
                 出生率採全年粗出生率（‰），不以單月年化值代替。完整 CSV
                 保留可取得數值的來源檔名、列與欄。原始檔、下載網址與 SHA-256 雜湊值收錄於專案。
               </p>
+              <p>
+                日本 65 歲以上人口比率引自總務省統計局人口推計（2025 年 9 月 15
+                日），採推計人口口徑，與台灣的年底戶籍人口不同，只作規模參考。
+              </p>
               <span className="caption">最後查核：{data.checkedAt}・資料不會自動即時更新</span>
             </div>
-          </div>
-        </section>
-        <section className="closing">
-          <div className="page-shell flex flex-wrap items-center justify-between gap-8">
-            <div>
-              <p className="eyebrow">THE STORY CONTINUES</p>
-              <h2>
-                讓每一份努力，
-                <br />
-                都能換來有尊嚴的生活。
-              </h2>
-            </div>
-            <a href="https://www.mol.gov.tw/" target="_blank" rel="noreferrer">
-              認識你的勞動權益
-              <RiArrowRightLine size={23} />
-            </a>
           </div>
         </section>
       </main>
       <footer className="page-shell site-footer">
         <Brand />
-        <p>
-          原作・Kalan　設計・Peter、Kalan
-          <br />
-          <span>保留原作字標與握拳插畫，重新整理資料與呈現。</span>
-        </p>
+        <p>原作・Kalan　設計・Peter、Kalan</p>
+        <nav className="footer-social" aria-label="作者社群連結">
+          {socials.map(({ href, label, Icon }) => (
+            <a key={href} href={href} target="_blank" rel="noreferrer" aria-label={label}>
+              <Icon size={19} />
+            </a>
+          ))}
+        </nav>
         <a href="#top">回到頁首 ↑</a>
       </footer>
     </>

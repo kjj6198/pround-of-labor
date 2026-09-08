@@ -1,3 +1,12 @@
+/** Each wordmark SVG is cropped to its own ink bounds, so heights are scaled back to a shared em box. */
+const em = 131;
+const glyphs = [
+  { file: "logo-1.svg", width: 87, height: 129 },
+  { file: "logo-2.svg", width: 74, height: 122 },
+  { file: "logo-3.svg", width: 80, height: 131 },
+  { file: "logo-4.svg", width: 93, height: 128 },
+  { file: "logo-5.svg", width: 87, height: 130 },
+];
 export function Brand({ hero = false }: { hero?: boolean }) {
   return (
     <span
@@ -5,13 +14,14 @@ export function Brand({ hero = false }: { hero?: boolean }) {
       role="img"
       aria-label="勞工大代誌"
     >
-      {[1, 2, 3, 4, 5].map((n) => (
+      {glyphs.map((glyph) => (
         <img
-          key={n}
-          src={`${import.meta.env.BASE_URL}brand/logo-${n}.svg`}
+          key={glyph.file}
+          src={`${import.meta.env.BASE_URL}brand/${glyph.file}`}
           alt=""
-          width={n === 3 ? 93 : 87}
-          height="130"
+          width={glyph.width}
+          height={glyph.height}
+          style={{ height: `${(glyph.height / em) * 100}%` }}
         />
       ))}
     </span>

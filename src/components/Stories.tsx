@@ -1,29 +1,31 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { AnimatePresence, LayoutGroup, MotionConfig, motion, useReducedMotion } from "motion/react";
-import {
-  RiArrowRightUpLine,
-  RiCloseLine,
-  RiAddLine,
-  RiSearchLine,
-  RiMegaphoneLine,
-  RiShieldCheckLine,
-  RiScales3Line,
-  RiHandHeartLine,
-  RiMoneyDollarCircleLine,
-  RiChatQuoteLine,
-} from "@remixicon/react";
+import { RiArrowRightUpLine, RiCloseLine } from "@remixicon/react";
 import archive from "../../data/stories.json";
 import { Chapter } from "./Shared";
 
 type Story = (typeof archive.items)[number];
+const selectedStoryIds = new Set([
+  "delivery-2026",
+  "minimum-2024",
+  "mingyang-2023",
+  "labor-court-2020",
+  "original-12",
+  "original-13",
+  "original-10",
+  "original-06",
+  "original-04",
+  "original-02",
+]);
+const selectedStories = archive.items.filter((story) => selectedStoryIds.has(story.id));
 const topics = {
-  集體行動: { icon: RiMegaphoneLine, theme: "coral", word: "發聲" },
-  職業安全: { icon: RiShieldCheckLine, theme: "olive", word: "平安" },
-  制度改變: { icon: RiScales3Line, theme: "sand", word: "權利" },
-  照顧與工作: { icon: RiHandHeartLine, theme: "sage", word: "照顧" },
-  薪資與就業: { icon: RiMoneyDollarCircleLine, theme: "sand", word: "生活" },
-  公共討論: { icon: RiChatQuoteLine, theme: "sage", word: "對話" },
+  集體行動: { theme: "coral" },
+  職業安全: { theme: "olive" },
+  制度改變: { theme: "sand" },
+  照顧與工作: { theme: "sage" },
+  薪資與就業: { theme: "sand" },
+  公共討論: { theme: "sage" },
 };
 function topicFor(category: string) {
   return Object.entries(topics).find(([name]) => name === category)?.[1] ?? topics.制度改變;
@@ -37,18 +39,18 @@ function StoryCover({
   expanded?: boolean;
   reduced: boolean;
 }) {
-  const { icon: Icon, word } = topicFor(story.category);
   const shared = (part: string) => (reduced ? undefined : `${part}-${story.id}`);
   return (
     <motion.div className="story-cover" layoutId={shared("cover")} style={{ borderRadius: 0 }}>
       <motion.div className="story-art" layoutId={shared("art")} aria-hidden="true">
-        <svg className="story-art-word" viewBox="0 0 260 140">
-          <text x="0" y="118">
-            {word}
-          </text>
-        </svg>
-        <Icon size={128} strokeWidth={0.25} />
-        <span className="story-art-rule" />
+        <img
+          src={`${import.meta.env.BASE_URL}illustrations/${story.illustration}.webp`}
+          alt=""
+          width="1536"
+          height="1024"
+          loading={expanded ? "eager" : "lazy"}
+          decoding="async"
+        />
       </motion.div>
       <motion.div
         className="story-title"
@@ -62,11 +64,8 @@ function StoryCover({
           <span>{story.category}</span>
         </div>
         {expanded ? <h2 id={`story-title-${story.id}`}>{story.title}</h2> : <h3>{story.title}</h3>}
+        <p className="text-xs">{story.summary}</p>
       </motion.div>
-      <span className="story-cover-footer" aria-hidden="true">
-        <span>勞動紀事 ／ {story.date.slice(0, 4)}</span>
-        {expanded ? "LABOR ARCHIVE" : <RiAddLine size={23} />}
-      </span>
     </motion.div>
   );
 }
@@ -94,7 +93,10 @@ function ReadingPanel({
       (element): element is HTMLElement =>
         element instanceof HTMLElement && element !== layer.current,
     );
-    const previous = siblings.map((element) => ({ element, inert: element.inert }));
+    const previous = siblings.map((element) => ({
+      element,
+      inert: element.inert,
+    }));
     for (const { element } of previous) element.inert = true;
     document.body.style.overflow = "hidden";
     if (gap > 0) document.body.style.paddingRight = `${gap}px`;
@@ -153,7 +155,7 @@ function ReadingPanel({
           className={`story-modal story-theme-${topicFor(story.category).theme}`}
           layoutId={reduced ? undefined : `card-${story.id}`}
           layoutScroll
-          style={{ borderRadius: 18 }}
+          style={{ borderRadius: 6 }}
           initial={reduced ? { opacity: 0 } : false}
           animate={{ opacity: 1 }}
           exit={{ opacity: reduced ? 0 : 1 }}
@@ -169,7 +171,6 @@ function ReadingPanel({
             exit={{ opacity: 0, transition: { duration: 0.06 } }}
             transition={{ duration: 0.2, delay: reduced ? 0 : 0.12 }}
           >
-            <p className="story-deck">{story.summary}</p>
             {story.paragraphs.map((text) => (
               <p key={text}>{text}</p>
             ))}
@@ -197,7 +198,7 @@ function ReadingPanel({
               <details className="original-story">
                 <summary>閱讀原作全文</summary>
                 <p className="original-notice">
-                  保留原稿的敘事與觀點；日期、數字及爭議的補充請見上方編輯註記與來源。
+                  以下保留原文。日期與數字的更正，請見上方編輯註記。
                 </p>
                 <p className="caption">
                   原標題：{story.original.title}
@@ -208,14 +209,12 @@ function ReadingPanel({
                   <p key={text}>{text}</p>
                 ))}
                 {story.original.imageCredit ? (
-                  <p className="caption">
-                    原圖署名：{story.original.imageCredit}。本版卡面為議題圖像。
-                  </p>
+                  <p className="caption">原圖署名：{story.original.imageCredit}</p>
                 ) : null}
               </details>
             ) : null}
             <button className="story-done" onClick={close}>
-              讀完了，回到故事集 <RiCloseLine size={16} />
+              回到故事列表 <RiCloseLine size={16} />
             </button>
           </motion.div>
         </motion.div>
@@ -225,89 +224,38 @@ function ReadingPanel({
   );
 }
 export function Stories() {
-  const [collection, setCollection] = useState("all");
-  const [query, setQuery] = useState("");
-  const [limit, setLimit] = useState(6);
   const [selected, setSelected] = useState<Story | null>(null);
   const trigger = useRef<HTMLButtonElement | null>(null);
   const reduced = useReducedMotion() ?? false;
-  const filtered = archive.items.filter(
-    (story) =>
-      (collection === "all" || story.collection === collection) &&
-      `${story.title} ${story.category} ${story.date} ${story.summary} ${story.original?.title ?? ""} ${story.paragraphs.join(" ")} ${story.original?.text ?? ""}`.includes(
-        query.trim(),
-      ),
-  );
   return (
     <section id="history" className="history-section">
       <div className="page-shell section">
         <Chapter
           number="04"
-          english="NOTHING CAME FOR FREE"
-          title="今天的權利，是一步步爭取來的。"
-          description="從一場罷工，到一項制度。打開故事，讀見每一次改變背後的人。"
+          english="LABOR HISTORY"
+          title="罷工、職災與勞動法，台灣走過的路。"
+          description="精選十件改變台灣勞動制度與工作現場的重要事件。點開卡片可閱讀全文及資料來源。"
         />
-        <div className="stories-toolbar">
-          <div className="stories-filters" role="group" aria-label="故事範圍">
-            {[
-              { id: "all", label: "全部紀事", count: 31 },
-              { id: "recent", label: "近年新增", count: 12 },
-              { id: "original", label: "原作故事", count: 19 },
-            ].map((filter) => (
-              <button
-                key={filter.id}
-                aria-pressed={collection === filter.id}
-                onClick={() => {
-                  setCollection(filter.id);
-                  setLimit(6);
-                }}
-              >
-                {filter.label}
-                <span>{filter.count}</span>
-              </button>
-            ))}
-          </div>
-          <label className="story-search">
-            <RiSearchLine size={18} />
-            <input
-              type="search"
-              aria-label="搜尋故事"
-              placeholder="搜尋事件、年份或議題"
-              value={query}
-              onChange={(event) => {
-                setQuery(event.target.value);
-                setLimit(6);
-              }}
-            />
-          </label>
-        </div>
-        <p className="stories-count" aria-live="polite">
-          {filtered.length} 則紀事・由近到遠{collection === "recent" ? "・2018–2026 更新範圍" : ""}
-        </p>
         <MotionConfig
           reducedMotion="user"
           transition={{ type: "spring", duration: 0.4, bounce: 0 }}
         >
           <LayoutGroup id="labor-stories">
             <ul className="story-grid">
-              {filtered.slice(0, limit).map((story) => (
+              {selectedStories.map((story) => (
                 <li key={story.id}>
                   <motion.button
                     aria-haspopup="dialog"
                     aria-label={`閱讀：${story.title}`}
                     className={`story-card story-theme-${topicFor(story.category).theme}`}
                     layoutId={reduced ? undefined : `card-${story.id}`}
-                    style={{ borderRadius: 18 }}
+                    style={{ borderRadius: 6 }}
                     onClick={(event) => {
                       trigger.current = event.currentTarget;
                       setSelected(story);
                     }}
                   >
                     <StoryCover story={story} reduced={reduced} />
-                    <span className="story-card-summary">
-                      {story.summary}
-                      <RiArrowRightUpLine size={20} />
-                    </span>
                   </motion.button>
                 </li>
               ))}
@@ -325,16 +273,9 @@ export function Stories() {
             </AnimatePresence>
           </LayoutGroup>
         </MotionConfig>
-        {filtered.length === 0 ? (
-          <p className="stories-empty">找不到符合的故事。試試「罷工」、「工安」或年份。</p>
-        ) : null}
-        {limit < filtered.length ? (
-          <button className="stories-more" onClick={() => setLimit(limit + 6)}>
-            再看 {Math.min(6, filtered.length - limit)} 則故事 <RiAddLine size={19} />
-          </button>
-        ) : null}
         <p className="stories-footnote">
-          保留原作 19 則紀事，新增 12 則故事。卡面為議題圖像；完整原稿與日期更正可在故事內閱讀。
+          從完整資料中精選十則台灣勞動紀事。插畫由 GPT Image
+          依議題生成，並非事件現場紀錄。原文與更正說明收在各篇內。
         </p>
       </div>
     </section>
