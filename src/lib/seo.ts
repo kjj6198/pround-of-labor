@@ -1,8 +1,7 @@
 import { data } from "./data";
 
 /** Absolute address of the deployment. Set VITE_SITE_URL for the host that serves the site. */
-const url: string =
-  import.meta.env.VITE_SITE_URL || "https://kjj6198.github.io/pround-of-labor/app/";
+const url: string = import.meta.env.VITE_SITE_URL || "https://vdata.labor.kalan.blog/";
 
 export const seo = {
   url,

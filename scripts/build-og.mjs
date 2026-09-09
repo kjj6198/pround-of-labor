@@ -50,7 +50,7 @@ body { width: 1200px; height: 630px; display: flex; font-family: "Space Grotesk"
     <div class="wordmark">${wordmark.join("")}</div>
     <p class="tagline">在台灣工作，是什麼樣子？</p>
     <p class="description">薪資、工時、失業率、移工與人口統計，<br>以及罷工、職災與勞動法制的事件紀錄。</p>
-    <div class="footer"><span>2012–2025 年度統計</span><span>kjj6198.github.io/pround-of-labor</span></div>
+    <div class="footer"><span>2012–2025 年度統計</span><span>vdata.labor.kalan.blog</span></div>
   </div>
   <div class="art"><div class="ring"></div><div class="sun"></div><img src="${hand}"></div>
 </body></html>`;

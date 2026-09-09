@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://kjj6198.github.io/pround-of-labor/app/sitemap.xml
+Sitemap: https://vdata.labor.kalan.blog/sitemap.xml
