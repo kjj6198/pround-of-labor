@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import type { Chart, ChartConfiguration } from "chart.js";
 
 export type Series = { label: string; values: (number | null)[]; color: string; dashed?: boolean };
+
+const fontFamily = '"Space Grotesk", "LINE Seed TW", sans-serif';
 export function DataChart({
   labels,
   series,
@@ -46,6 +48,7 @@ export function DataChart({
             Tooltip,
             Legend,
           );
+          Chart.defaults.font.family = fontFamily;
           const config: ChartConfiguration = {
             type: kind,
             data: {
@@ -86,7 +89,7 @@ export function DataChart({
                   ticks: {
                     color: "oklch(0.51 0.012 112.616)",
                     maxTicksLimit: 7,
-                    font: { family: "Space Grotesk", size: 11 },
+                    font: { family: fontFamily, size: 11 },
                     maxRotation: 0,
                   },
                 },
@@ -96,7 +99,7 @@ export function DataChart({
                   grid: { color: "oklch(0.891 0.015 94.215)" },
                   ticks: {
                     color: "oklch(0.51 0.012 112.616)",
-                    font: { family: "Space Grotesk", size: 11 },
+                    font: { family: fontFamily, size: 11 },
                     maxTicksLimit: 5,
                     callback: (v) => Number(v).toLocaleString("zh-TW"),
                   },

@@ -110,11 +110,11 @@ export function Trends() {
           </div>
           <p className="caption">
             {metric === "wages"
-              ? `${periodLabel(latestWage.period)}・經常性薪資中位數・全年平均`
+              ? `${periodLabel(latestWage.period)}、經常性薪資中位數、全年平均`
               : metric === "hours"
-                ? `${periodLabel(latestHours.period)}・每月總工時・全年平均`
+                ? `${periodLabel(latestHours.period)}、每月總工時、全年平均`
                 : metric === "unemployment"
-                  ? `${periodLabel(latestUnemployment.period)}・未季調`
+                  ? `${periodLabel(latestUnemployment.period)}、未季調`
                   : "2026 年 1 月 1 日起施行"}
           </p>
         </div>
@@ -189,7 +189,7 @@ export function IndustryHours() {
                 }}
               />
             </div>
-            <span className="tabular-nums">
+            <span className="font-numeric tabular-nums">
               {format(r.hours.value, 1)} <small>小時</small>
             </span>
           </div>

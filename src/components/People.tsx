@@ -118,7 +118,7 @@ export function Migrants() {
               ))}
             </div>
             <p className="caption mb-7" aria-live="polite">
-              有效聘僱許可・共 {format(total)} 人
+              有效聘僱許可、共 {format(total)} 人
             </p>
             {countries.map((country, i) => (
               <div className="country-row" key={country.key}>

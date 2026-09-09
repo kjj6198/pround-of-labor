@@ -13,6 +13,20 @@ work; letters 3 and 4 gained the `viewBox` their source files were missing, and
 the paths are unchanged. The typeface is LINE Seed TW, with its license in
 `public/fonts/`.
 
+### Fonts
+
+Text uses LINE Seed TW, and numbers use Space Grotesk through `--font-numeric`
+with `tabular-nums`. The files in `public/fonts/` are subsets:
+`npm run fonts:build` (it needs `uv`) collects every character that `src/`, `data/` and
+`public/data/` render, then writes the two LINE Seed TW weights and a Space
+Grotesk file that holds the digits and the symbols inside a number. Run it after
+you add text or change the dataset, or the new characters fall back to a system
+font; `tests/fonts.test.ts` fails when the subsets fall behind. The source fonts
+download to `.context/fonts/` on first run, so the repository keeps no 7 MB
+originals. LINE Seed TW has no per-mille sign and no katakana middle dot
+(U+30FB), so `styles.css` borrows `‰` from Space Grotesk and the interface
+separates items with `、`.
+
 Charts use Chart.js and always ship a data table under the figure. Motion for
 React links a card, its cover, its illustration, and its title through a shared
 `layoutId` when a story opens and closes. The reading panel supports long-text

@@ -215,21 +215,21 @@ function Home() {
                 value: format(latestWage.median.value),
                 unit: "元／月",
                 period: latestWage.period,
-                detail: "全體受僱員工・全年平均",
+                detail: "全體受僱員工、全年平均",
               },
               {
                 label: "每人每月總工時",
                 value: format(latestHours.hours.value, 1),
                 unit: "小時",
                 period: latestHours.period,
-                detail: "工業及服務業・全年平均",
+                detail: "工業及服務業、全年平均",
               },
               {
                 label: "失業率",
                 value: format(latestUnemployment.total.value, 2),
                 unit: "%",
                 period: latestUnemployment.period,
-                detail: "戶籍人口・未季調",
+                detail: "戶籍人口、未季調",
               },
               {
                 label: "現行最低工資",
@@ -250,7 +250,7 @@ function Home() {
                 </p>
                 <p className="caption">
                   {periodLabel(s.period)}
-                  {i === 3 ? " 起" : ""}・{s.detail}
+                  {i === 3 ? " 起" : ""}、{s.detail}
                 </p>
               </article>
             ))}
@@ -278,7 +278,7 @@ function Home() {
                   <div>
                     <h3>{s.name}</h3>
                     <p>
-                      {s.agency}・{s.range}
+                      {s.agency}、{s.range}
                     </p>
                   </div>
                   <SourceLink href={s.href}>原始資料</SourceLink>
@@ -316,14 +316,14 @@ function Home() {
                 日本 65 歲以上人口比率引自總務省統計局人口推計（2025 年 9 月 15
                 日），採推計人口口徑，與台灣的年底戶籍人口不同，只作規模參考。
               </p>
-              <span className="caption">最後查核：{data.checkedAt}・資料不會自動即時更新</span>
+              <span className="caption">最後查核：{data.checkedAt}、資料不會自動即時更新</span>
             </div>
           </div>
         </section>
       </main>
       <footer className="page-shell site-footer">
         <Brand />
-        <p>原作・Kalan　設計・Peter、Kalan</p>
+        <p>原作：Kalan　設計：Peter、Kalan</p>
         <nav className="footer-social" aria-label="作者社群連結">
           {socials.map(({ href, label, Icon }) => (
             <a key={href} href={href} target="_blank" rel="noreferrer" aria-label={label}>

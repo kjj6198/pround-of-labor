@@ -14,16 +14,26 @@
   font-display: swap;
 }
 
+/* LINE Seed TW has no per-mille sign, so the birth rate borrows it from Space Grotesk. */
+@font-face {
+  font-family: "LINE Seed TW";
+  src: url("/fonts/SpaceGrotesk-Variable.woff2") format("woff2");
+  font-weight: 300 900;
+  font-display: swap;
+  unicode-range: U+2030;
+}
+
+/* The file holds the digits and the symbols inside a number, so any other character falls through to LINE Seed TW. */
 @font-face {
   font-family: "Space Grotesk";
   src: url("/fonts/SpaceGrotesk-Variable.woff2") format("woff2");
-  font-weight: 400 700;
+  font-weight: 300 700;
   font-style: normal;
   font-display: swap;
 }
 
 @theme {
-  --font-sans: "LINE Seed TW", --apple-system, sans-serif;
+  --font-sans: "LINE Seed TW", -apple-system, sans-serif;
   --font-numeric: "Space Grotesk", "LINE Seed TW", sans-serif;
   --color-paper: oklch(0.967 0.015 86);
   --color-ink: oklch(0.29 0.015 119);
@@ -121,7 +131,6 @@ p {
   text-wrap: pretty;
 }
 
-.tabular-nums,
 .stat-index,
 .stat-value,
 .featured-value,
@@ -131,11 +140,13 @@ p {
 .population-bar span,
 .population-labels strong,
 .compare-rows strong,
+.rank,
 .timeline-year,
 .story-meta time,
 .birth-statistics span,
 table {
   font-family: var(--font-numeric);
+  font-variant-numeric: tabular-nums;
 }
 
 .page-shell {
@@ -454,7 +465,6 @@ table {
   letter-spacing: -0.04em;
   line-height: 1.4;
   margin-top: 16px;
-  font-variant-numeric: tabular-nums;
 }
 
 .stat-value small {
@@ -559,7 +569,6 @@ table {
   font-size: 57px;
   letter-spacing: -0.045em;
   line-height: 1.2;
-  font-variant-numeric: tabular-nums;
 }
 
 .featured-value small {
@@ -636,7 +645,6 @@ select {
 table {
   border-collapse: collapse;
   min-width: 100%;
-  font-variant-numeric: tabular-nums;
   text-align: right;
   white-space: nowrap;
 }
@@ -738,7 +746,6 @@ th:first-child {
 .migrant-total > span {
   font-size: 68px;
   letter-spacing: -0.04em;
-  font-variant-numeric: tabular-nums;
 }
 
 .migrant-total + p {
@@ -765,7 +772,6 @@ th:first-child {
 
 .permit-breakdown strong {
   font-weight: 400;
-  font-variant-numeric: tabular-nums;
 }
 
 .migrant-layout .body-copy {
@@ -836,7 +842,6 @@ th:first-child {
 .country-row span {
   font-size: 21px;
   letter-spacing: -0.035em;
-  font-variant-numeric: tabular-nums;
 }
 
 .country-row small {
@@ -1000,7 +1005,6 @@ th:first-child {
 .compare-rows strong {
   font-size: 16px;
   text-align: right;
-  font-variant-numeric: tabular-nums;
   font-weight: 700;
 }
 
@@ -1035,7 +1039,6 @@ th:first-child {
 .timeline-year {
   font-size: 38px;
   letter-spacing: -0.04em;
-  font-variant-numeric: tabular-nums;
 }
 
 .timeline-point {
@@ -1772,7 +1775,6 @@ th:first-child {
 .birth-statistics span {
   font-size: 38px;
   letter-spacing: -0.04em;
-  font-variant-numeric: tabular-nums;
   color: var(--data);
 }
 
@@ -1877,7 +1879,6 @@ th:first-child {
   gap: 10px;
   font-size: 11px;
   letter-spacing: 0.02em;
-  font-variant-numeric: tabular-nums;
   margin-bottom: 12px;
 }
 

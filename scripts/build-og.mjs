@@ -26,9 +26,9 @@ const wordmark = await Promise.all(
 const html = `<!doctype html><html lang="zh-Hant-TW"><meta charset="utf-8"><style>
 @font-face { font-family: "LINE Seed TW"; src: url(${regular}) format("woff2"); font-weight: 400 }
 @font-face { font-family: "LINE Seed TW"; src: url(${font}) format("woff2"); font-weight: 700 }
-@font-face { font-family: "Space Grotesk"; src: url(${numeric}) format("woff2"); font-weight: 400 700 }
+@font-face { font-family: "Space Grotesk"; src: url(${numeric}) format("woff2"); font-weight: 300 700 }
 * { margin: 0; box-sizing: border-box }
-body { width: 1200px; height: 630px; display: flex; font-family: "LINE Seed TW", sans-serif;
+body { width: 1200px; height: 630px; display: flex; font-family: "Space Grotesk", "LINE Seed TW", sans-serif;
   color: oklch(0.34 0.016 137.846); background: oklch(0.943 0.017 91.555); padding: 60px 64px; gap: 32px; align-items: center }
 .copy { flex: 1; display: flex; flex-direction: column; gap: 26px }
 .eyebrow { font-size: 20px; letter-spacing: 0.32em; color: oklch(0.507 0.012 112.62) }
