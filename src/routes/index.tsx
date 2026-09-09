@@ -10,6 +10,8 @@ import {
 } from "@remixicon/react";
 import { Stories } from "../components/Stories";
 import { Brand } from "../components/Brand";
+import { SalaryCalculator } from "../components/SalaryCalculator";
+import { salaryDistribution } from "../lib/salary";
 import { Trends, IndustryHours } from "../components/Trends";
 import { Migrants, Aging } from "../components/People";
 import { Chapter, SourceLink, Download } from "../components/Shared";
@@ -39,6 +41,12 @@ const socials = [
   },
 ];
 const sources = [
+  {
+    href: salaryDistribution.sourcePage,
+    name: "全年總薪資十分位級距",
+    agency: salaryDistribution.agency,
+    range: "2024 年；2025 年 11 月發布",
+  },
   {
     href: sourcePage("wages.ods"),
     name: "經常性薪資平均數與中位數",
@@ -97,6 +105,7 @@ const sources = [
 const chapters = [
   { id: "overview", label: "勞動現況" },
   { id: "trends", label: "薪資與工時" },
+  { id: "salary", label: "我的薪資級距" },
   { id: "migrants", label: "移工在台灣" },
   { id: "aging", label: "高齡化" },
   { id: "history", label: "勞動大事紀" },
@@ -260,12 +269,13 @@ function Home() {
         <div className="page-shell pb-20">
           <IndustryHours />
         </div>
+        <SalaryCalculator />
         <Migrants />
         <Aging />
         <Stories />
         <section id="sources" className="section page-shell sources-section">
           <Chapter
-            number="05"
+            number="06"
             english="OPEN DATA, CLEAR CONTEXT"
             title="資料來源與統計方法"
             description="列出各項統計的來源、期間與計算方式，也提供完整資料下載。"
@@ -274,7 +284,7 @@ function Home() {
             <div>
               {sources.map((s, i) => (
                 <div className="source-row" key={s.name}>
-                  <span>0{i + 1}</span>
+                  <span>{String(i + 1).padStart(2, "0")}</span>
                   <div>
                     <h3>{s.name}</h3>
                     <p>

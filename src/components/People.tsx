@@ -43,7 +43,7 @@ export function Migrants() {
     <section id="migrants" className="section migrant-section">
       <div className="page-shell">
         <Chapter
-          number="02"
+          number="03"
           english="PEOPLE BEHIND THE WORK"
           title="在台灣工作的移工"
           description="查看歷年移工人數，以及產業、社福移工的國籍分布。"
@@ -161,7 +161,7 @@ export function Aging() {
   return (
     <section id="aging" className="section page-shell">
       <Chapter
-        number="03"
+        number="04"
         english="A CHANGING WORKFORCE"
         title="台灣人口的年齡分布"
         description="65 歲以上人口占多少？以下依戶籍統計，呈現各年齡層人數與出生趨勢。"

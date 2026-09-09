@@ -95,6 +95,62 @@ NT$190.
 - The population distribution is the registered population. It cannot be read
   as a distribution of employment. Percentages come from the raw counts.
 
+## Salary calculator
+
+`#salary` plots annual gross salary on the x-axis and estimated employees on
+the y-axis, following [the reference chart](https://kjj6198.github.io/playground-chart/).
+The result shows the entered amount, its NT$100,000 salary band and estimated
+employees in that band, with a vertical salary marker and a median reference.
+
+The seven Excel attachments to [the official 2024 release](https://www.stat.gov.tw/News_Content.aspx?n=2716&s=235514)
+were read directly. They provide quantiles, means and breakdowns by employee
+characteristics, not employee counts for fixed salary bands. Table 1 supplies
+the NT$732,000 mean and NT$546,000 median from V16 and K16. Table 2 supplies
+the D1–D9 thresholds from D16/F16/H16/J16/L16/N16/P16/R16/T16. The archived
+`salary-quartiles-2024.xlsx` and `salary-deciles-2024.xlsx` in `data/raw/`
+keep those originals. Units are ten-thousand NT dollars, converted to dollars.
+The attachment host's incomplete TLS chain required bypassing verification
+for those downloads; SHA-256 identifies the fetched snapshot.
+
+The fixed-band percentages come from the official [Earnings Exploration platform](https://earnings.dgbas.gov.tw/experience_sub_01.aspx),
+`groupRange().TS[0]`, matched to `groupRangeIndex().TS` for year 113. Its source
+values are retained in `data/raw/salary-frequency-2024.json`. Index 2 is under
+NT$100,000; indices 3–40 are successive NT$50,000 bands through NT$2,000,000.
+We merge pairs into NT$100,000 bands. All earnings of NT$2,000,000 or more are
+one final open band, calculated as 100% minus the lower bands. The platform's
+zero padding above its populated bands must not be interpreted as zero people.
+
+Estimated counts = band percentage × 8,457,000 / 100, rounded to a person.
+The total is the [2024 annual average number of employees](https://www.stat.gov.tw/News_Content.aspx?n=2724&s=234606),
+archived as `data/raw/salary-population-2024.html`. This scales a weighted salary
+distribution to an annual average employee count; it does not reconstruct
+actual individual headcounts from tax records. The chart, share image, table
+and download identify the values as estimates. It does not claim that those
+counts appeared in the Excel files. Rounding may leave small total differences.
+
+`data/salary-distribution.json` records sources, hashes, coordinates and methods.
+`public/data/salary-distribution.json` is its identical public download.
+Run `python scripts/build_salary_data.py` to rebuild it offline from the archived
+Excel workbooks and frequency records, then run `npm test`.
+Coverage includes domestic and foreign full-time and part-time employees in
+industry and services. Annual input includes salary, bonuses and overtime. Official statistics weight by insured days, which matters
+when comparing someone who worked only part of the year. The result estimates
+the top percentage by linear interpolation through the official Excel D1–D9
+anchors. Below D1, interpolate from zero income / percentile zero. Above D9,
+use 10 × S(income) / S(1,336,000), where S is the platform survival percentage
+with uniform interpolation inside frequency bands. This keeps the D9 result
+continuous at top 10%; the upper tail is an estimate, not an official quantile.
+Round only the final result to a whole percent. This is not an exact ranking. Exactly TWD 2 million still receives an estimate. Annual income above TWD 2 million displays “超標” and
+“你真是太厲害啦！” instead of a percentage, using the entered annual total.
+Salary bands include their lower bound and exclude their upper bound.
+
+The PNG exporter loads `html-to-image` only on download and freezes the result
+at that click. SVG colors and fonts are set as presentation attributes for
+reliable export. It captures the complete chart at 1100 CSS pixels even on
+mobile. On screen, small viewports can scroll the chart horizontally, retaining
+salary on x and people on y. The share image includes the entered salary. Filenames contain only
+the dataset year; inputs stay in React state without storage or URL parameters.
+
 ## Stories
 
 `data/stories.json` holds **31 records**: 19 from the original work and 12 new

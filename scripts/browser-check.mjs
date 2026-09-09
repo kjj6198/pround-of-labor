@@ -18,6 +18,90 @@ try {
   const page = await context.newPage();
   page.on("pageerror", (e) => errors.push(e.message));
   await page.goto(base, { waitUntil: "networkidle" });
+  const salary = page.locator("#salary");
+  const amount = page.locator("#salary-amount");
+  const downloadSalary = salary.getByRole("button", { name: "下載分享圖片" });
+  await expect(downloadSalary).toBeDisabled();
+  const salaryBar = salary.locator(".salary-bar").nth(3);
+  await salaryBar.hover();
+  await expect(salary.getByRole("tooltip")).toContainText("推估約 168.6 萬人");
+  await amount.hover();
+  await expect(salary.getByRole("tooltip")).toHaveCount(0);
+  await salaryBar.focus();
+  await expect(salary.getByRole("tooltip")).toContainText("30–40 萬元");
+  await page.keyboard.press("Escape");
+  await expect(salary.getByRole("tooltip")).toHaveCount(0);
+  await salaryBar.click();
+  await expect(salary.getByRole("tooltip")).toBeVisible();
+  await expect(salary.locator(".salary-controls input")).toHaveCount(1);
+  await expect(
+    salary.locator(".salary-mode, .salary-share-actions input, .data-table"),
+  ).toHaveCount(0);
+  await expect(salary.locator(".salary-result")).toBeEmpty();
+  await expect(salary.locator(".salary-card-heading")).toHaveText("2024 台灣薪資分布");
+  await amount.fill("630000");
+  await expect(salary.locator(".salary-percentile")).toHaveText("大約在 前 40%");
+  for (const [value, range] of [
+    ["599999", "50–60 萬元"],
+    ["600000", "60–70 萬元"],
+    ["1336000", "130–140 萬元"],
+    ["0", "0–10 萬元"],
+  ]) {
+    await amount.fill(value);
+    await expect(salary.locator(".salary-bar.is-current")).toHaveAttribute(
+      "aria-label",
+      new RegExp(range),
+    );
+    await expect(salary.locator(".salary-result")).not.toContainText("級距");
+    await expect(salary.locator(".salary-marker")).toHaveCount(1);
+  }
+  await amount.fill("1999999");
+  await expect(salary.locator(".salary-percentile")).toHaveText("大約在 前 3%");
+  await amount.fill("2000000");
+  await expect(salary.locator(".salary-percentile")).toHaveText("大約在 前 3%");
+  await expect(salary.locator(".salary-result h3")).toHaveText("200 萬元／年");
+  for (const value of ["2000001", "99999999"]) {
+    await amount.fill(value);
+    await expect(salary.locator(".salary-result h3")).toHaveText("超標");
+    await expect(salary.locator(".salary-percentile")).toHaveText("你真是太厲害啦！");
+    await expect(salary.locator(".salary-result")).not.toContainText("前");
+    await expect(downloadSalary).toBeEnabled();
+  }
+  const overLimitDownload = page.waitForEvent("download");
+  await downloadSalary.click();
+  await (await overLimitDownload).saveAs("test-results/salary-share-over-limit.png");
+  for (const invalid of ["-1", "abc", "1e6", "", "45,00"]) {
+    await amount.fill(invalid);
+    await expect(downloadSalary).toBeDisabled();
+    await expect(salary.locator(".is-current")).toHaveCount(0);
+  }
+  await amount.fill("６００，０００");
+  await expect(salary.locator(".salary-result")).toContainText("60 萬元／年");
+  await expect(salary.locator(".salary-percentile")).toHaveText("大約在 前 43%");
+  await expect(salary.locator(".salary-marker")).toContainText("60 萬元");
+  const imageDownload = page.waitForEvent("download");
+  await downloadSalary.click();
+  const exported = await imageDownload;
+  assert.equal(exported.suggestedFilename(), "taiwan-salary-2024.png");
+  await exported.saveAs("test-results/salary-share.png");
+  await expect(salary.locator(".salary-export-status")).toContainText("已下載");
+  for (const width of [320, 375, 768, 1043, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    await salary.scrollIntoViewIfNeeded();
+    assert.ok(
+      await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+      `Salary overflow at ${width}`,
+    );
+    const axe = await new AxeBuilder({ page }).include("#salary").analyze();
+    assert.deepEqual(axe.violations, [], `Salary accessibility at ${width}`);
+    await salary.screenshot({ path: `test-results/salary-${width}.png` });
+    if (width === 375) {
+      const mobileDownload = page.waitForEvent("download");
+      await downloadSalary.click();
+      await (await mobileDownload).saveAs("test-results/salary-share-mobile.png");
+    }
+  }
+  await page.goto(base, { waitUntil: "networkidle" });
   async function verifyStoryCards(columns) {
     const cards = page.locator(".story-card");
     for (const card of await cards.all()) {

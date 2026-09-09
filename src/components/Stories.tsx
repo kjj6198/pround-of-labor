@@ -231,7 +231,7 @@ export function Stories() {
     <section id="history" className="history-section">
       <div className="page-shell section">
         <Chapter
-          number="04"
+          number="05"
           english="LABOR HISTORY"
           title="罷工、職災與勞動法，台灣走過的路。"
           description="精選十件改變台灣勞動制度與工作現場的重要事件。點開卡片可閱讀全文及資料來源。"

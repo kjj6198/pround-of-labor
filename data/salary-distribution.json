@@ -1,0 +1,215 @@
+{
+  "year": 2024,
+  "publishedAt": "2025-11-25",
+  "checkedAt": "2026-09-09",
+  "agency": "行政院主計總處",
+  "title": "工業及服務業十等分位組分界點之全年總薪資－全體受僱員工",
+  "sourcePage": "https://www.stat.gov.tw/News_Content.aspx?n=2716&s=235514",
+  "sourceFile": "https://ws.dgbas.gov.tw/001/Upload/463/relfile/10980/235514/表2　工業及服務業十等分位組分界點之全年總薪資－全體受僱員工.xlsx",
+  "rawFile": "data/raw/salary-deciles-2024.xlsx",
+  "sha256": "f7c482f30fd50656a05c444b10810b8c8b222e76186994c14af4b78fe65d489c",
+  "downloadNote": "Attachment host has an incomplete TLS chain; downloaded with certificate verification disabled for this request. Hash identifies the snapshot, not source authenticity.",
+  "sourceRow": 16,
+  "sourceUnit": "萬元",
+  "unit": "TWD/year",
+  "population": "工業及服務業全體受僱員工，含本國籍、外國籍的全時及部分工時員工",
+  "deciles": [
+    {
+      "percentile": 10,
+      "annualTwd": 330000,
+      "sourceColumn": 4
+    },
+    {
+      "percentile": 20,
+      "annualTwd": 381000,
+      "sourceColumn": 6
+    },
+    {
+      "percentile": 30,
+      "annualTwd": 432000,
+      "sourceColumn": 8
+    },
+    {
+      "percentile": 40,
+      "annualTwd": 487000,
+      "sourceColumn": 10
+    },
+    {
+      "percentile": 50,
+      "annualTwd": 546000,
+      "sourceColumn": 12
+    },
+    {
+      "percentile": 60,
+      "annualTwd": 628000,
+      "sourceColumn": 14
+    },
+    {
+      "percentile": 70,
+      "annualTwd": 753000,
+      "sourceColumn": 16
+    },
+    {
+      "percentile": 80,
+      "annualTwd": 959000,
+      "sourceColumn": 18
+    },
+    {
+      "percentile": 90,
+      "annualTwd": 1336000,
+      "sourceColumn": 20
+    }
+  ],
+  "frequency": {
+    "sourcePage": "https://earnings.dgbas.gov.tw/experience_sub_01.aspx",
+    "rawFile": "data/raw/salary-frequency-2024.json",
+    "sha256": "b886eba85d938dca6f07041c0cb5ef27c049a517f6ffe99937500c79b9afca62",
+    "populationSourcePage": "https://www.stat.gov.tw/News_Content.aspx?n=2724&s=234606",
+    "populationRawFile": "data/raw/salary-population-2024.html",
+    "populationSha256": "0d2ef4fe739ee96bad8b50115078a25c7ec635d583a3e2989af2f57e4c89f038",
+    "population": 8457000,
+    "populationBasis": "2024年工業及服務業全年受僱員工平均人數",
+    "countMethod": "薪情平臺各年薪區間占比乘以同年平均受僱員工人數，為換算推估人數，非逐區間公布的實際人頭數。",
+    "bins": [
+      {
+        "lower": 0,
+        "upper": 100000,
+        "percent": 0.00502267,
+        "estimatedCount": 425
+      },
+      {
+        "lower": 100000,
+        "upper": 200000,
+        "percent": 1.94689808,
+        "estimatedCount": 164649
+      },
+      {
+        "lower": 200000,
+        "upper": 300000,
+        "percent": 2.16516162,
+        "estimatedCount": 183108
+      },
+      {
+        "lower": 300000,
+        "upper": 400000,
+        "percent": 19.94107426,
+        "estimatedCount": 1686417
+      },
+      {
+        "lower": 400000,
+        "upper": 500000,
+        "percent": 18.50280069,
+        "estimatedCount": 1564782
+      },
+      {
+        "lower": 500000,
+        "upper": 600000,
+        "percent": 14.39101771,
+        "estimatedCount": 1217048
+      },
+      {
+        "lower": 600000,
+        "upper": 700000,
+        "percent": 9.55049488,
+        "estimatedCount": 807685
+      },
+      {
+        "lower": 700000,
+        "upper": 800000,
+        "percent": 6.27033364,
+        "estimatedCount": 530282
+      },
+      {
+        "lower": 800000,
+        "upper": 900000,
+        "percent": 4.83295652,
+        "estimatedCount": 408723
+      },
+      {
+        "lower": 900000,
+        "upper": 1000000,
+        "percent": 3.85526987,
+        "estimatedCount": 326040
+      },
+      {
+        "lower": 1000000,
+        "upper": 1100000,
+        "percent": 3.01370957,
+        "estimatedCount": 254869
+      },
+      {
+        "lower": 1100000,
+        "upper": 1200000,
+        "percent": 2.58364704,
+        "estimatedCount": 218499
+      },
+      {
+        "lower": 1200000,
+        "upper": 1300000,
+        "percent": 2.18382147,
+        "estimatedCount": 184686
+      },
+      {
+        "lower": 1300000,
+        "upper": 1400000,
+        "percent": 2.0124755,
+        "estimatedCount": 170195
+      },
+      {
+        "lower": 1400000,
+        "upper": 1500000,
+        "percent": 1.60199843,
+        "estimatedCount": 135481
+      },
+      {
+        "lower": 1500000,
+        "upper": 1600000,
+        "percent": 1.46271908,
+        "estimatedCount": 123702
+      },
+      {
+        "lower": 1600000,
+        "upper": 1700000,
+        "percent": 1.1712972,
+        "estimatedCount": 99057
+      },
+      {
+        "lower": 1700000,
+        "upper": 1800000,
+        "percent": 0.848027,
+        "estimatedCount": 71718
+      },
+      {
+        "lower": 1800000,
+        "upper": 1900000,
+        "percent": 0.51858999,
+        "estimatedCount": 43857
+      },
+      {
+        "lower": 1900000,
+        "upper": 2000000,
+        "percent": 0.3264432,
+        "estimatedCount": 27607
+      },
+      {
+        "lower": 2000000,
+        "upper": null,
+        "percent": 2.81624158,
+        "estimatedCount": 238170
+      }
+    ]
+  },
+  "summary": {
+    "meanAnnualTwd": 732000,
+    "medianAnnualTwd": 546000,
+    "belowMeanPercent": 68.75,
+    "rawFile": "data/raw/salary-quartiles-2024.xlsx",
+    "sourceFile": "https://ws.dgbas.gov.tw/001/Upload/463/relfile/10980/235514/表1　工業及服務業四等分位組分界點之全年總薪資－全體受僱員工.xlsx",
+    "sha256": "f59c2354bb57f880d240613fafc8c6ad5a7cc94de7deece2edf3c2d4d980b7cd",
+    "sourceCells": {
+      "mean": "V16",
+      "median": "K16",
+      "belowMeanPercent": "U16"
+    }
+  }
+}
