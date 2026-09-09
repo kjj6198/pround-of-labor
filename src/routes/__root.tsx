@@ -20,7 +20,7 @@ export const Route = createRootRoute({
       { property: "og:title", content: seo.title },
       { property: "og:description", content: seo.description },
       { property: "og:image", content: seo.image },
-      { property: "og:image:type", content: "image/png" },
+      { property: "og:image:type", content: "image/jpeg" },
       { property: "og:image:width", content: "1200" },
       { property: "og:image:height", content: "630" },
       { property: "og:image:alt", content: seo.imageAlt },

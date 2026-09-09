@@ -11,8 +11,8 @@ export const seo = {
   title: "勞工大代誌｜台灣勞動統計與勞動事件紀錄",
   description:
     "整理 2012 至 2025 年台灣的薪資、工時、失業率、移工與人口統計，收錄罷工、職災與勞動法制事件的經過及資料來源。",
-  image: `${url}og-cover.png`,
-  imageAlt: "勞工大代誌：在台灣工作，是什麼樣子？",
+  image: `${url}og.jpg`,
+  imageAlt: "勞工大代誌：在台灣工作，是什麼樣子？握拳插畫與年薪 120 萬元的薪資分布試算圖。",
   author: "Kalan",
   twitter: "@kalanyei",
   locale: "zh_TW",
