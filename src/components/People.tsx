@@ -16,23 +16,28 @@ const countries = [
   { key: "Vietnam", name: "越南", en: "VIETNAM", flag: "\u{1F1FB}\u{1F1F3}" },
   { key: "Philippines", name: "菲律賓", en: "PHILIPPINES", flag: "\u{1F1F5}\u{1F1ED}" },
   { key: "Thailand", name: "泰國", en: "THAILAND", flag: "\u{1F1F9}\u{1F1ED}" },
-  { key: "Other", name: "其他", en: "OTHERS", flag: "\u{1F30F}" },
 ];
 export function Migrants() {
   const [period, setPeriod] = useState(latestMigrant.period);
   const [sector, setSector] = useState("all");
   const record = required(data.migrants.find((r) => r.period === period));
-  const values = [
+  const inSector = (permits: { industry: number; welfare: number }) => {
+    if (sector === "industry") return permits.industry;
+    if (sector === "welfare") return permits.welfare;
+    return permits.industry + permits.welfare;
+  };
+  const totals = [
     { industry: record.industryIndonesia.value, welfare: record.welfareIndonesia.value },
     { industry: record.industryVietnam.value, welfare: record.welfareVietnam.value },
     { industry: record.industryPhilippines.value, welfare: record.welfarePhilippines.value },
     { industry: record.industryThailand.value, welfare: record.welfareThailand.value },
-    { industry: record.industryOther.value, welfare: record.welfareOther.value },
-  ];
-  const totals = values.map((v) =>
-    sector === "industry" ? v.industry : sector === "welfare" ? v.welfare : v.industry + v.welfare,
-  );
-  const total = totals.reduce((sum, v) => sum + v, 0);
+  ].map(inSector);
+  // The other nationalities stay in the total, so it still matches the official subtotal.
+  const other = inSector({
+    industry: record.industryOther.value,
+    welfare: record.welfareOther.value,
+  });
+  const total = totals.reduce((sum, v) => sum + v, 0) + other;
   const annual = data.migrants.filter((r) => r.frequency === "annual" && Number(r.period) >= 2012);
   return (
     <section id="migrants" className="section migrant-section">
@@ -140,7 +145,9 @@ export function Migrants() {
                 <p>{(((totals[i] ?? 0) / total) * 100).toFixed(2)}%</p>
               </div>
             ))}
-            <p className="caption mt-6">占比以所選類別的有效聘僱許可人數計算，保留「其他」國籍。</p>
+            <p className="caption mt-6">
+              占比以所選類別的有效聘僱許可人數計算，僅列出四大來源國，其餘國籍計入總數。
+            </p>
           </div>
         </div>
       </div>
