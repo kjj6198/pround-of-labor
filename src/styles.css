@@ -952,10 +952,6 @@ th:first-child {
   margin-block: 20px 16px;
 }
 
-.aging-story .body-copy {
-  font-size: 13px;
-}
-
 .aging-compare {
   border-top: 1px solid var(--rule);
   margin-top: 26px;

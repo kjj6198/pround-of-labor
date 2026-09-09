@@ -221,9 +221,6 @@ export function Aging() {
             <br />
             就有一位已滿 65 歲。
           </h3>
-          <p className="body-copy">
-            年長者繼續工作，需要合適的工時與工作安排。照顧家人的工作者，也需要請假與托顧支援。
-          </p>
           <div className="aging-compare">
             <p className="eyebrow">與日本比較</p>
             <div className="compare-rows">
